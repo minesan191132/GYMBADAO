@@ -9,7 +9,7 @@ package entity;
  * @author Admin
  */
 public class NhanVien {
-     private String maNV;
+    private String maNV;
     private String matKhau;
     private String hoTen;
     private boolean vaiTro = false;
