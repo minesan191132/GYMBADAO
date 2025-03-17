@@ -29,7 +29,7 @@ public class ManHinhChao extends JFrame {
     private JProgressBar progressBar;
 
     public ManHinhChao() {
-        setTitle("The Fitness Club");
+        setTitle("Gym");
         setSize(1116, 627);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
