@@ -44,19 +44,19 @@ public class DangNhap extends JFrame {
         background.add(formPanel);
 
         // Username
-        JPanel userPanel = new JPanel(new BorderLayout());
+        JPanel userPanel = new JPanel(new BorderLayout(10, 0));
         userPanel.setBounds(0, 0, formWidth, 50);
-        userPanel.setBackground(new Color(35, 34, 59));
+        userPanel.setBackground(new Color(70, 70, 110));
         userPanel.setBorder(BorderFactory.createLineBorder(new Color(102, 0, 102), 2));
         userPanel.setBorder(new EmptyBorder(5, 10, 5, 10));
         formPanel.add(userPanel);
 
-        JLabel userIcon = new JLabel(new ImageIcon("D:/Gym/GYMBADAO/src/icon/user.png"));
+        JLabel userIcon = new JLabel(new ImageIcon("/GYMBADAO/src/icon/user.png"));
         userPanel.add(userIcon, BorderLayout.WEST);
 
         txtUsername = new JTextField();
         txtUsername.setForeground(Color.WHITE);
-        txtUsername.setBackground(new Color(35, 34, 59));
+        txtUsername.setBackground(new Color(70, 70, 110));
         txtUsername.setBorder(null);
         txtUsername.setCaretColor(Color.WHITE);
         txtUsername.setFont(new Font("Arial", Font.PLAIN, 16));
@@ -65,19 +65,19 @@ public class DangNhap extends JFrame {
         userPanel.add(txtUsername, BorderLayout.CENTER);
 
         // Password
-        JPanel passPanel = new JPanel(new BorderLayout());
+        JPanel passPanel = new JPanel(new BorderLayout(10, 0));
         passPanel.setBounds(0, 70, formWidth, 50);
-        passPanel.setBackground(new Color(35, 34, 59));
+        passPanel.setBackground(new Color(70, 70, 110));
         passPanel.setBorder(BorderFactory.createLineBorder(new Color(102, 0, 102), 2));
         passPanel.setBorder(new EmptyBorder(5, 10, 5, 10));
         formPanel.add(passPanel);
 
-        JLabel passIcon = new JLabel(new ImageIcon("D:/Gym/GYMBADAO/src/icon/lock.png"));
+        JLabel passIcon = new JLabel(new ImageIcon("/GYMBADAO/src/icon/password.png"));
         passPanel.add(passIcon, BorderLayout.WEST);
 
         txtPassword = new JPasswordField();
         txtPassword.setForeground(Color.WHITE);
-        txtPassword.setBackground(new Color(35, 34, 59));
+        txtPassword.setBackground(new Color(70, 70, 110));
         txtPassword.setBorder(null);
         txtPassword.setCaretColor(Color.WHITE);
         txtPassword.setFont(new Font("Arial", Font.PLAIN, 16));
@@ -85,7 +85,7 @@ public class DangNhap extends JFrame {
         txtPassword.setOpaque(false);
         passPanel.add(txtPassword, BorderLayout.CENTER);
 
-        eyeIcon = new JLabel(new ImageIcon("D:/Gym/GYMBADAO/src/icon/eye.png"));
+        eyeIcon = new JLabel(new ImageIcon("/GYMBADAO/src/icon/hidden.png"));
         eyeIcon.setCursor(new Cursor(Cursor.HAND_CURSOR));
         passPanel.add(eyeIcon, BorderLayout.EAST);
 
