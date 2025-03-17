@@ -24,7 +24,7 @@ public class DangNhap extends JFrame {
     private JButton btnLogin, btnExit;
     private JLabel eyeIcon;
     private boolean isPasswordVisible = false;
-    NhanVienDAO nv = new NhanVienDAO();
+    NhanVienDAO dao = new NhanVienDAO();
 
     public DangNhap() {
         setTitle("Gym Login");
@@ -113,25 +113,27 @@ public class DangNhap extends JFrame {
         formPanel.add(btnExit);
 
         btnExit.addActionListener(e -> System.exit(0));
-        
+
         btnLogin.addActionListener(e -> {
             String manv = txtUsername.getText();
-            String password = new String(txtPassword.getPassword());
-            NhanVien nhanVien = nv.selectById(manv);
+            String matKhau = new String(txtPassword.getPassword());
+            NhanVien nhanVien = dao.selectById(manv);
+
             if (nhanVien == null) {
-            MsgBox.alert(this, "Sai tên đăng nhập!");
-        } else if (!password.equals(nhanVien.getMatKhau())) {
-            MsgBox.alert(this, "Sai mật khẩu!");
-        } else {
-            Auth.user = nhanVien;
-            this.dispose();
-        }
+                MsgBox.alert(this, "Sai tên đăng nhập!");
+            } else if (!matKhau.equals(nhanVien.getMatKhau())) {
+                MsgBox.alert(this, "Sai mật khẩu!");
+            } else {
+                Auth.user = nhanVien;
+                MsgBox.alert(this, "Đăng nhập thành công!");
+                new TrangChu().setVisible(true);
+                this.dispose();
+            }
+
         });
 
         setVisible(true);
     }
-    
-    
 
     private void styleButton(JButton btn) {
         Color baseColor = new Color(255, 71, 87);
@@ -157,8 +159,6 @@ public class DangNhap extends JFrame {
             }
         });
     }
-    
-    
 
     public static void main(String[] args) {
         new DangNhap();

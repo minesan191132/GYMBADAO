@@ -4,112 +4,154 @@
  */
 package ui;
 
+import dao.GymDAO;
+import dao.TrangChuDao;
+import entity.ThanhVien;
 import javax.swing.*;
 import java.awt.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
+import utils.Auth;
+import java.util.List;
 
 /**
  *
  * @author trong
  */
-public class TrangChu extends JFrame{
+public class TrangChu extends JFrame {
 
-    /**
-     * @param args the command line arguments
-     */
-    
-    
-    
-        public TrangChu() {
-        // Cấu hình JFrame
-        setTitle("Dashboard");
-        setSize(1000, 600);
+    private JLabel lblWelcome, lblDoanhThu, lblDonHang, lblThanhVien;
+    private JTable tblThanhVien;
+    private DefaultTableModel model;
+    TrangChuDao dao = new TrangChuDao();
+
+    public TrangChu() {
+        setTitle("Gym Management Dashboard");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(1000, 650);
         setLocationRelativeTo(null);
-        setLayout(new BorderLayout());
+        setLayout(null);
 
-        // Panel Menu (bên trái)
-        JPanel menuPanel = new JPanel();
-        menuPanel.setLayout(new GridLayout(7, 1, 10, 10));
-        menuPanel.setPreferredSize(new Dimension(200, getHeight()));
-        menuPanel.setBackground(new Color(30, 30, 50)); // Màu nền menu
+        // Sidebar
+        JPanel sidebar = new JPanel();
+        sidebar.setLayout(null);
+        sidebar.setBackground(new Color(33, 33, 61));
+        sidebar.setBounds(0, 0, 200, 650);
+        add(sidebar);
 
-        String[] menuItems = {"🏠 Tổng quan", "👥 Khách hàng", "📝 Đăng ký", "📦 Đơn hàng", "📊 Báo Cáo", "⚙️ Cài Đặt"};
-        for (String item : menuItems) {
-            JButton button = new JButton(item);
-            button.setForeground(Color.WHITE);
-            button.setBackground(new Color(50, 50, 70));
-            button.setBorderPainted(false);
-            button.setFocusPainted(false);
-            menuPanel.add(button);
+        JLabel lblLogo = new JLabel("Logo", SwingConstants.CENTER);
+        lblLogo.setForeground(Color.WHITE);
+        lblLogo.setBounds(0, 20, 200, 30);
+        sidebar.add(lblLogo);
+
+        String[] menu = {"Tổng quan", "Khách hàng", "Đơn hàng", "Báo Cáo", "Cài Đặt"};
+        int y = 80;
+        for (String item : menu) {
+            JButton btn = new JButton(item);
+            btn.setBounds(10, y, 180, 40);
+            btn.setBackground(item.equals("Tổng quan") ? new Color(255, 200, 0) : new Color(44, 44, 80));
+            btn.setForeground(item.equals("Tổng quan") ? Color.BLACK : Color.WHITE);
+            sidebar.add(btn);
+            y += 50;
         }
 
-        // Nút Logout
-        JButton logoutButton = new JButton("🔓 Log out");
-        logoutButton.setForeground(Color.WHITE);
-        logoutButton.setBackground(Color.ORANGE);
-        logoutButton.setBorderPainted(false);
-        logoutButton.setFocusPainted(false);
-        menuPanel.add(logoutButton);
+        JButton btnLogout = new JButton("Log out");
+        btnLogout.setBounds(20, 550, 160, 40);
+        btnLogout.setBackground(new Color(255, 153, 51));
+        sidebar.add(btnLogout);
 
-        // Panel chính (bên phải)
-        JPanel mainPanel = new JPanel();
-        mainPanel.setLayout(new BorderLayout());
-        mainPanel.setBackground(Color.LIGHT_GRAY);
+        // Header
+        lblWelcome = new JLabel("Welcome back " + Auth.user.getHoTen() + " 👋");
+        lblWelcome.setFont(new Font("Arial", Font.BOLD, 22));
+        lblWelcome.setBounds(220, 20, 400, 30);
+        add(lblWelcome);
 
-        // Tiêu đề chào mừng
-        JLabel welcomeLabel = new JLabel("Welcome back Tuấn Anh 👋", SwingConstants.CENTER);
-        welcomeLabel.setFont(new Font("Arial", Font.BOLD, 20));
-        mainPanel.add(welcomeLabel, BorderLayout.NORTH);
+        // Cards Panel
+        JPanel panelCards = new JPanel();
+        panelCards.setLayout(new GridLayout(1, 3, 10, 0));
+        panelCards.setBounds(220, 60, 500, 80);
+        add(panelCards);
 
-        // Panel Thống kê
-        JPanel statsPanel = new JPanel(new GridLayout(1, 3, 10, 10));
-        statsPanel.setPreferredSize(new Dimension(800, 100));
-        
-        statsPanel.add(createStatPanel("💰 Doanh thu", "9.000K", Color.PINK));
-        statsPanel.add(createStatPanel("📦 Đơn hàng", "65", Color.GREEN));
-        statsPanel.add(createStatPanel("🧑‍🤝‍🧑 Thành viên", "235", Color.MAGENTA));
+        lblDoanhThu = createCard("Doanh thu", "0K", new Color(255, 224, 224));
+        lblDonHang = createCard("Đơn hàng", "0", new Color(224, 255, 224));
+        lblThanhVien = createCard("Thành viên", "0", new Color(235, 224, 255));
 
-        mainPanel.add(statsPanel, BorderLayout.CENTER);
+        panelCards.add(lblDoanhThu);
+        panelCards.add(lblDonHang);
+        panelCards.add(lblThanhVien);
 
-        // Panel bảng danh sách thành viên
-        String[] columnNames = {"NO", "DATE", "ID", "NAME", "AGE", "GENDER"};
-        Object[][] data = {
-            {"01", "12/3/2025", "TS01135", "Nguyễn Văn A", "19", "Nam"},
-            {"02", "13/3/2025", "TS01255", "Nguyễn Văn B", "22", "Nam"},
-            {"03", "15/3/2025", "TS01236", "Nguyễn Văn C", "25", "Nam"}
-        };
+        // Table title
+        JLabel lblTitle = new JLabel("Thành viên mới");
+        lblTitle.setFont(new Font("Arial", Font.BOLD, 18));
+        lblTitle.setBounds(220, 150, 200, 30);
+        add(lblTitle);
 
-        JTable table = new JTable(data, columnNames);
-        JScrollPane scrollPane = new JScrollPane(table);
-        mainPanel.add(scrollPane, BorderLayout.SOUTH);
+        // Table
+        model = new DefaultTableModel(new String[]{"No", "Date", "ID", "Name", "Age", "Gender"}, 0);
+        tblThanhVien = new JTable(model);
+        JScrollPane scroll = new JScrollPane(tblThanhVien);
+        scroll.setBounds(220, 190, 750, 400);
+        add(scroll);
 
-        // Thêm các panel vào JFrame
-        add(menuPanel, BorderLayout.WEST);
-        add(mainPanel, BorderLayout.CENTER);
-
-        setVisible(true);
+        loadDashboardData();
     }
 
-    // Phương thức tạo ô thống kê
-    private JPanel createStatPanel(String title, String value, Color color) {
-        JPanel panel = new JPanel();
-        panel.setLayout(new BorderLayout());
-        panel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
-        panel.setPreferredSize(new Dimension(100, 100));
-        panel.setBackground(color);
+    private JLabel createCard(String title, String value, Color bg) {
+        JPanel card = new JPanel();
+        card.setLayout(new BorderLayout());
+        card.setBackground(bg);
 
-        JLabel titleLabel = new JLabel(title, SwingConstants.CENTER);
-        JLabel valueLabel = new JLabel(value, SwingConstants.CENTER);
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 14));
-        valueLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        JLabel lblTitle = new JLabel(title);
+        lblTitle.setFont(new Font("Arial", Font.BOLD, 14));
+        lblTitle.setHorizontalAlignment(SwingConstants.CENTER);
 
-        panel.add(titleLabel, BorderLayout.NORTH);
-        panel.add(valueLabel, BorderLayout.CENTER);
+        JLabel lblValue = new JLabel(value);
+        lblValue.setFont(new Font("Arial", Font.BOLD, 20));
+        lblValue.setHorizontalAlignment(SwingConstants.CENTER);
 
-        return panel;
+        card.add(lblTitle, BorderLayout.NORTH);
+        card.add(lblValue, BorderLayout.CENTER);
+
+        JLabel wrapper = new JLabel();
+        wrapper.setLayout(new BorderLayout());
+        wrapper.add(card, BorderLayout.CENTER);
+
+        return lblValue;
+    }
+
+    private void loadDashboardData() {
+        try {
+            // Doanh thu, đơn hàng, thành viên từ GymDAO
+            double doanhThu = dao.getTongDoanhThu();
+            int donHang = dao.getSoDonHang();
+            int thanhVien = dao.getSoThanhVien();
+
+            lblDoanhThu.setText(String.format("%.0fK", doanhThu / 1000));
+            lblDonHang.setText(String.valueOf(donHang));
+            lblThanhVien.setText(String.valueOf(thanhVien));
+
+            // Load bảng thành viên mới
+            List<ThanhVien> list = dao.getThanhVienMoi();
+            model.setRowCount(0);
+            int i = 1;
+            for (ThanhVien tv : list) {
+                model.addRow(new Object[]{
+                    String.format("%02d", i++),
+                    tv.getNgayDK(),
+                    tv.getMaTV(),
+                    tv.getHoTen(),
+                    tv.getTuoi(),
+                    tv.getGioiTinh()
+                });
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Lỗi tải dữ liệu: " + e.getMessage());
+        }
     }
 
     public static void main(String[] args) {
-        new TrangChu();
+        SwingUtilities.invokeLater(() -> {
+            new TrangChu().setVisible(true);
+        });
     }
 }
