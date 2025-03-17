@@ -36,7 +36,7 @@ public class ManHinhChao extends JFrame {
         setLayout(new BorderLayout());
         setResizable(false);
 
-        ImageIcon icon = new ImageIcon("D:/Gym/GYMBADAO/src/icon/Banner.jpg");
+        ImageIcon icon = new ImageIcon("/GYMBADAO/src/icon/Banner.jpg");
         Image scaledImage = icon.getImage().getScaledInstance(1116, 627, Image.SCALE_SMOOTH);
         ImageIcon resizedIcon = new ImageIcon(scaledImage);
 
