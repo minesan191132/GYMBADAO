@@ -7,11 +7,13 @@ package ui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Font;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -22,8 +24,9 @@ import javax.swing.Timer;
  *
  * @author Admin
  */
-public class ManHinhChao extends JFrame{
-private JProgressBar progressBar;
+public class ManHinhChao extends JFrame {
+
+    private JProgressBar progressBar;
 
     public ManHinhChao() {
         setTitle("The Fitness Club");
@@ -33,7 +36,6 @@ private JProgressBar progressBar;
         setLayout(new BorderLayout());
         setResizable(false);
 
-        // Load ảnh và resize thành 1611 x 812
         ImageIcon icon = new ImageIcon("D:/Gym/GYMBADAO/src/icon/Banner.jpg");
         Image scaledImage = icon.getImage().getScaledInstance(1116, 627, Image.SCALE_SMOOTH);
         ImageIcon resizedIcon = new ImageIcon(scaledImage);
@@ -46,7 +48,11 @@ private JProgressBar progressBar;
         progressBar = new JProgressBar();
         progressBar.setValue(0);
         progressBar.setStringPainted(true);
-        progressBar.setForeground(new Color(0xFFCC66)); // vàng cam nhạt
+        progressBar.setForeground(new Color(0xFF6600)); // vàng cam nhạt
+        progressBar.setVisible(false);
+        progressBar.setFont(new Font("Arial", Font.BOLD, 14));
+        progressBar.setBackground(Color.WHITE); // nền trắng cho bar
+        progressBar.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1)); // viền xám mờ
         progressBar.setVisible(false);
 
         // Bấm vào ảnh thì hiện progress bar
