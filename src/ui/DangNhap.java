@@ -64,7 +64,7 @@ public class DangNhap extends JFrame{
         add(loginButton);
         
         // Hình ảnh tạ
-        ImageIcon dumbbellIcon = new ImageIcon("C:\\GYMBADAO\\src\\icon\\bell.png"); // Đường dẫn hình ảnh
+        ImageIcon dumbbellIcon = new ImageIcon("D:/Gym/GYMBADAO/src/icon/bell.png"); // Đường dẫn hình ảnh
         JLabel dumbbellLabel = new JLabel(dumbbellIcon);
         dumbbellLabel.setBounds(240, 30, 350, 220); // Điều chỉnh vị trí cho phù hợp
         add(dumbbellLabel);
