@@ -83,7 +83,7 @@ public class Xjdbc
             try {
                 ResultSet rs = Xjdbc.query(sql, args);
                 if(rs.next()){
-                    return rs.getObject(0);
+                    return rs.getObject(1);
                 }
                 rs.getStatement().getConnection().close();
                 return null;

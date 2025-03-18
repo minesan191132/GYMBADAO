@@ -18,9 +18,7 @@ public class TrangChuDao {
 
     public double getTongDoanhThu() {
         String sql = "SELECT SUM(ThanhTien) FROM DonHang";
-        System.out.println("Executing SQL: " + sql); // Debug
         Object result = Xjdbc.value(sql);
-        System.out.println("Query result: " + result); // Debug
         return result == null ? 0 : ((Number) result).doubleValue();
     }
 
@@ -42,7 +40,7 @@ public class TrangChuDao {
         List<ThanhVien> list = new ArrayList<>();
         // Code SQL để lấy dữ liệu từ DB
         // VD:
-        String sql = "SELECT * FROM ThanhVien WHERE MONTH(GETDATE()) = MONTH(NgayDK)";
+        String sql = "SELECT * FROM ThanhVien WHERE MONTH(GETDATE()) = MONTH(NgayDangKy)";
         try {
             ResultSet rs = Xjdbc.query(sql);
             while (rs.next()) {
@@ -50,7 +48,7 @@ public class TrangChuDao {
                 tv.setMaTV(rs.getString("MaTV"));
                 tv.setHoTen(rs.getString("HoTen"));
                 tv.setGioiTinh(rs.getString("GioiTinh"));
-                tv.setNgayDK(rs.getDate("NgayDK"));
+                tv.setNgayDK(rs.getDate("NgayDangKy"));
                 tv.setTuoi(rs.getInt("Tuoi"));
                 list.add(tv);
             }
