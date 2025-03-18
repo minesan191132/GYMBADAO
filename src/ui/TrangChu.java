@@ -120,34 +120,45 @@ public class TrangChu extends JFrame {
     }
 
     private void loadDashboardData() {
-        try {
-            // Doanh thu, đơn hàng, thành viên từ GymDAO
-            double doanhThu = dao.getTongDoanhThu();
-            int donHang = dao.getSoDonHang();
-            int thanhVien = dao.getSoThanhVien();
+    try {
+        // Lấy dữ liệu từ database
+        double doanhThu = dao.getTongDoanhThu();
+        int donHang = dao.getSoDonHang();
+        int thanhVien = dao.getSoThanhVien();
 
-            lblDoanhThu.setText(String.format("%.0fK", doanhThu / 1000));
-            lblDonHang.setText(String.valueOf(donHang));
-            lblThanhVien.setText(String.valueOf(thanhVien));
+        lblDoanhThu.setText(String.format("%.0fK", doanhThu / 1000));
+        lblDonHang.setText(String.valueOf(donHang));
+        lblThanhVien.setText(String.valueOf(thanhVien));
 
-            // Load bảng thành viên mới
-            List<ThanhVien> list = dao.getThanhVienMoi();
-            model.setRowCount(0);
-            int i = 1;
-            for (ThanhVien tv : list) {
+        // Load bảng thành viên mới
+        List<ThanhVien> list = dao.getThanhVienMoi();
+
+        if (list == null || list.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Không có thành viên mới.");
+            return; // Thoát sớm nếu danh sách trống
+        }
+
+        model.setRowCount(0);  // Xóa dữ liệu cũ
+
+        int i = 1;
+        for (ThanhVien tv : list) {
+            if (tv != null) {  // Kiểm tra tv có null không
                 model.addRow(new Object[]{
                     String.format("%02d", i++),
-                    tv.getNgayDK(),
-                    tv.getMaTV(),
-                    tv.getHoTen(),
+                    (tv.getNgayDK() != null) ? tv.getNgayDK().toString() : "N/A",
+                    (tv.getMaTV() != null) ? tv.getMaTV() : "N/A",
+                    (tv.getHoTen() != null) ? tv.getHoTen() : "N/A",
                     tv.getTuoi(),
-                    tv.getGioiTinh()
+                    (tv.getGioiTinh() != null) ? tv.getGioiTinh() : "N/A"
                 });
             }
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Lỗi tải dữ liệu: " + e.getMessage());
         }
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Lỗi tải dữ liệu: " + e.getMessage());
+        e.printStackTrace(); // In lỗi chi tiết ra console
     }
+}
+
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {

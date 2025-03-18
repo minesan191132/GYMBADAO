@@ -15,10 +15,13 @@ import java.sql.ResultSet;
  * @author Admin
  */
 public class TrangChuDao {
-     public double getTongDoanhThu() {
+
+    public double getTongDoanhThu() {
         String sql = "SELECT SUM(ThanhTien) FROM DonHang";
-        Object value = Xjdbc.value(sql);
-        return value == null ? 0 : Double.parseDouble(value.toString());
+        System.out.println("Executing SQL: " + sql); // Debug
+        Object result = Xjdbc.value(sql);
+        System.out.println("Query result: " + result); // Debug
+        return result == null ? 0 : ((Number) result).doubleValue();
     }
 
     // Đếm số đơn hàng
@@ -34,27 +37,27 @@ public class TrangChuDao {
         Object value = Xjdbc.value(sql);
         return value == null ? 0 : Integer.parseInt(value.toString());
     }
-    public List<ThanhVien> getThanhVienMoi() {
-    List<ThanhVien> list = new ArrayList<>();
-    // Code SQL để lấy dữ liệu từ DB
-    // VD:
-    String sql = "SELECT * FROM ThanhVien WHERE MONTH(GETDATE()) = MONTH(NgayDK)";
-    try {
-        ResultSet rs = Xjdbc.query(sql);
-        while (rs.next()) {
-            ThanhVien tv = new ThanhVien();
-            tv.setMaTV(rs.getString("MaTV"));
-            tv.setHoTen(rs.getString("HoTen"));
-            tv.setGioiTinh(rs.getString("GioiTinh"));
-            tv.setNgayDK(rs.getDate("NgayDK"));
-            tv.setTuoi(rs.getInt("Tuoi"));
-            list.add(tv);
-        }
-        rs.getStatement().getConnection().close();
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
-    return list;
-}
-}
 
+    public List<ThanhVien> getThanhVienMoi() {
+        List<ThanhVien> list = new ArrayList<>();
+        // Code SQL để lấy dữ liệu từ DB
+        // VD:
+        String sql = "SELECT * FROM ThanhVien WHERE MONTH(GETDATE()) = MONTH(NgayDK)";
+        try {
+            ResultSet rs = Xjdbc.query(sql);
+            while (rs.next()) {
+                ThanhVien tv = new ThanhVien();
+                tv.setMaTV(rs.getString("MaTV"));
+                tv.setHoTen(rs.getString("HoTen"));
+                tv.setGioiTinh(rs.getString("GioiTinh"));
+                tv.setNgayDK(rs.getDate("NgayDK"));
+                tv.setTuoi(rs.getInt("Tuoi"));
+                list.add(tv);
+            }
+            rs.getStatement().getConnection().close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+}
