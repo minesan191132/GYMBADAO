@@ -17,8 +17,8 @@ import utils.*;
  *
  * @author trong
  */
-public class DangNhap extends JFrame {
-
+public class DangNhap extends javax.swing.JDialog {
+    
     private JTextField txtUsername;
     private JPasswordField txtPassword;
     private JButton btnLogin, btnExit;
@@ -26,11 +26,12 @@ public class DangNhap extends JFrame {
     private boolean isPasswordVisible = false;
     NhanVienDAO dao = new NhanVienDAO();
 
-    public DangNhap() {
+    public DangNhap(java.awt.Frame parent, boolean modal) {
+        super(parent, modal);
         setTitle("Gym Login");
         setSize(1113, 624);
         setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         setLayout(null);
 
         // Background
@@ -126,13 +127,10 @@ public class DangNhap extends JFrame {
             } else {
                 Auth.user = nhanVien;
                 MsgBox.alert(this, "Đăng nhập thành công!");
-                new TrangChu().setVisible(true);
                 this.dispose();
             }
 
         });
-
-        setVisible(true);
     }
 
     private void styleButton(JButton btn) {
@@ -161,6 +159,17 @@ public class DangNhap extends JFrame {
     }
 
     public static void main(String[] args) {
-        new DangNhap();
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                DangNhap dialog = new DangNhap(new javax.swing.JFrame(), true);
+                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
+                    @Override
+                    public void windowClosing(java.awt.event.WindowEvent e) {
+                        System.exit(0);
+                    }
+                });
+                dialog.setVisible(true);
+            }
+        });
     }
 }

@@ -13,17 +13,19 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import utils.Auth;
 import java.util.List;
+import ui.*;
 
 /**
  *
  * @author trong
  */
-public class TrangChu extends JFrame {
+public class TrangChu extends javax.swing.JFrame {
 
     private JLabel lblWelcome, lblDoanhThu, lblDonHang, lblThanhVien;
     private JTable tblThanhVien;
     private DefaultTableModel model;
     TrangChuDao dao = new TrangChuDao();
+
 
     public TrangChu() {
         setTitle("Gym Management Dashboard");
@@ -31,6 +33,8 @@ public class TrangChu extends JFrame {
         setSize(1000, 650);
         setLocationRelativeTo(null);
         setLayout(null);
+        new ManHinhChao(this, true).setVisible(true);
+        new DangNhap(this, true).setVisible(true);
 
         // Sidebar
         JPanel sidebar = new JPanel();
