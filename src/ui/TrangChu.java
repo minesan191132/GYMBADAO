@@ -11,11 +11,11 @@ import java.util.List;
 import javax.swing.table.DefaultTableModel;
 
 public class TrangChu extends JFrame {
+
     private JLabel lblWelcome, lblAvatar, lblDoanhThu, lblDonHang, lblThanhVien;
     private JTable tblThanhVien;
     private DefaultTableModel model;
     private TrangChuDao dao = new TrangChuDao();
-    
 
     public TrangChu() {
         setTitle("Gym Management Dashboard");
@@ -40,7 +40,7 @@ public class TrangChu extends JFrame {
         sidebar.add(lblLogo);
 
         String[] menu = {"Tổng quan", "Khách hàng", "Đơn hàng", "Báo Cáo"};
-        String[] icons = {"GYMBADAO/icon/Home.png", "GYMBADAO/icon/group-users.png", "GYMBADAO/icon/shopping-bag.png", "GYMBADAO/icon/report.png"};
+        String[] icons = {"/GYMBADAO/src/icon/Home.png", "/GYMBADAO/src/icon/group-users.png", "/GYMBADAO/src/icon/shopping-bag.png", "/GYMBADAO/src/icon/report.png"};
 
         int y = 80;
         for (int i = 0; i < menu.length; i++) {
@@ -51,11 +51,11 @@ public class TrangChu extends JFrame {
             btn.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 10));
             btn.setFont(new Font("Arial", Font.BOLD, 14));
             btn.setFocusPainted(false);
-            btn.setIcon(new ImageIcon(getClass().getResource(icons[i]))); 
+            btn.setIcon(new ImageIcon(icons[i]));
             btn.setHorizontalAlignment(SwingConstants.LEFT);
             btn.setIconTextGap(15);
             btn.setBorder(BorderFactory.createCompoundBorder(
-                    BorderFactory.createLineBorder(new Color(255, 255, 255, 50), 1), 
+                    BorderFactory.createLineBorder(new Color(255, 255, 255, 50), 1),
                     BorderFactory.createEmptyBorder(10, 20, 10, 10)
             ));
             sidebar.add(btn);
@@ -67,11 +67,11 @@ public class TrangChu extends JFrame {
         btnLogout.setBackground(new Color(255, 153, 51));
         btnLogout.setForeground(Color.BLACK);
         btnLogout.setFont(new Font("Arial", Font.BOLD, 14));
-        btnLogout.setIcon(new ImageIcon(getClass().getResource("/GYMBADAO//icon/logout.png")));
+        btnLogout.setIcon(new ImageIcon("/GYMBADAO/src/icon/logout.png"));
         btnLogout.setHorizontalAlignment(SwingConstants.LEFT);
         btnLogout.setIconTextGap(15);
         btnLogout.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(255, 255, 255, 50), 1), 
+                BorderFactory.createLineBorder(new Color(255, 255, 255, 50), 1),
                 BorderFactory.createEmptyBorder(10, 20, 10, 10)
         ));
         sidebar.add(btnLogout);
@@ -85,9 +85,9 @@ public class TrangChu extends JFrame {
         // Avatar
         lblAvatar = new JLabel();
         lblAvatar.setBounds(900, 10, 50, 50);
-        lblAvatar.setIcon(new ImageIcon(getClass().getResource("/GYMBADAO/src/icon/user.png"))); 
+        lblAvatar.setIcon(new ImageIcon("/GYMBADAO/src/icon/user.png"));
         add(lblAvatar);
-        
+
         // Cards Panel
         JPanel panelCards = new JPanel(new GridLayout(1, 3, 10, 0));
         panelCards.setBounds(220, 60, 700, 80);
@@ -115,36 +115,35 @@ public class TrangChu extends JFrame {
 
         loadDashboardData();
     }
-private ImageIcon createRoundedIcon(String path, int width, int height) {
-    try {
-        Image img = new ImageIcon(getClass().getResource(path)).getImage();
-        BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g2 = bufferedImage.createGraphics();
 
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2.setClip(new RoundRectangle2D.Float(0, 0, width, height, 50, 50));
-        g2.drawImage(img, 0, 0, width, height, null);
-        g2.dispose();
+    private ImageIcon createRoundedIcon(String path, int width, int height) {
+        try {
+            Image img = new ImageIcon(getClass().getResource(path)).getImage();
+            BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D g2 = bufferedImage.createGraphics();
 
-        return new ImageIcon(bufferedImage);
-    } catch (Exception e) {
-        System.out.println("Lỗi tải ảnh: " + e.getMessage());
-        return null;
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setClip(new RoundRectangle2D.Float(0, 0, width, height, 50, 50));
+            g2.drawImage(img, 0, 0, width, height, null);
+            g2.dispose();
+
+            return new ImageIcon(bufferedImage);
+        } catch (Exception e) {
+            System.out.println("Lỗi tải ảnh: " + e.getMessage());
+            return null;
+        }
     }
-} 
 
-private JLabel createCard(String title, String value, Color bg) {
-    JLabel lblValue = new JLabel("<html><center>" + title + "<br>" + value + "</center></html>");
-    lblValue.setOpaque(true);
-    lblValue.setBackground(bg);
-    lblValue.setFont(new Font("Arial", Font.BOLD, 14));
-    lblValue.setHorizontalAlignment(SwingConstants.CENTER);
-    lblValue.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
-    
-    return lblValue;
-}
+    private JLabel createCard(String title, String value, Color bg) {
+        JLabel lblValue = new JLabel("<html><center>" + title + "<br>" + value + "</center></html>");
+        lblValue.setOpaque(true);
+        lblValue.setBackground(bg);
+        lblValue.setFont(new Font("Arial", Font.BOLD, 14));
+        lblValue.setHorizontalAlignment(SwingConstants.CENTER);
+        lblValue.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
 
-
+        return lblValue;
+    }
 
     private void loadDashboardData() {
         try {
@@ -160,8 +159,8 @@ private JLabel createCard(String title, String value, Color bg) {
             model.setRowCount(0);
             for (ThanhVien tv : list) {
                 model.addRow(new Object[]{
-                        tv.getMaTV(), tv.getHoTen(), tv.getGioiTinh(), tv.getSoDT(),
-                        tv.getNgayDK(), tv.getNgayKT(), tv.getGoiTap(), "✔"
+                    tv.getMaTV(), tv.getHoTen(), tv.getGioiTinh(), tv.getSoDT(),
+                    tv.getNgayDK(), tv.getNgayKT(), tv.getGoiTap(), "✔"
                 });
             }
         } catch (Exception e) {
