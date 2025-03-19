@@ -33,11 +33,14 @@ public class TrangChu extends JFrame {
         sidebar.setBounds(0, 0, 200, 650);
         add(sidebar);
 
-        JLabel lblLogo = new JLabel("TFC", SwingConstants.CENTER);
-        lblLogo.setForeground(Color.ORANGE);
-        lblLogo.setFont(new Font("Arial", Font.BOLD | Font.ITALIC, 22));
-        lblLogo.setBounds(0, 20, 200, 30);
-        sidebar.add(lblLogo);
+ JLabel lblLogo = new JLabel("<html><span style='color:orange; font-size:35px;'>TF</span>"+ "<span style='color:white; font-size:35px;'>C</span></html>",SwingConstants.CENTER);
+lblLogo.setFont(new Font("Agbalumo", Font.BOLD | Font.ITALIC, 40)); // Font to, đậm, nghiêng
+lblLogo.setBounds(0, 20, 200, 60); // Kích thước phù hợp
+lblLogo.setOpaque(true); 
+lblLogo.setBackground(new Color(25, 25, 50)); // Nền tối
+lblLogo.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10)); // Khoảng cách giữa chữ và viền
+sidebar.add(lblLogo);
+
 
         String[] menu = {"Tổng quan", "Khách hàng", "Đơn hàng", "Báo Cáo"};
         String[] icons = {"/GYMBADAO/src/icon/Home.png", "/GYMBADAO/src/icon/group-users.png", "/GYMBADAO/src/icon/shopping-bag.png", "/GYMBADAO/src/icon/report.png"};

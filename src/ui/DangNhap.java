@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Main.java to edit this template
- */
 package ui;
 
 import dao.NhanVienDAO;
@@ -13,12 +9,7 @@ import java.awt.event.MouseEvent;
 import javax.swing.border.EmptyBorder;
 import utils.*;
 
-/**
- *
- * @author trong
- */
 public class DangNhap extends javax.swing.JDialog {
-
     private JTextField txtUsername;
     private JPasswordField txtPassword;
     private JButton btnLogin, btnExit;
@@ -29,23 +20,27 @@ public class DangNhap extends javax.swing.JDialog {
     public DangNhap(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         setTitle("Gym Login");
-        setSize(1113, 624);
+        setSize(1116,627);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
         setLayout(null);
 
-        // Background
-        JLabel background = new JLabel(new ImageIcon("/GYMBADAO/src/icon/backgroundDangNhap.jpg")); // đổi đường dẫn ảnh
-        background.setBounds(0, 0, 1113, 624);
+        JLabel background = new JLabel(new ImageIcon("/GYMBADAO/src/icon/backgroundDangNhap.jpg"));
+        background.setBounds(0, 0, 1116, 627);
         add(background);
 
-        // Panel form căn giữa
+        JLabel titleLabel = new JLabel("Login");
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 50));
+        titleLabel.setForeground(Color.WHITE);
+        titleLabel.setBounds(499, 120, 200, 50);
+        background.add(titleLabel);
+
         JPanel formPanel = new JPanel();
         formPanel.setOpaque(false);
         formPanel.setLayout(null);
         int formWidth = 450;
-        int formHeight = 300;
-        formPanel.setBounds((1113 - formWidth) / 2, (624 - formHeight) / 2 + 70, formWidth, formHeight);
+        int formHeight = 250;
+        formPanel.setBounds((1113 - formWidth) / 2, (624 - formHeight) / 2 + 50, formWidth, formHeight);
         background.add(formPanel);
 
         // Username
@@ -53,7 +48,6 @@ public class DangNhap extends javax.swing.JDialog {
         userPanel.setBounds(0, 0, formWidth, 50);
         userPanel.setBackground(new Color(70, 70, 110));
         userPanel.setBorder(BorderFactory.createLineBorder(new Color(102, 0, 102), 2));
-        userPanel.setBorder(new EmptyBorder(5, 10, 5, 10));
         formPanel.add(userPanel);
 
         JLabel userIcon = new JLabel(new ImageIcon("/GYMBADAO/src/icon/user.png"));
@@ -65,7 +59,6 @@ public class DangNhap extends javax.swing.JDialog {
         txtUsername.setBorder(null);
         txtUsername.setCaretColor(Color.WHITE);
         txtUsername.setFont(new Font("Arial", Font.PLAIN, 16));
-        txtUsername.setText("");
         txtUsername.setOpaque(false);
         userPanel.add(txtUsername, BorderLayout.CENTER);
 
@@ -74,7 +67,6 @@ public class DangNhap extends javax.swing.JDialog {
         passPanel.setBounds(0, 70, formWidth, 50);
         passPanel.setBackground(new Color(70, 70, 110));
         passPanel.setBorder(BorderFactory.createLineBorder(new Color(102, 0, 102), 2));
-        passPanel.setBorder(new EmptyBorder(5, 10, 5, 10));
         formPanel.add(passPanel);
 
         JLabel passIcon = new JLabel(new ImageIcon("/GYMBADAO/src/icon/password.png"));
@@ -86,7 +78,6 @@ public class DangNhap extends javax.swing.JDialog {
         txtPassword.setBorder(null);
         txtPassword.setCaretColor(Color.WHITE);
         txtPassword.setFont(new Font("Arial", Font.PLAIN, 16));
-        txtPassword.setText("");
         txtPassword.setOpaque(false);
         passPanel.add(txtPassword, BorderLayout.CENTER);
 
@@ -94,7 +85,6 @@ public class DangNhap extends javax.swing.JDialog {
         eyeIcon.setCursor(new Cursor(Cursor.HAND_CURSOR));
         passPanel.add(eyeIcon, BorderLayout.EAST);
 
-        // Toggle password visibility
         eyeIcon.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 isPasswordVisible = !isPasswordVisible;
@@ -103,42 +93,52 @@ public class DangNhap extends javax.swing.JDialog {
         });
 
         // Buttons
+        btnLogin = new JButton("Đăng Nhập");
+        btnLogin.setBounds(70, 150, 150, 40);
+        styleButton(btnLogin);
+        formPanel.add(btnLogin);
+
+        btnExit = new JButton("Thoát");
+        btnExit.setBounds(250, 150, 150, 40);
+        styleButton(btnExit);
+        formPanel.add(btnExit);
+
         btnExit.addActionListener(e -> ketThuc());
-
-        btnLogin.addActionListener(e -> {
-            String manv = txtUsername.getText().trim();
-            String matKhau = new String(txtPassword.getPassword()).trim();
-
-            if (manv.isEmpty()) {
-                MsgBox.alert(this, "Vui lòng nhập tên đăng nhập!");
-                txtUsername.requestFocus();
-                return;
-            }
-
-            if (matKhau.isEmpty()) {
-                MsgBox.alert(this, "Vui lòng nhập mật khẩu!");
-                txtPassword.requestFocus();
-                return;
-            }
-
-            NhanVien nhanVien = dao.selectById(manv);
-
-            if (nhanVien == null) {
-                MsgBox.alert(this, "Sai tên đăng nhập!");
-            } else if (!matKhau.equals(nhanVien.getMatKhau())) {
-                MsgBox.alert(this, "Sai mật khẩu!");
-            } else {
-                Auth.user = nhanVien;
-                MsgBox.alert(this, "Đăng nhập thành công!");
-                this.dispose();
-            }
-        });
-
+        btnLogin.addActionListener(e -> xuLyDangNhap());
     }
 
     private void ketThuc() {
         if (MsgBox.confirm(this, "Bạn muốn kết thúc ứng dụng?")) {
             System.exit(0);
+        }
+    }
+
+    private void xuLyDangNhap() {
+        String manv = txtUsername.getText().trim();
+        String matKhau = new String(txtPassword.getPassword()).trim();
+
+        if (manv.isEmpty()) {
+            MsgBox.alert(this, "Vui lòng nhập tên đăng nhập!");
+            txtUsername.requestFocus();
+            return;
+        }
+
+        if (matKhau.isEmpty()) {
+            MsgBox.alert(this, "Vui lòng nhập mật khẩu!");
+            txtPassword.requestFocus();
+            return;
+        }
+
+        NhanVien nhanVien = dao.selectById(manv);
+
+        if (nhanVien == null) {
+            MsgBox.alert(this, "Sai Tên đăng nhập!");
+        } else if (!matKhau.equals(nhanVien.getMatKhau())) {
+            MsgBox.alert(this, "Sai mật khẩu!");
+        } else {
+            Auth.user = nhanVien;
+            MsgBox.alert(this, "Đăng Nhập Thành Công!");
+            this.dispose();
         }
     }
 
@@ -153,7 +153,6 @@ public class DangNhap extends javax.swing.JDialog {
         btn.setBorder(BorderFactory.createEmptyBorder());
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        // Hover effect
         btn.addMouseListener(new MouseAdapter() {
             public void mouseEntered(MouseEvent e) {
                 btn.setBackground(hoverColor);
@@ -168,17 +167,9 @@ public class DangNhap extends javax.swing.JDialog {
     }
 
     public static void main(String[] args) {
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                DangNhap dialog = new DangNhap(new javax.swing.JFrame(), true);
-                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
-                    @Override
-                    public void windowClosing(java.awt.event.WindowEvent e) {
-                        System.exit(0);
-                    }
-                });
-                dialog.setVisible(true);
-            }
+        java.awt.EventQueue.invokeLater(() -> {
+            DangNhap dialog = new DangNhap(new javax.swing.JFrame(), true);
+            dialog.setVisible(true);
         });
     }
 }
