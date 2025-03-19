@@ -33,8 +33,6 @@ public class DangNhap extends javax.swing.JDialog {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
         setLayout(null);
-        setUndecorated(true);
-
         // Background
         JLabel background = new JLabel(new ImageIcon("/GYMBADAO/src/icon/backgroundDangNhap.jpg")); // đổi đường dẫn ảnh
         background.setBounds(0, 0, 1113, 624);
