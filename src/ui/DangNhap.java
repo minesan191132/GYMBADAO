@@ -18,7 +18,7 @@ import utils.*;
  * @author trong
  */
 public class DangNhap extends javax.swing.JDialog {
-    
+
     private JTextField txtUsername;
     private JPasswordField txtPassword;
     private JButton btnLogin, btnExit;
@@ -31,8 +31,9 @@ public class DangNhap extends javax.swing.JDialog {
         setTitle("Gym Login");
         setSize(1113, 624);
         setLocationRelativeTo(null);
-        setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
         setLayout(null);
+        setUndecorated(true);
 
         // Background
         JLabel background = new JLabel(new ImageIcon("/GYMBADAO/src/icon/backgroundDangNhap.jpg")); // đổi đường dẫn ảnh
@@ -113,7 +114,7 @@ public class DangNhap extends javax.swing.JDialog {
         styleButton(btnExit);
         formPanel.add(btnExit);
 
-        btnExit.addActionListener(e -> System.exit(0));
+        btnExit.addActionListener(e -> ketThuc());
 
         btnLogin.addActionListener(e -> {
             String manv = txtUsername.getText();
@@ -131,6 +132,12 @@ public class DangNhap extends javax.swing.JDialog {
             }
 
         });
+    }
+
+    private void ketThuc() {
+        if (MsgBox.confirm(this, "Bạn muốn kết thúc ứng dụng?")) {
+            System.exit(0);
+        }
     }
 
     private void styleButton(JButton btn) {

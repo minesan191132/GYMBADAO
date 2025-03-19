@@ -32,10 +32,11 @@ public class ManHinhChao extends javax.swing.JDialog {
         super(parent, modal);
         setTitle("Gym");
         setSize(1116, 627);
-        setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
         setResizable(false);
+        setUndecorated(true);
 
         ImageIcon icon = new ImageIcon("/GYMBADAO/src/icon/Banner.jpg");
         Image scaledImage = icon.getImage().getScaledInstance(1116, 627, Image.SCALE_SMOOTH);

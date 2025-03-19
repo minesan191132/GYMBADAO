@@ -15,6 +15,9 @@ public class ThanhVien {
     String maTV, hoTen, gioiTinh;
     Date ngayDK;
     int tuoi;
+    private String soDT;
+private Date ngayKT;
+private String goiTap;
 
     public ThanhVien() {
     }
@@ -26,6 +29,30 @@ public class ThanhVien {
         this.ngayDK = ngayDK;
         this.tuoi = tuoi;
     }
+
+public String getSoDT() {
+    return soDT;
+}
+
+public void setSoDT(String soDT) {
+    this.soDT = soDT;
+}
+
+public Date getNgayKT() {
+    return ngayKT;
+}
+
+public void setNgayKT(Date ngayKT) {
+    this.ngayKT = ngayKT;
+}
+
+public String getGoiTap() {
+    return goiTap;
+}
+
+public void setGoiTap(String goiTap) {
+    this.goiTap = goiTap;
+}
 
     public String getMaTV() {
         return maTV;
