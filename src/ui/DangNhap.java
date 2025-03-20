@@ -10,6 +10,7 @@ import javax.swing.border.EmptyBorder;
 import utils.*;
 
 public class DangNhap extends javax.swing.JDialog {
+
     private JTextField txtUsername;
     private JPasswordField txtPassword;
     private JButton btnLogin, btnExit;
@@ -17,10 +18,10 @@ public class DangNhap extends javax.swing.JDialog {
     private boolean isPasswordVisible = false;
     NhanVienDAO dao = new NhanVienDAO();
 
-    public DangNhap(java.awt.Frame parent,   boolean modal) {
+    public DangNhap(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         setTitle("Gym Login");
-        setSize(1116,627);
+        setSize(1116, 627);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
         setLayout(null);
@@ -83,15 +84,19 @@ public class DangNhap extends javax.swing.JDialog {
 
         eyeIcon = new JLabel(new ImageIcon("/GYMBADAO/src/icon/hidden.png"));
         eyeIcon.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        passPanel.add(eyeIcon, BorderLayout.EAST);
+        JPanel eyePanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 12)); // 5 là khoảng cách giữa biểu tượng và cạnh phải
+        eyePanel.setOpaque(false); // Để nền trong suốt
+        eyePanel.add(eyeIcon);
+
+        passPanel.add(eyePanel, BorderLayout.EAST);
 
         eyeIcon.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 isPasswordVisible = !isPasswordVisible;
                 txtPassword.setEchoChar(isPasswordVisible ? (char) 0 : '•');
                 eyeIcon.setIcon(new ImageIcon(isPasswordVisible
-                    ? "/GYMBADAO/src/icon/view.png"
-                    : "/GYMBADAO/src/icon/hidden.png"));
+                        ? "/GYMBADAO/src/icon/view.png"
+                        : "/GYMBADAO/src/icon/hidden.png"));
             }
         });
 

@@ -25,6 +25,7 @@ public class KhachHang extends JPanel {
     public KhachHang() {
         setLayout(null);
         setBounds(0, 0, 800, 650);
+     
         
         // Main Panel
         JPanel mainPanel = new JPanel();
@@ -457,6 +458,8 @@ public class KhachHang extends JPanel {
         activeButton.repaint();
         inactiveButton.repaint();
     }
+
+
 
     // Lớp RoundTextField để tạo trường nhập bo tròn
     class RoundTextField extends JTextField {

@@ -15,6 +15,7 @@ public class TrangChu extends JFrame {
         setSize(1000, 650);
         setLocationRelativeTo(null);
         setLayout(null);
+        setResizable(false);
         new ManHinhChao(this, true).setVisible(true);
         new DangNhap(this, true).setVisible(true);
 
@@ -25,9 +26,12 @@ public class TrangChu extends JFrame {
         sidebar.setBounds(0, 0, 200, 650);
         add(sidebar);
 
-        JLabel lblLogo = new JLabel("<html><span style='color:orange; font-size:35px;'>TF</span><span style='color:white; font-size:35px;'>C</span></html>", SwingConstants.CENTER);
-        lblLogo.setFont(new Font("Agbalumo", Font.BOLD, 40));
-        lblLogo.setBounds(0, 20, 200, 60);
+        JLabel lblLogo = new JLabel("<html><span style='color:orange; font-size:35px;'>TF</span>" + "<span style='color:white; font-size:35px;'>C</span></html>", SwingConstants.CENTER);
+        lblLogo.setFont(new Font("Agbalumo", Font.BOLD, 35));
+        lblLogo.setBounds(0, 10, 200, 60); // Kích thước phù hợp
+        lblLogo.setOpaque(true);
+        lblLogo.setBackground(new Color(25, 25, 50)); // Nền tối
+        lblLogo.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10)); // Khoảng cách giữa chữ và viền
         sidebar.add(lblLogo);
 
         String[] menu = {"Tổng Quan", "Khách Hàng", "Đơn Hàng", "Báo Cáo"};
@@ -39,12 +43,16 @@ public class TrangChu extends JFrame {
             btn.setBounds(10, y, 180, 50);
             btn.setBackground(i == 0 ? new Color(255, 200, 0) : new Color(44, 44, 80));
             btn.setForeground(i == 0 ? Color.BLACK : Color.WHITE);
+            btn.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 10));
             btn.setFont(new Font("Arial", Font.BOLD, 14));
+            btn.setFocusPainted(false);
             btn.setIcon(new ImageIcon(icons[i]));
             btn.setHorizontalAlignment(SwingConstants.LEFT);
             btn.setIconTextGap(15);
-            btn.setFocusPainted(false);
-
+            btn.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(new Color(255, 255, 255, 50), 1),
+                    BorderFactory.createEmptyBorder(10, 20, 10, 10)
+            ));
             int index = i;
             btn.addActionListener(e -> {
                 switch (index) {
@@ -62,13 +70,16 @@ public class TrangChu extends JFrame {
         btnLogout.setBounds(20, 550, 160, 50);
         btnLogout.setBackground(new Color(255, 153, 51));
         btnLogout.setForeground(Color.BLACK);
-        btnLogout.setFont(new Font("Baloo", Font.BOLD, 14));
+        btnLogout.setFont(new Font("Arial", Font.BOLD, 14));
         btnLogout.setIcon(new ImageIcon("/GYMBADAO/src/icon/logout.png"));
         btnLogout.setHorizontalAlignment(SwingConstants.LEFT);
         btnLogout.setIconTextGap(15);
+        btnLogout.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(255, 255, 255, 50), 1),
+                BorderFactory.createEmptyBorder(10, 20, 10, 10)
+        ));
         sidebar.add(btnLogout);
-
-        // Main Panel (vùng chứa nội dung thay đổi)
+            
         mainPanel = new JPanel();
         mainPanel.setBounds(200, 0, 800, 650);
         mainPanel.setLayout(null);
@@ -99,7 +110,6 @@ public class TrangChu extends JFrame {
     private void showBaoCaoPanel() {
         // Tạm thời bạn có thể để trống
     }
-
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new TrangChu().setVisible(true));
     }
