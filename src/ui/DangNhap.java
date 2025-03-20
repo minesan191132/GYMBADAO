@@ -33,6 +33,7 @@ public class DangNhap extends javax.swing.JDialog {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
         setLayout(null);
+
         // Background
         JLabel background = new JLabel(new ImageIcon("/GYMBADAO/src/icon/backgroundDangNhap.jpg")); // đổi đường dẫn ảnh
         background.setBounds(0, 0, 1113, 624);
@@ -102,21 +103,24 @@ public class DangNhap extends javax.swing.JDialog {
         });
 
         // Buttons
-        btnLogin = new JButton("Đăng nhập");
-        btnLogin.setBounds(0, 150, 200, 50);
-        styleButton(btnLogin);
-        formPanel.add(btnLogin);
-
-        btnExit = new JButton("Thoát");
-        btnExit.setBounds(formWidth - 200, 150, 200, 50);
-        styleButton(btnExit);
-        formPanel.add(btnExit);
-
         btnExit.addActionListener(e -> ketThuc());
 
         btnLogin.addActionListener(e -> {
-            String manv = txtUsername.getText();
-            String matKhau = new String(txtPassword.getPassword());
+            String manv = txtUsername.getText().trim();
+            String matKhau = new String(txtPassword.getPassword()).trim();
+
+            if (manv.isEmpty()) {
+                MsgBox.alert(this, "Vui lòng nhập tên đăng nhập!");
+                txtUsername.requestFocus();
+                return;
+            }
+
+            if (matKhau.isEmpty()) {
+                MsgBox.alert(this, "Vui lòng nhập mật khẩu!");
+                txtPassword.requestFocus();
+                return;
+            }
+
             NhanVien nhanVien = dao.selectById(manv);
 
             if (nhanVien == null) {
@@ -128,8 +132,8 @@ public class DangNhap extends javax.swing.JDialog {
                 MsgBox.alert(this, "Đăng nhập thành công!");
                 this.dispose();
             }
-
         });
+
     }
 
     private void ketThuc() {
