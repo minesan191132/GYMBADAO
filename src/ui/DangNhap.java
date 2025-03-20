@@ -89,6 +89,9 @@ public class DangNhap extends javax.swing.JDialog {
             public void mouseClicked(MouseEvent e) {
                 isPasswordVisible = !isPasswordVisible;
                 txtPassword.setEchoChar(isPasswordVisible ? (char) 0 : '•');
+                eyeIcon.setIcon(new ImageIcon(isPasswordVisible
+                    ? "/GYMBADAO/src/icon/view.png"
+                    : "/GYMBADAO/src/icon/hidden.png"));
             }
         });
 
