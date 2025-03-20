@@ -17,7 +17,7 @@ public class DangNhap extends javax.swing.JDialog {
     private boolean isPasswordVisible = false;
     NhanVienDAO dao = new NhanVienDAO();
 
-    public DangNhap(java.awt.Frame parent, boolean modal) {
+    public DangNhap(java.awt.Frame parent,   boolean modal) {
         super(parent, modal);
         setTitle("Gym Login");
         setSize(1116,627);
