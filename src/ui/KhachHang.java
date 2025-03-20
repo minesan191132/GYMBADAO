@@ -10,8 +10,9 @@ import java.awt.event.FocusListener;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import javax.swing.border.EmptyBorder;
 
-public class KhachHang extends javax.swing.JDialog {
+public class KhachHang extends JPanel {
 
     private JPanel formPanel;
     private JPanel listPanel;
@@ -21,70 +22,14 @@ public class KhachHang extends javax.swing.JDialog {
     private JTextField txtMaTV, txtTenTV, txtNgayDK, txtSoDT;
     private JComboBox<String> cboGoiTap;
 
-    public KhachHang(java.awt.Frame parent, boolean modal) {
-        super(parent, modal);
-        setTitle("Thành viên Dashboard");
-        setSize(1000, 650);
-        setLocationRelativeTo(null);
+    public KhachHang() {
         setLayout(null);
-
-        // Sidebar
-        JPanel sidebar = new JPanel();
-        sidebar.setLayout(null);
-        sidebar.setBackground(new Color(33, 33, 61));
-        sidebar.setBounds(0, 0, 200, 650);
-        add(sidebar);
-
-        JLabel lblLogo = new JLabel("TFC", SwingConstants.CENTER);
-        lblLogo.setForeground(Color.ORANGE);
-        lblLogo.setFont(new Font("Arial", Font.BOLD | Font.ITALIC, 22));
-        lblLogo.setBounds(0, 20, 200, 30);
-        sidebar.add(lblLogo);
-
-        String[] menu = {"Tổng quan", "Khách hàng", "Đơn hàng", "Báo Cáo"};
-        String[] icons = {"/GYMBADAO/src/icon/Home.png", "/GYMBADAO/src/icon/group-users.png", "/GYMBADAO/src/icon/shopping-bag.png", "/GYMBADAO/src/icon/report.png"};
-
-        int y = 80;
-        for (int i = 0; i < menu.length; i++) {
-            JButton btn = new JButton(menu[i]);
-            btn.setBounds(10, y, 180, 50);
-            btn.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 10));
-            btn.setFont(new Font("Arial", Font.BOLD, 14));
-            btn.setFocusPainted(false);
-            btn.setIcon(new ImageIcon(icons[i]));
-            btn.setHorizontalAlignment(SwingConstants.LEFT);
-            btn.setIconTextGap(15);
-
-            if (i == 1) {
-                btn.setBackground(new Color(255, 200, 0));
-                btn.setForeground(Color.BLACK);
-            } else {
-                btn.setBackground(new Color(44, 44, 80));
-                btn.setForeground(Color.WHITE);
-            }
-
-            sidebar.add(btn);
-            y += 60;
-        }
-
-        JButton btnLogout = new JButton("Log out");
-        btnLogout.setBounds(20, 550, 160, 50);
-        btnLogout.setBackground(new Color(255, 153, 51));
-        btnLogout.setForeground(Color.BLACK);
-        btnLogout.setFont(new Font("Arial", Font.BOLD, 14));
-        btnLogout.setIcon(new ImageIcon("/GYMBADAO/src/icon/logout.png"));
-        btnLogout.setHorizontalAlignment(SwingConstants.LEFT);
-        btnLogout.setIconTextGap(15);
-        btnLogout.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(255, 255, 255, 50), 1),
-                BorderFactory.createEmptyBorder(10, 20, 10, 10)
-        ));
-        sidebar.add(btnLogout);
-
+        setBounds(0, 0, 800, 650);
+        
         // Main Panel
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(null);
-        mainPanel.setBounds(0, 0, 1000, 650);
+        mainPanel.setBounds(-190, 0, 1000, 650);
         add(mainPanel);
         mainPanel.setBackground(new Color(240, 240, 240));
         // Nút Đăng ký và Danh sách
@@ -537,10 +482,4 @@ public class KhachHang extends javax.swing.JDialog {
         }
     }
 
-    public static void main(String[] args) {
-        java.awt.EventQueue.invokeLater(() -> {
-            KhachHang dialog = new KhachHang(new javax.swing.JFrame(), true);
-            dialog.setVisible(true);
-        });
-    }
 }
