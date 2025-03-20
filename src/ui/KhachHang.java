@@ -11,7 +11,8 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-public class KhachHang extends JFrame {
+public class KhachHang extends javax.swing.JDialog {
+
     private JPanel formPanel;
     private JPanel listPanel;
     private JButton btnDangKy;
@@ -20,10 +21,10 @@ public class KhachHang extends JFrame {
     private JTextField txtMaTV, txtTenTV, txtNgayDK, txtSoDT;
     private JComboBox<String> cboGoiTap;
 
-     public KhachHang() {
+    public KhachHang(java.awt.Frame parent, boolean modal) {
+        super(parent, modal);
         setTitle("Thành viên Dashboard");
         setSize(1000, 650);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(null);
 
@@ -84,9 +85,8 @@ public class KhachHang extends JFrame {
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(null);
         mainPanel.setBounds(0, 0, 1000, 650);
-        mainPanel.setBackground(Color.WHITE);
         add(mainPanel);
-
+        mainPanel.setBackground(new Color(240, 240, 240));
         // Nút Đăng ký và Danh sách
         btnDangKy = createGradientButton("Đăng ký", new Color(255, 153, 51), new Color(255, 94, 58));
         btnDangKy.setBounds(220, 20, 150, 40);
@@ -153,11 +153,11 @@ public class KhachHang extends JFrame {
         FocusListener focusListener = new FocusListener() {
             public void focusGained(FocusEvent e) {
                 JTextField textField = (JTextField) e.getSource();
-                if (textField.getText().equals("Mã thành viên") || textField.getText().equals("Tên thành viên") || 
-                    textField.getText().equals("Ngày đăng ký") || textField.getText().equals("Số điện thoại")) {
+                if (textField.getText().equals("Mã thành viên") || textField.getText().equals("Tên thành viên")
+                        || textField.getText().equals("Ngày đăng ký") || textField.getText().equals("Số điện thoại")) {
                     textField.setText("");
                     textField.setForeground(Color.BLACK);
-                }              
+                }
             }
 
             @Override
@@ -174,7 +174,7 @@ public class KhachHang extends JFrame {
                         textField.setText("Số điện thoại");
                     }
                     textField.setForeground(Color.GRAY);
-                }              
+                }
             }
         };
 
@@ -316,7 +316,7 @@ public class KhachHang extends JFrame {
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                
+
                 // chỗ chỉnh màu nút
                 GradientPaint gradient = new GradientPaint(0, 0, new Color(44, 44, 80), getWidth(), getHeight(), new Color(33, 33, 61));
 
@@ -347,7 +347,7 @@ public class KhachHang extends JFrame {
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-               
+
                 GradientPaint gradient = new GradientPaint(0, 0, new Color(44, 44, 80), getWidth(), getHeight(), new Color(33, 33, 61));
                 g2.setPaint(gradient);
                 g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
@@ -366,7 +366,7 @@ public class KhachHang extends JFrame {
         btnXemNgay.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JDialog dateDialog = new JDialog();
+                JDialog dateDialog = new JDialog((Dialog) SwingUtilities.getWindowAncestor(btnXemNgay), "Chọn khoảng thời gian", true);
                 dateDialog.setTitle("Chọn khoảng thời gian");
                 dateDialog.setSize(300, 150);
                 dateDialog.setLayout(new GridLayout(3, 2, 10, 10));
@@ -471,72 +471,76 @@ public class KhachHang extends JFrame {
         }
     }
 
-            // Kiểm tra trạng thái gói tập
-            private String kiemTraTrangThai(String ngayKetThuc) {
-                try {
-                    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-                    Date ngayKT = sdf.parse(ngayKetThuc);
-                    Date ngayHienTai = new Date();
+    // Kiểm tra trạng thái gói tập
+    private String kiemTraTrangThai(String ngayKetThuc) {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+            Date ngayKT = sdf.parse(ngayKetThuc);
+            Date ngayHienTai = new Date();
 
-                    if (ngayKT.after(ngayHienTai)) {
-                        return "Còn hạn";
-                    } else {
-                        return "Hết hạn";
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    return "";
-                }
+            if (ngayKT.after(ngayHienTai)) {
+                return "Còn hạn";
+            } else {
+                return "Hết hạn";
             }
-
-            // Tạo nút gradient
-            private JButton createGradientButton(String text, Color startColor, Color endColor) {
-                return new JButton(text) {
-                    @Override
-                    protected void paintComponent(Graphics g) {
-                        Graphics2D g2 = (Graphics2D) g.create();
-                        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                        GradientPaint gradient = new GradientPaint(0, 0, startColor, getWidth(), getHeight(), endColor);
-                        g2.setPaint(gradient);
-                        g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
-                        g2.dispose();
-                        super.paintComponent(g);
-                    }
-                };
-            }
-
-            // Cập nhật màu nút
-            private void updateButtonColors(JButton activeButton, JButton inactiveButton) {
-                activeButton.setForeground(Color.WHITE);
-                inactiveButton.setForeground(Color.WHITE);
-                activeButton.repaint();
-                inactiveButton.repaint();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "";
+        }
     }
 
-            // Lớp RoundTextField để tạo trường nhập bo tròn
-            class RoundTextField extends JTextField {
-                public RoundTextField(String text) {
-                    super(text);
-                    setOpaque(false);
-                    setFont(new Font("Arial", Font.PLAIN, 14));
-                    setForeground(Color.GRAY);
-                    setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-                }
-
-                @Override
-                protected void paintComponent(Graphics g) {
-                    Graphics2D g2 = (Graphics2D) g.create();
-                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                    g2.setColor(Color.WHITE);
-                    g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
-                    g2.setColor(new Color(180, 180, 180));
-                    g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 20, 20);
-                    g2.dispose();
-                    super.paintComponent(g);
-                }
+    // Tạo nút gradient
+    private JButton createGradientButton(String text, Color startColor, Color endColor) {
+        return new JButton(text) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                GradientPaint gradient = new GradientPaint(0, 0, startColor, getWidth(), getHeight(), endColor);
+                g2.setPaint(gradient);
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
+                g2.dispose();
+                super.paintComponent(g);
             }
+        };
+    }
+
+    // Cập nhật màu nút
+    private void updateButtonColors(JButton activeButton, JButton inactiveButton) {
+        activeButton.setForeground(Color.WHITE);
+        inactiveButton.setForeground(Color.WHITE);
+        activeButton.repaint();
+        inactiveButton.repaint();
+    }
+
+    // Lớp RoundTextField để tạo trường nhập bo tròn
+    class RoundTextField extends JTextField {
+
+        public RoundTextField(String text) {
+            super(text);
+            setOpaque(false);
+            setFont(new Font("Arial", Font.PLAIN, 14));
+            setForeground(Color.GRAY);
+            setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setColor(Color.WHITE);
+            g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
+            g2.setColor(new Color(180, 180, 180));
+            g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 20, 20);
+            g2.dispose();
+            super.paintComponent(g);
+        }
+    }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new KhachHang().setVisible(true));
+        java.awt.EventQueue.invokeLater(() -> {
+            KhachHang dialog = new KhachHang(new javax.swing.JFrame(), true);
+            dialog.setVisible(true);
+        });
     }
 }
