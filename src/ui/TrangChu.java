@@ -2,10 +2,15 @@ package ui;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TrangChu extends JFrame {
 
     private JPanel mainPanel;
+    private List<JButton> menuButtons; // Danh sách các nút trong sidebar
 
     public TrangChu() {
         setTitle("Gym Management Dashboard");
@@ -32,6 +37,8 @@ public class TrangChu extends JFrame {
         String[] menu = {"Tổng Quan", "Khách Hàng", "Đơn Hàng", "Bán Hàng" ,"Báo Cáo"};
         String[] icons = {"/GYMBADAO/src/icon/Home.png", "/GYMBADAO/src/icon/group-users.png", "/GYMBADAO/src/icon/shopping-bag.png", "/GYMBADAO/src/icon/cart.png", "/GYMBADAO/src/icon/report.png"};
 
+        menuButtons = new ArrayList<>(); // Khởi tạo danh sách các nút
+
         int y = 80;
         for (int i = 0; i < menu.length; i++) {
             JButton btn = new JButton(menu[i]);
@@ -50,6 +57,7 @@ public class TrangChu extends JFrame {
             ));
             int index = i;
             btn.addActionListener(e -> {
+                setSelectedButton(index); // Đặt nút được chọn
                 switch (index) {
                     case 0 ->
                         showDashboardPanel();
@@ -62,6 +70,7 @@ public class TrangChu extends JFrame {
                 }
             });
             sidebar.add(btn);
+            menuButtons.add(btn); // Thêm nút vào danh sách
             y += 60;
         }
 
@@ -86,6 +95,19 @@ public class TrangChu extends JFrame {
 
         // Default view là Dashboard
         showDashboardPanel();
+    }
+
+    private void setSelectedButton(int index) {
+        for (int i = 0; i < menuButtons.size(); i++) {
+            JButton btn = menuButtons.get(i);
+            if (i == index) {
+                btn.setBackground(new Color(255, 200, 0)); // Màu vàng cho nút được chọn
+                btn.setForeground(Color.BLACK);
+            } else {
+                btn.setBackground(new Color(44, 44, 80)); // Màu mặc định cho các nút khác
+                btn.setForeground(Color.WHITE);
+            }
+        }
     }
 
     private void showDashboardPanel() {
