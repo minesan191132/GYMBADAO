@@ -30,73 +30,17 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 
-public class DonHang extends JFrame {
+public class DonHang extends JPanel {
 
     public DonHang() {
-        setTitle("Theo dõi đơn hàng Dashboard");
-        setSize(1000, 650);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
+        setBounds(0, 0, 800, 650);
         setLayout(null);
-
-        // Sidebar
-        JPanel sidebar = new JPanel();
-        sidebar.setLayout(null);
-        sidebar.setBackground(new Color(33, 33, 61));
-        sidebar.setBounds(0, 0, 200, 650);
-        add(sidebar);
-
-        JLabel lblLogo = new JLabel(new ImageIcon("/GYMBADAO/src/icon/logo.png"));
-        lblLogo.setForeground(Color.ORANGE);
-        lblLogo.setFont(new Font("Arial", Font.BOLD | Font.ITALIC, 22));
-        lblLogo.setBounds(0, 20, 200, 30);
-        sidebar.add(lblLogo);
-
-        String[] menu = {"Tổng Quan", "Khách Hàng", "Đơn Hàng", "Bán Hàng" ,"Báo Cáo"};
-        String[] icons = {"/GYMBADAO/src/icon/home.png", "/GYMBADAO/src/icon/group-users.png", "/GYMBADAO/src/icon/shopping-bag.png", "/GYMBADAO/src/icon/cart.png", "/GYMBADAO/src/icon/report.png"};
-
-        int y = 80;
-        for (int i = 0; i < menu.length; i++) {
-            JButton btn = new JButton(menu[i]);
-            btn.setBounds(10, y, 180, 50);
-            btn.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 10));
-            btn.setFont(new Font("Arial", Font.BOLD, 14));
-            btn.setFocusPainted(false);
-            btn.setIcon(new ImageIcon(icons[i]));
-            btn.setHorizontalAlignment(SwingConstants.LEFT);
-            btn.setIconTextGap(15);
-
-            if (i == 2) {
-                btn.setBackground(new Color(255, 200, 0));
-                btn.setForeground(Color.BLACK);
-            } else {
-                btn.setBackground(new Color(44, 44, 80));
-                btn.setForeground(Color.WHITE);
-            }
-
-            sidebar.add(btn);
-            y += 60;
-        }
-
-        JButton btnLogout = new JButton("Log out");
-        btnLogout.setBounds(20, 550, 160, 50);
-        btnLogout.setBackground(new Color(255, 153, 51));
-        btnLogout.setForeground(Color.BLACK);
-        btnLogout.setFont(new Font("Arial", Font.BOLD, 14));
-        btnLogout.setIcon(new ImageIcon("/GYMBADAO/src/icon/logout.png"));
-        btnLogout.setHorizontalAlignment(SwingConstants.LEFT);
-        btnLogout.setIconTextGap(15);
-        btnLogout.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(255, 255, 255, 50), 1),
-                BorderFactory.createEmptyBorder(10, 20, 10, 10)
-        ));
-        sidebar.add(btnLogout);
 
         // Main content panel
         JPanel formPanel = new JPanel();
         formPanel.setLayout(null);
         formPanel.setBackground(Color.WHITE);
-        formPanel.setBounds(200, 0, 800, 650);
+        formPanel.setBounds(-5, 0, 800, 650);
         add(formPanel);
 
         // Tiêu đề và các trường nhập
@@ -272,10 +216,6 @@ public class DonHang extends JFrame {
         formPanel.add(scrollPane);
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new DonHang().setVisible(true));
-    }
-
     // Lớp RoundTextField
     static class RoundTextField extends JTextField {
         public RoundTextField(String placeholder, int columns) {
@@ -306,5 +246,3 @@ public class DonHang extends JFrame {
         }
     }
 }
-
-//bây giờ bạn chỉnh cho thanh tìm kiếm dài ra thêm chút nữa nút bộ lọc và xem theo ngày ngắn lại và tôi muốn khi click vào ô nhập của thanh tìm kiếm thì chữ tìm kiếm sẽ tư động ẩn đi

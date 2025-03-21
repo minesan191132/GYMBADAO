@@ -41,7 +41,7 @@ public class DashboardPanel extends JPanel {
         setLayout(null);
         setBounds(0, 0, 800, 650);
 
-        lblWelcome = new JLabel("Welcome Back " + Auth.user.getHoTen() + "👋");
+        lblWelcome = new JLabel("Welcome Back " + Auth.user.getHoTen() + " 👋");
         lblWelcome.setFont(new Font("Baloo", Font.BOLD, 20));
         lblWelcome.setBounds(30, 35, 400, 30);
         add(lblWelcome);
@@ -61,7 +61,7 @@ public class DashboardPanel extends JPanel {
 
         lblAvatar = new JLabel(); // Khởi tạo JLabel trước
         lblAvatar.setBounds(650, 20, 50, 50); // Đặt vị trí và kích thước
-        lblAvatar.setIcon(createRoundedIcon("/GYMBADAO/src/icon/hacker.png", 40, 40));
+        lblAvatar.setIcon(createRoundedIcon("/GYMBADAO/src/icon/userguys.png", 40, 40));
         lblAvatar.setHorizontalAlignment(SwingConstants.CENTER);
         lblAvatar.setVerticalAlignment(SwingConstants.CENTER);
         add(lblAvatar);

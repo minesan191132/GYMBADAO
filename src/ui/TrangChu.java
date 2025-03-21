@@ -35,7 +35,7 @@ public class TrangChu extends JFrame {
         sidebar.add(lblLogo);
 
         String[] menu = {"Tổng Quan", "Khách Hàng", "Đơn Hàng", "Bán Hàng", "Báo Cáo"};
-       String[] icons = {"/GYMBADAO/src/icon/home.png", "/GYMBADAO/src/icon/contact-list.png", "/GYMBADAO/src/icon/guest-list.png", "/GYMBADAO/src/icon/add-to-basket.png", "/GYMBADAO/src/icon/sales.png"};
+        String[] icons = {"/GYMBADAO/src/icon/home.png", "/GYMBADAO/src/icon/contact-list.png", "/GYMBADAO/src/icon/guest-list.png", "/GYMBADAO/src/icon/add-to-basket.png", "/GYMBADAO/src/icon/sales.png"};
 
         menuButtons = new ArrayList<>(); // Khởi tạo danh sách các nút
 
@@ -66,10 +66,14 @@ public class TrangChu extends JFrame {
             btn.addActionListener(e -> {
                 setSelectedButton(index); // Đặt nút được chọn
                 switch (index) {
-                    case 0 -> showDashboardPanel();
-                    case 1 -> showKhachHangPanel();
-                    case 2 -> showDonHangPanel();
-                    case 3 -> showBanHangPanel();
+                    case 0 ->
+                        showDashboardPanel();
+                    case 1 ->
+                        showKhachHangPanel();
+                    case 2 ->
+                        showDonHangPanel();
+                    case 3 ->
+                        showBanHangPanel();
                 }
             });
             sidebar.add(btn);
@@ -91,6 +95,23 @@ public class TrangChu extends JFrame {
         ));
         sidebar.add(btnLogout);
 
+        btnLogout.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                boolean confirm = utils.MsgBox.confirm(TrangChu.this, "Bạn có chắc chắn muốn đăng xuất?");
+                if (confirm) {
+                    // Clear thông tin người dùng
+                    utils.Auth.clear();
+
+                    // Đóng giao diện hiện tại (Trang chủ)
+                    dispose();
+
+                    // Quay về login và kiểm tra đăng nhập lại
+                    showLoginAndOpenTrangChu();
+                }
+            }
+        });
+
         mainPanel = new JPanel();
         mainPanel.setBounds(200, 0, 800, 650);
         mainPanel.setLayout(null);
@@ -98,6 +119,19 @@ public class TrangChu extends JFrame {
 
         // Default view là Dashboard
         showDashboardPanel();
+    }
+
+    private void showLoginAndOpenTrangChu() {
+        DangNhap dn = new DangNhap(null, true);
+        dn.setVisible(true);
+
+        if (utils.Auth.isLogin()) {
+            // Sau khi login thành công sẽ mở lại TrangChu
+            new TrangChu().setVisible(true);
+        } else {
+            // Nếu không đăng nhập thì thoát hẳn chương trình
+            System.exit(0);
+        }
     }
 
     private void setSelectedButton(int index) {
@@ -128,7 +162,10 @@ public class TrangChu extends JFrame {
     }
 
     private void showDonHangPanel() {
-        // Tạm thời bạn có thể để trống
+        mainPanel.removeAll();
+        mainPanel.add(new DonHang());
+        mainPanel.revalidate();
+        mainPanel.repaint();
     }
 
     private void showBanHangPanel() {
@@ -138,10 +175,10 @@ public class TrangChu extends JFrame {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             new ManHinhChao(null, true);
-            
+
             DangNhap dn = new DangNhap(null, true);
             dn.setVisible(true);
-            
+
             TrangChu tc = new TrangChu();
             tc.setVisible(true);
         });

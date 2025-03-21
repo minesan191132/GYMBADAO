@@ -74,11 +74,11 @@ public class ManHinhChao extends javax.swing.JDialog {
     }
 
     private void startProgress() {
-        Timer timer = new Timer(20, new ActionListener() {
+        Timer timer = new Timer(10, new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 int value = progressBar.getValue();
                 if (value < 100) {
-                    progressBar.setValue(value + 1);
+                    progressBar.setValue(value + 2);
                 } else {
 //                    ((Timer) e.getSource()).stop();
 //                    dispose();
