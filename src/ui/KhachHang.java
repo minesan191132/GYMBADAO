@@ -5,6 +5,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.text.SimpleDateFormat;
@@ -19,14 +20,13 @@ public class KhachHang extends JPanel {
     private JButton btnDangKy;
     private JButton btnDanhSach;
     private DefaultTableModel tableModel;
-    private JTextField txtMaTV, txtTenTV, txtNgayDK, txtSoDT;
+    private JTextField txtMaTV, txtTenTV, txtNgayDK, txtSoDT, txtTimKiem;
     private JComboBox<String> cboGoiTap;
 
     public KhachHang() {
         setLayout(null);
         setBounds(0, 0, 800, 650);
-     
-        
+
         // Main Panel
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(null);
@@ -67,16 +67,16 @@ public class KhachHang extends JPanel {
         lblTitle.setFont(new Font("Arial", Font.BOLD, 20));
         formPanel.add(lblTitle);
 
-        JLabel lblHelpIcon = new JLabel(new ImageIcon("")); // Để trống đường dẫn icon
-        lblHelpIcon.setBounds(260, 20, 30, 30);
+        JLabel lblHelpIcon = new JLabel(new ImageIcon("/GYMBADAO/src/icon/question-sign.png"));
+        lblHelpIcon.setBounds(270, 20, 30, 30);
         formPanel.add(lblHelpIcon);
 
         JLabel lblHelpText = new JLabel("Trợ giúp");
-        lblHelpText.setBounds(300, 20, 80, 30);
+        lblHelpText.setBounds(305, 20, 80, 30);
         lblHelpText.setFont(new Font("Arial", Font.PLAIN, 14));
         formPanel.add(lblHelpText);
 
-        JLabel lblFeedbackIcon = new JLabel(new ImageIcon("")); // Để trống đường dẫn icon
+        JLabel lblFeedbackIcon = new JLabel(new ImageIcon("/GYMBADAO/src/icon/heart.png"));
         lblFeedbackIcon.setBounds(390, 20, 30, 30);
         formPanel.add(lblFeedbackIcon);
 
@@ -118,7 +118,7 @@ public class KhachHang extends JPanel {
                         textField.setText("Ngày đăng ký");
                     } else if (textField == txtSoDT) {
                         textField.setText("Số điện thoại");
-                    }
+                    } 
                     textField.setForeground(Color.GRAY);
                 }
             }
@@ -128,7 +128,7 @@ public class KhachHang extends JPanel {
         txtTenTV.addFocusListener(focusListener);
         txtNgayDK.addFocusListener(focusListener);
         txtSoDT.addFocusListener(focusListener);
-
+        
         // Giới tính
         JLabel lblGioiTinh = new JLabel("Giới tính:");
         lblGioiTinh.setBounds(50, 200, 100, 30);
@@ -209,20 +209,20 @@ public class KhachHang extends JPanel {
 
         // Tiêu đề và các icon trên form danh sách
         JLabel lblListTitle = new JLabel("Danh sách thành viên");
-        lblListTitle.setBounds(50, 20, 200, 30);
+        lblListTitle.setBounds(50, 20, 250, 30);
         lblListTitle.setFont(new Font("Arial", Font.BOLD, 20));
         listPanel.add(lblListTitle);
 
-        JLabel lblListHelpIcon = new JLabel(new ImageIcon("")); // Để trống đường dẫn icon
-        lblListHelpIcon.setBounds(260, 20, 30, 30);
+        JLabel lblListHelpIcon = new JLabel(new ImageIcon("/GYMBADAO/src/icon/question-sign.png"));
+        lblListHelpIcon.setBounds(270, 20, 30, 30);
         listPanel.add(lblListHelpIcon);
 
         JLabel lblListHelpText = new JLabel("Trợ giúp");
-        lblListHelpText.setBounds(300, 20, 80, 30);
+        lblListHelpText.setBounds(305, 20, 80, 30);
         lblListHelpText.setFont(new Font("Arial", Font.PLAIN, 14));
         listPanel.add(lblListHelpText);
 
-        JLabel lblListFeedbackIcon = new JLabel(new ImageIcon("")); // Để trống đường dẫn icon
+        JLabel lblListFeedbackIcon = new JLabel(new ImageIcon("/GYMBADAO/src/icon/heart.png"));
         lblListFeedbackIcon.setBounds(390, 20, 30, 30);
         listPanel.add(lblListFeedbackIcon);
 
@@ -250,11 +250,27 @@ public class KhachHang extends JPanel {
         searchPanel.setLayout(new GridLayout(1, 3, 10, 10));
 
         // Thanh tìm kiếm bo tròn
-        RoundTextField txtTimKiem = new RoundTextField("Tìm kiếm");
+        txtTimKiem = new RoundTextField("Mã thành viên");
         txtTimKiem.setFont(new Font("Arial", Font.PLAIN, 14));
         txtTimKiem.setBackground(new Color(240, 240, 240));
         txtTimKiem.setBounds(50, 70, 450, 40); // Điều chỉnh kích thước (dài hơn)
         searchPanel.add(txtTimKiem);
+
+        txtTimKiem.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                if (txtTimKiem.getText().equals("Mã thành viên")) {
+                    txtTimKiem.setText("");
+                }
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                if (txtTimKiem.getText().isEmpty()) {
+                    txtTimKiem.setText("Mã thành viên");
+                }
+            }
+        });
 
         // Nút bộ lọc
         JButton btnLoc = new JButton("Bộ lọc") {
@@ -312,7 +328,7 @@ public class KhachHang extends JPanel {
         btnXemNgay.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JDialog dateDialog = new JDialog((Dialog) SwingUtilities.getWindowAncestor(btnXemNgay), "Chọn khoảng thời gian", true);
+                JDialog dateDialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(btnXemNgay), "Chọn khoảng thời gian", true);
                 dateDialog.setTitle("Chọn khoảng thời gian");
                 dateDialog.setSize(300, 150);
                 dateDialog.setLayout(new GridLayout(3, 2, 10, 10));
@@ -458,8 +474,6 @@ public class KhachHang extends JPanel {
         activeButton.repaint();
         inactiveButton.repaint();
     }
-
-
 
     // Lớp RoundTextField để tạo trường nhập bo tròn
     class RoundTextField extends JTextField {

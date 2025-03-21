@@ -8,6 +8,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Font;
+import java.awt.Frame;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -28,8 +29,8 @@ public class ManHinhChao extends javax.swing.JDialog {
 
     private JProgressBar progressBar;
 
-    public ManHinhChao(java.awt.Frame parent, boolean modal) {
-        super(parent, modal);
+    public ManHinhChao(Frame owner, boolean modal) {
+        super((Frame) owner, modal);
         setTitle("Gym");
         setSize(1116, 627);
         setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);

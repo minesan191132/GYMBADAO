@@ -3,21 +3,17 @@ package ui;
 import javax.swing.*;
 import java.awt.*;
 
-
 public class TrangChu extends JFrame {
 
     private JPanel mainPanel;
 
-
     public TrangChu() {
-       setTitle("Gym Management Dashboard");
+        setTitle("Gym Management Dashboard");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1000, 650);
         setLocationRelativeTo(null);
         setLayout(null);
         setResizable(false);
-        new ManHinhChao(this, true).setVisible(true);
-        new DangNhap(this, true).setVisible(true);
 
         // Sidebar
         JPanel sidebar = new JPanel();
@@ -26,16 +22,15 @@ public class TrangChu extends JFrame {
         sidebar.setBounds(0, 0, 200, 650);
         add(sidebar);
 
-        JLabel lblLogo = new JLabel("<html><span style='color:orange; font-size:35px;'>TF</span>" + "<span style='color:white; font-size:35px;'>C</span></html>", SwingConstants.CENTER);
-        lblLogo.setFont(new Font("Agbalumo", Font.BOLD, 35));
+        JLabel lblLogo = new JLabel(new ImageIcon("/GYMBADAO/src/icon/logo.png"));
         lblLogo.setBounds(0, 10, 200, 60); // Kích thước phù hợp
         lblLogo.setOpaque(true);
         lblLogo.setBackground(new Color(25, 25, 50)); // Nền tối
         lblLogo.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10)); // Khoảng cách giữa chữ và viền
         sidebar.add(lblLogo);
 
-        String[] menu = {"Tổng Quan", "Khách Hàng", "Đơn Hàng", "Báo Cáo"};
-        String[] icons = {"/GYMBADAO/src/icon/Home.png", "/GYMBADAO/src/icon/group-users.png", "/GYMBADAO/src/icon/shopping-bag.png", "/GYMBADAO/src/icon/report.png"};
+        String[] menu = {"Tổng Quan", "Khách Hàng", "Đơn Hàng", "Bán Hàng" ,"Báo Cáo"};
+        String[] icons = {"/GYMBADAO/src/icon/Home.png", "/GYMBADAO/src/icon/group-users.png", "/GYMBADAO/src/icon/shopping-bag.png", "/GYMBADAO/src/icon/cart.png", "/GYMBADAO/src/icon/report.png"};
 
         int y = 80;
         for (int i = 0; i < menu.length; i++) {
@@ -56,10 +51,14 @@ public class TrangChu extends JFrame {
             int index = i;
             btn.addActionListener(e -> {
                 switch (index) {
-                    case 0 -> showDashboardPanel();
-                    case 1 -> showKhachHangPanel();
-                    case 2 -> showDonHangPanel();
-                    case 3 -> showBaoCaoPanel();
+                    case 0 ->
+                        showDashboardPanel();
+                    case 1 ->
+                        showKhachHangPanel();
+                    case 2 ->
+                        showDonHangPanel();
+                    case 3 ->
+                        showBanHangPanel();
                 }
             });
             sidebar.add(btn);
@@ -79,7 +78,7 @@ public class TrangChu extends JFrame {
                 BorderFactory.createEmptyBorder(10, 20, 10, 10)
         ));
         sidebar.add(btnLogout);
-            
+
         mainPanel = new JPanel();
         mainPanel.setBounds(200, 0, 800, 650);
         mainPanel.setLayout(null);
@@ -107,10 +106,19 @@ public class TrangChu extends JFrame {
         // Tạm thời bạn có thể để trống
     }
 
-    private void showBaoCaoPanel() {
+    private void showBanHangPanel() {
         // Tạm thời bạn có thể để trống
     }
+
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new TrangChu().setVisible(true));
+        SwingUtilities.invokeLater(() -> {
+            new ManHinhChao(null, true);
+            
+            DangNhap dn = new DangNhap(null, true);
+            dn.setVisible(true);
+            
+            TrangChu tc = new TrangChu();
+            tc.setVisible(true);
+        });
     }
 }
