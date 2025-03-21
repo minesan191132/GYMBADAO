@@ -53,7 +53,7 @@ public class DonHang extends JFrame {
         sidebar.add(lblLogo);
 
         String[] menu = {"Tổng Quan", "Khách Hàng", "Đơn Hàng", "Bán Hàng" ,"Báo Cáo"};
-        String[] icons = {"/GYMBADAO/src/icon/Home.png", "/GYMBADAO/src/icon/group-users.png", "/GYMBADAO/src/icon/shopping-bag.png", "/GYMBADAO/src/icon/cart.png", "/GYMBADAO/src/icon/report.png"};
+        String[] icons = {"/GYMBADAO/src/icon/home.png", "/GYMBADAO/src/icon/group-users.png", "/GYMBADAO/src/icon/shopping-bag.png", "/GYMBADAO/src/icon/cart.png", "/GYMBADAO/src/icon/report.png"};
 
         int y = 80;
         for (int i = 0; i < menu.length; i++) {
