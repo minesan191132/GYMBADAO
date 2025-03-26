@@ -41,9 +41,21 @@ public class DashboardPanel extends JPanel {
         setLayout(null);
         setBounds(0, 0, 800, 650);
 
-        lblWelcome = new JLabel("Welcome Back " + Auth.user.getHoTen() + " 👋");
+       // Tạo JLabel với văn bản và icon nhỏ hơn
+        lblWelcome = new JLabel("Welcome Back " + Auth.user.getHoTen());
+
+        // Tải icon và thay đổi kích thước
+        ImageIcon wavingHandIcon = new ImageIcon("/GYMBADAO/src/icon/hi.png"); // Thay thế đường dẫn bằng đường dẫn thực tế của icon
+        Image image = wavingHandIcon.getImage();
+        Image scaledImage = image.getScaledInstance(35, 35, Image.SCALE_SMOOTH); // Đổi kích thước thành 20x20 pixel
+        wavingHandIcon = new ImageIcon(scaledImage); // Tạo ImageIcon mới từ hình ảnh đã thay đổi kích thước
+
+        // Gán icon vào JLabel
+        lblWelcome.setIcon(wavingHandIcon);
         lblWelcome.setFont(new Font("Baloo", Font.BOLD, 20));
         lblWelcome.setBounds(30, 35, 400, 30);
+        lblWelcome.setHorizontalTextPosition(SwingConstants.LEADING); // Văn bản ở bên trái, icon ở bên phải
+        lblWelcome.setIconTextGap(10); // Khoảng cách giữa văn bản và icon
         add(lblWelcome);
 
         // Tạo JLabel hiển thị tên người dùng cạnh avatar
