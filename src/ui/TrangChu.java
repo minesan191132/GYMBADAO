@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
+import ui.BanHang;
 
 public class TrangChu extends JFrame {
 
@@ -169,7 +170,9 @@ public class TrangChu extends JFrame {
     }
 
     private void showBanHangPanel() {
-        // Tạm thời bạn có thể để trống
+        this.setVisible(false);
+        new BanHang().setVisible(true);
+        
     }
 
     public static void main(String[] args) {
