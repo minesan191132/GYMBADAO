@@ -6,7 +6,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import javax.swing.border.EmptyBorder;
 import utils.*;
 
 public class DangNhap extends javax.swing.JDialog {
@@ -44,11 +43,11 @@ public class DangNhap extends javax.swing.JDialog {
         formPanel.setBounds((1113 - formWidth) / 2, (624 - formHeight) / 2 + 50, formWidth, formHeight);
         background.add(formPanel);
 
-        // Username
-        JPanel userPanel = new JPanel(new BorderLayout(10, 0));
+        // Username - Panel bo tròn với viền bo tròn
+        RoundedPanel userPanel = new RoundedPanel(25, new Color(70, 70, 110));
+        userPanel.setLayout(new BorderLayout(10, 0));
         userPanel.setBounds(0, 0, formWidth, 50);
-        userPanel.setBackground(new Color(70, 70, 110));
-        userPanel.setBorder(BorderFactory.createLineBorder(new Color(102, 0, 102), 2));
+        userPanel.setBorder(new RoundedBorder(new Color(102, 0, 102), 2, 25)); // Viền bo tròn
         formPanel.add(userPanel);
 
         JLabel userIcon = new JLabel(new ImageIcon("/GYMBADAO/src/icon/user.png"));
@@ -57,17 +56,17 @@ public class DangNhap extends javax.swing.JDialog {
         txtUsername = new JTextField();
         txtUsername.setForeground(Color.WHITE);
         txtUsername.setBackground(new Color(70, 70, 110));
-        txtUsername.setBorder(null);
+        txtUsername.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
         txtUsername.setCaretColor(Color.WHITE);
         txtUsername.setFont(new Font("Arial", Font.PLAIN, 16));
         txtUsername.setOpaque(false);
         userPanel.add(txtUsername, BorderLayout.CENTER);
 
-        // Password
-        JPanel passPanel = new JPanel(new BorderLayout(10, 0));
+        // Password - Panel bo tròn với viền bo tròn
+        RoundedPanel passPanel = new RoundedPanel(25, new Color(70, 70, 110));
+        passPanel.setLayout(new BorderLayout(10, 0));
         passPanel.setBounds(0, 70, formWidth, 50);
-        passPanel.setBackground(new Color(70, 70, 110));
-        passPanel.setBorder(BorderFactory.createLineBorder(new Color(102, 0, 102), 2));
+        passPanel.setBorder(new RoundedBorder(new Color(102, 0, 102), 2, 25)); // Viền bo tròn
         formPanel.add(passPanel);
 
         JLabel passIcon = new JLabel(new ImageIcon("/GYMBADAO/src/icon/password.png"));
@@ -76,7 +75,7 @@ public class DangNhap extends javax.swing.JDialog {
         txtPassword = new JPasswordField();
         txtPassword.setForeground(Color.WHITE);
         txtPassword.setBackground(new Color(70, 70, 110));
-        txtPassword.setBorder(null);
+        txtPassword.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
         txtPassword.setCaretColor(Color.WHITE);
         txtPassword.setFont(new Font("Arial", Font.PLAIN, 16));
         txtPassword.setOpaque(false);
@@ -84,8 +83,8 @@ public class DangNhap extends javax.swing.JDialog {
 
         eyeIcon = new JLabel(new ImageIcon("/GYMBADAO/src/icon/hidden.png"));
         eyeIcon.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        JPanel eyePanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 12)); // 5 là khoảng cách giữa biểu tượng và cạnh phải
-        eyePanel.setOpaque(false); // Để nền trong suốt
+        JPanel eyePanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 12));
+        eyePanel.setOpaque(false);
         eyePanel.add(eyeIcon);
 
         passPanel.add(eyePanel, BorderLayout.EAST);
@@ -100,19 +99,108 @@ public class DangNhap extends javax.swing.JDialog {
             }
         });
 
-        // Buttons
-        btnLogin = new JButton("Đăng Nhập");
+        // Buttons với viền bo tròn
+        btnLogin = new RoundedButton("Đăng Nhập", 20);
         btnLogin.setBounds(70, 150, 150, 40);
         styleButton(btnLogin);
         formPanel.add(btnLogin);
 
-        btnExit = new JButton("Thoát");
+        btnExit = new RoundedButton("Thoát", 20);
         btnExit.setBounds(250, 150, 150, 40);
         styleButton(btnExit);
         formPanel.add(btnExit);
 
         btnExit.addActionListener(e -> ketThuc());
         btnLogin.addActionListener(e -> xuLyDangNhap());
+    }
+
+    // Class RoundedPanel để tạo panel bo tròn
+    class RoundedPanel extends JPanel {
+        private int cornerRadius;
+        private Color backgroundColor;
+
+        public RoundedPanel(int cornerRadius, Color backgroundColor) {
+            super();
+            this.cornerRadius = cornerRadius;
+            this.backgroundColor = backgroundColor;
+            setOpaque(false);
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            Graphics2D g2 = (Graphics2D) g;
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setColor(backgroundColor);
+            g2.fillRoundRect(0, 0, getWidth(), getHeight(), cornerRadius, cornerRadius);
+        }
+    }
+
+    // Class RoundedBorder để tạo viền bo tròn
+    class RoundedBorder implements javax.swing.border.Border {
+        private Color color;
+        private int thickness;
+        private int radius;
+
+        public RoundedBorder(Color color, int thickness, int radius) {
+            this.color = color;
+            this.thickness = thickness;
+            this.radius = radius;
+        }
+
+        public Insets getBorderInsets(Component c) {
+            return new Insets(this.thickness, this.thickness, this.thickness, this.thickness);
+        }
+
+        public boolean isBorderOpaque() {
+            return true;
+        }
+
+        public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
+            Graphics2D g2 = (Graphics2D) g;
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setColor(color);
+            g2.drawRoundRect(x, y, width - 1, height - 1, radius, radius);
+        }
+    }
+
+    // Class RoundedButton để tạo nút bo tròn
+    class RoundedButton extends JButton {
+        private int radius;
+
+        public RoundedButton(String text, int radius) {
+            super(text);
+            this.radius = radius;
+            setContentAreaFilled(false);
+            setFocusPainted(false);
+            setBorderPainted(false);
+            setOpaque(false);
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g;
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            
+            if (getModel().isPressed()) {
+                g2.setColor(getBackground().darker());
+            } else if (getModel().isRollover()) {
+                g2.setColor(getBackground().brighter());
+            } else {
+                g2.setColor(getBackground());
+            }
+            
+            g2.fillRoundRect(0, 0, getWidth(), getHeight(), radius, radius);
+            super.paintComponent(g);
+        }
+
+        @Override
+        protected void paintBorder(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g;
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setColor(getForeground());
+            g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, radius, radius);
+        }
     }
 
     private void ketThuc() {
@@ -158,18 +246,16 @@ public class DangNhap extends javax.swing.JDialog {
         btn.setForeground(Color.WHITE);
         btn.setFont(new Font("Arial", Font.BOLD, 18));
         btn.setFocusPainted(false);
-        btn.setBorder(BorderFactory.createEmptyBorder());
+        btn.setBorder(new RoundedBorder(Color.WHITE, 2, 20)); // Viền bo tròn cho nút
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         btn.addMouseListener(new MouseAdapter() {
             public void mouseEntered(MouseEvent e) {
                 btn.setBackground(hoverColor);
-                btn.setBorder(BorderFactory.createLineBorder(new Color(255, 160, 160), 2));
             }
 
             public void mouseExited(MouseEvent e) {
                 btn.setBackground(baseColor);
-                btn.setBorder(BorderFactory.createEmptyBorder());
             }
         });
     }
