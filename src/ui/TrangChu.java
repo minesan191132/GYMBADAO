@@ -1,17 +1,18 @@
 package ui;
 
+import dao.ThanhToanDAO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
-import ui.BanHang;
+import ui.BaoCao;
 
 public class TrangChu extends JFrame {
 
     private JPanel mainPanel;
-    private List<JButton> menuButtons; // Danh sách các nút trong sidebar
+    private List<JButton> menuButtons;
 
     public TrangChu() {
         setTitle("Gym Management Dashboard");
@@ -29,28 +30,26 @@ public class TrangChu extends JFrame {
         add(sidebar);
 
         JLabel lblLogo = new JLabel(new ImageIcon("/GYMBADAO/src/icon/logo.png"));
-        lblLogo.setBounds(0, 10, 200, 60); // Kích thước phù hợp
+        lblLogo.setBounds(0, 10, 200, 60);
         lblLogo.setOpaque(true);
-        lblLogo.setBackground(new Color(25, 25, 50)); // Nền tối
-        lblLogo.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10)); // Khoảng cách giữa chữ và viền
+        lblLogo.setBackground(new Color(25, 25, 50));
+        lblLogo.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         sidebar.add(lblLogo);
 
         String[] menu = {"Tổng Quan", "Khách Hàng", "Đơn Hàng", "Bán Hàng", "Báo Cáo"};
-        String[] icons = {"/GYMBADAO/src/icon/home.png", "/GYMBADAO/src/icon/contact-list.png", "/GYMBADAO/src/icon/guest-list.png", "/GYMBADAO/src/icon/add-to-basket.png", "/GYMBADAO/src/icon/sales.png"};
+        String[] icons = {"/GYMBADAO/src/icon/home.png", "/GYMBADAO/src/icon/contact-list.png",
+            "/GYMBADAO/src/icon/guest-list.png", "/GYMBADAO/src/icon/add-to-basket.png",
+            "/GYMBADAO/src/icon/sales.png"};
 
-        menuButtons = new ArrayList<>(); // Khởi tạo danh sách các nút
-
+        menuButtons = new ArrayList<>();
         int y = 80;
         for (int i = 0; i < menu.length; i++) {
             JButton btn = new JButton(menu[i]);
-
-            // Tải hình ảnh và thay đổi kích thước cho tất cả các icon
             ImageIcon icon = new ImageIcon(icons[i]);
             Image image = icon.getImage();
-            Image scaledImage = image.getScaledInstance(30, 30, Image.SCALE_SMOOTH); // Đổi kích thước thành 20x20
+            Image scaledImage = image.getScaledInstance(30, 30, Image.SCALE_SMOOTH);
             icon = new ImageIcon(scaledImage);
-
-            btn.setIcon(icon); // Gán icon đã thay đổi kích thước vào nút
+            btn.setIcon(icon);
             btn.setBounds(10, y, 180, 50);
             btn.setBackground(i == 0 ? new Color(255, 200, 0) : new Color(44, 44, 80));
             btn.setForeground(i == 0 ? Color.BLACK : Color.WHITE);
@@ -65,7 +64,7 @@ public class TrangChu extends JFrame {
             ));
             int index = i;
             btn.addActionListener(e -> {
-                setSelectedButton(index); // Đặt nút được chọn
+                setSelectedButton(index);
                 switch (index) {
                     case 0 ->
                         showDashboardPanel();
@@ -75,10 +74,12 @@ public class TrangChu extends JFrame {
                         showDonHangPanel();
                     case 3 ->
                         showBanHangPanel();
+                    case 4 ->
+                        showBaoCaoPanel();
                 }
             });
             sidebar.add(btn);
-            menuButtons.add(btn); // Thêm nút vào danh sách
+            menuButtons.add(btn);
             y += 60;
         }
 
@@ -96,29 +97,20 @@ public class TrangChu extends JFrame {
         ));
         sidebar.add(btnLogout);
 
-        btnLogout.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                boolean confirm = utils.MsgBox.confirm(TrangChu.this, "Bạn có chắc chắn muốn đăng xuất?");
-                if (confirm) {
-                    // Clear thông tin người dùng
-                    utils.Auth.clear();
-
-                    // Đóng giao diện hiện tại (Trang chủ)
-                    dispose();
-
-                    // Quay về login và kiểm tra đăng nhập lại
-                    showLoginAndOpenTrangChu();
-                }
+        btnLogout.addActionListener(e -> {
+            boolean confirm = utils.MsgBox.confirm(TrangChu.this, "Bạn có chắc chắn muốn đăng xuất?");
+            if (confirm) {
+                utils.Auth.clear();
+                dispose();
+                showLoginAndOpenTrangChu();
             }
         });
 
         mainPanel = new JPanel();
         mainPanel.setBounds(200, 0, 800, 650);
-        mainPanel.setLayout(null);
+        mainPanel.setLayout(new BorderLayout());
         add(mainPanel);
 
-        // Default view là Dashboard
         showDashboardPanel();
     }
 
@@ -127,10 +119,8 @@ public class TrangChu extends JFrame {
         dn.setVisible(true);
 
         if (utils.Auth.isLogin()) {
-            // Sau khi login thành công sẽ mở lại TrangChu
             new TrangChu().setVisible(true);
         } else {
-            // Nếu không đăng nhập thì thoát hẳn chương trình
             System.exit(0);
         }
     }
@@ -139,10 +129,10 @@ public class TrangChu extends JFrame {
         for (int i = 0; i < menuButtons.size(); i++) {
             JButton btn = menuButtons.get(i);
             if (i == index) {
-                btn.setBackground(new Color(255, 200, 0)); // Màu vàng cho nút được chọn
+                btn.setBackground(new Color(255, 200, 0));
                 btn.setForeground(Color.BLACK);
             } else {
-                btn.setBackground(new Color(44, 44, 80)); // Màu mặc định cho các nút khác
+                btn.setBackground(new Color(44, 44, 80));
                 btn.setForeground(Color.WHITE);
             }
         }
@@ -150,21 +140,31 @@ public class TrangChu extends JFrame {
 
     private void showDashboardPanel() {
         mainPanel.removeAll();
-        mainPanel.add(new DashboardPanel());
+        mainPanel.add(new DashboardPanel(), BorderLayout.CENTER);
+        mainPanel.revalidate();
+        mainPanel.repaint();
+    }
+
+    private ThanhToanDAO thanhToanDAO;
+
+    private void showBaoCaoPanel() {
+        mainPanel.removeAll();
+        mainPanel.add(new BaoCao(), BorderLayout.CENTER);
+
         mainPanel.revalidate();
         mainPanel.repaint();
     }
 
     private void showKhachHangPanel() {
         mainPanel.removeAll();
-        mainPanel.add(new KhachHang());
+        mainPanel.add(new KhachHang(), BorderLayout.CENTER);
         mainPanel.revalidate();
         mainPanel.repaint();
     }
 
     private void showDonHangPanel() {
         mainPanel.removeAll();
-        mainPanel.add(new DonHang());
+        mainPanel.add(new DonHang(), BorderLayout.CENTER);
         mainPanel.revalidate();
         mainPanel.repaint();
     }
@@ -172,18 +172,14 @@ public class TrangChu extends JFrame {
     private void showBanHangPanel() {
         this.setVisible(false);
         new BanHang().setVisible(true);
-        
     }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             new ManHinhChao(null, true);
-
             DangNhap dn = new DangNhap(null, true);
             dn.setVisible(true);
-
-            TrangChu tc = new TrangChu();
-            tc.setVisible(true);
+            new TrangChu().setVisible(true);
         });
     }
 }
