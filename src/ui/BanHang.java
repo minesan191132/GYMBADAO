@@ -10,6 +10,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import utils.*;
+import entity.*;
+import java.net.URL;  // Thêm dòng này cho URL
+import java.io.FileNotFoundException;  // Thêm dòng này cho FileNotFoundException
 
 public class BanHang extends JFrame {
 
@@ -283,27 +286,26 @@ public class BanHang extends JFrame {
     }
 
     private JPanel createProductGridPanel() {
-        // Danh sách sản phẩm
-//        List<Product> products = Arrays.asList(
-//            new Product("Pocari", 20000, "/GYMBADAO/src/icon/pocari.png"),
-//            new Product("Revive", 15000, "/GYMBADAO/src/icon/revive.png"),
-//            new Product("Whey golden standard", 1120000, "/GYMBADAO/src/icon/whey.png"),
-//            new Product("Protein bar", 25000, "/GYMBADAO/src/icon/cake.png"),
-//            new Product("Whey hydropure", 1250000, "/GYMBADAO/src/icon/whey2.png"),
-//            new Product("Multi vitamin", 350000, "/GYMBADAO/src/icon/vitamin.png"),
-//            new Product("BCAA", 450000, "/GYMBADAO/src/icon/bcaa.png"),
-//            new Product("Creatine", 300000, "/GYMBADAO/src/icon/creatine.png"),
-//            new Product("Pre-workout", 500000, "/GYMBADAO/src/icon/preworkout.png")
-//        );
-//        
-        JPanel gridPanel = new JPanel(new GridLayout(0, 4, 15, 15)); // Tự động điều chỉnh số hàng, 4 cột
+        List<Product> products = Arrays.asList(
+                new Product("P001", "Pocari Sweat", 20000, "/GYMBADAO/src/icon/pocari.png"),
+                new Product("P002", "Revive", 15000, "/GYMBADAO/src/icon/revive.png"),
+                new Product("P003", "Whey Gold Standard", 1120000, "/GYMBADAO/src/icon/whey.png"),
+                new Product("P004", "Protein Bar", 25000, "/GYMBADAO/src/icon/protein_bar.png"),
+                new Product("P005", "Whey Hydropure", 1250000, "/GYMBADAO/src/icon/whey2.png"),
+                new Product("P006", "Multi Vitamin", 350000, "/GYMBADAO/src/icon/vitamin.png"),
+                new Product("P007", "BCAA", 450000, "/GYMBADAO/src/icon/bcaa.png"),
+                new Product("P008", "Creatine", 300000, "/GYMBADAO/src/icon/creatine.png"),
+                new Product("P009", "Pre-workout", 500000, "/GYMBADAO/src/icon/preworkout.png")
+        );
+
+        JPanel gridPanel = new JPanel(new GridLayout(0, 4, 15, 15));
         gridPanel.setBackground(Color.WHITE);
         gridPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
-//        for (int i = 0; i < products.size(); i++) {
-//            Product product = products.get(i);
-//            gridPanel.add(createProductCard(i + 1, product.getName(), product.getPrice(), product.getImagePath()));
-//        }
+        for (Product product : products) {
+            gridPanel.add(createProductCard(product));
+        }
+
         JScrollPane scrollPane = new JScrollPane(gridPanel);
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
@@ -315,154 +317,277 @@ public class BanHang extends JFrame {
         return container;
     }
 
-    private JPanel createRightPanel() {
-    JPanel rightPanel = new JPanel();
-    rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS));
-    rightPanel.setBackground(new Color(245, 245, 245));
-    rightPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+    private JPanel createProductCard(Product product) {
+        JPanel card = new JPanel(new BorderLayout(5, 5));
+        card.setPreferredSize(new Dimension(200, 220));
+        card.setBackground(new Color(250, 250, 250));
+        card.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(230, 230, 230)),
+                BorderFactory.createEmptyBorder(10, 10, 10, 10)
+        ));
 
-    // 1. Tổng tiền
-    rightPanel.add(createAmountPanel("TỔNG TIỀN", totalValueLabel = new JLabel("0"), 36, new Color(255, 240, 240), new Color(255, 150, 150)));
-    rightPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        // Ảnh sản phẩm
+        ImageIcon productIcon = loadScaledIcon(product.getImagePath(), 150, 150);
+        JLabel imageLabel = new JLabel(productIcon, SwingConstants.CENTER);
+        card.add(imageLabel, BorderLayout.CENTER);
 
-    // 2. Chiết khấu
-    rightPanel.add(createAmountPanel("CHIẾT KHẤU (F6)", discountValueLabel = new JLabel("0"), 28, new Color(240, 248, 255), new Color(100, 149, 237)));
-    rightPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        // Thông tin sản phẩm
+        JPanel infoPanel = new JPanel(new GridLayout(2, 1, 0, 5));
+        infoPanel.setOpaque(false);
 
-    // 3. Khách phải trả
-    rightPanel.add(createAmountPanel("KHÁCH PHẢI TRẢ", amountLabel = new JLabel("0"), 32, new Color(255, 240, 240), new Color(220, 53, 69)));
-    rightPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        JLabel nameLabel = new JLabel(shortenName(product.getName(), 20), SwingConstants.CENTER);
+        nameLabel.setFont(new Font("Arial", Font.BOLD, 12));
 
-    // 4. Tiền khách đưa
-    rightPanel.add(createAmountPanel("TIỀN KHÁCH ĐƯA (F2)", givenAmountLabel = new JLabel("0"), 28, new Color(230, 255, 240), new Color(40, 167, 69)));
-    rightPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        JLabel priceLabel = new JLabel(String.format("%,dđ", product.getPrice()), SwingConstants.CENTER);
+        priceLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        priceLabel.setForeground(new Color(200, 0, 0));
 
-    // 5. Tiền thừa
-    rightPanel.add(createAmountPanel("TIỀN THỪA", changeAmountLabel = new JLabel("0"), 28, new Color(255, 245, 230), new Color(255, 193, 7)));
+        infoPanel.add(nameLabel);
+        infoPanel.add(priceLabel);
+        card.add(infoPanel, BorderLayout.SOUTH);
 
-    // Phần thanh toán và ghi chú
-    rightPanel.add(Box.createRigidArea(new Dimension(0, 20)));
-    rightPanel.add(createPaymentAndNotePanel());
-
-    return rightPanel;
-}
-
-private JPanel createAmountPanel(String title, JLabel valueLabel, int fontSize, Color bgColor, Color borderColor) {
-    JPanel panel = new JPanel(new BorderLayout(10, 0)) {
-        @Override
-        protected void paintComponent(Graphics g) {
-            Graphics2D g2 = (Graphics2D) g.create();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2.setColor(bgColor);
-            g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
-            g2.setColor(borderColor);
-            g2.drawRoundRect(0, 0, getWidth()-1, getHeight()-1, 20, 20);
-            g2.dispose();
-        }
-    };
-    panel.setOpaque(false);
-    
-    // Thêm padding
-    panel.setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
-
-    // Label tiêu đề (căn trái)
-    JLabel titleLabel = new JLabel(title);
-    titleLabel.setFont(new Font("Arial", Font.BOLD, fontSize - 4));
-    titleLabel.setForeground(Color.DARK_GRAY);
-    panel.add(titleLabel, BorderLayout.WEST);
-
-    // Label giá trị (căn phải)
-    valueLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-    valueLabel.setFont(new Font("Arial", Font.BOLD, fontSize));
-    valueLabel.setForeground(Color.BLACK);
-    panel.add(valueLabel, BorderLayout.EAST);
-
-    return panel;
-}
-private JPanel createPaymentAndNotePanel() {
-    JPanel panel = new JPanel(new BorderLayout(10, 10));
-    panel.setBackground(new Color(245, 245, 245));
-    
-    // Phương thức thanh toán
-    panel.add(createPaymentMethodPanel(), BorderLayout.NORTH);
-    
-    // Ô ghi chú
-    panel.add(createNotePanel(), BorderLayout.CENTER);
-    
-    // Nút thanh toán
-    JPanel buttonPanel = new JPanel();
-    buttonPanel.add(createPaymentButton());
-    panel.add(buttonPanel, BorderLayout.SOUTH);
-    
-    return panel;
-}
-
-private JPanel createPaymentMethodPanel() {
-    JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
-    panel.setBackground(new Color(245, 245, 245));
-    
-    JLabel label = new JLabel("Phương thức thanh toán:");
-    label.setFont(new Font("Arial", Font.PLAIN, 16));
-    panel.add(label);
-    
-    paymentMethodComboBox = new JComboBox<>(new String[]{"Tiền mặt", "Chuyển khoản", "Quẹt thẻ"});
-    paymentMethodComboBox.setFont(new Font("Arial", Font.PLAIN, 16));
-    paymentMethodComboBox.setPreferredSize(new Dimension(150, 30));
-    panel.add(paymentMethodComboBox);
-    
-    return panel;
-}
-
-    private JPanel createNotePanel() {
-        JPanel panel = new JPanel() {
+        // Hiệu ứng hover
+        card.addMouseListener(new MouseAdapter() {
             @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2d = (Graphics2D) g.create();
-                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2d.setColor(Color.WHITE);
-                g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
-                g2d.setColor(Color.LIGHT_GRAY);
-                g2d.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 20, 20);
-                g2d.dispose();
-            }
-        };
-        panel.setLayout(new BorderLayout());
-        panel.setPreferredSize(new Dimension(300, 150));
-
-        noteTextArea = new JTextArea() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                if (getText().isEmpty()) {
-                    Graphics2D g2d = (Graphics2D) g.create();
-                    g2d.setColor(Color.GRAY);
-                    g2d.setFont(getFont().deriveFont(Font.ITALIC));
-                    g2d.drawString("Ghi chú...", 10, 25);
-                    g2d.dispose();
-                }
-            }
-        };
-        noteTextArea.setLineWrap(true);
-        noteTextArea.setWrapStyleWord(true);
-        noteTextArea.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-        noteTextArea.setFont(new Font("Arial", Font.PLAIN, 14));
-        noteTextArea.addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusGained(FocusEvent e) {
-                if (noteTextArea.getText().equals("Ghi chú...")) {
-                    noteTextArea.setText("");
-                }
+            public void mouseEntered(MouseEvent e) {
+                card.setBackground(new Color(240, 248, 255));
+                card.setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(new Color(100, 149, 237)),
+                        BorderFactory.createEmptyBorder(10, 10, 10, 10)
+                ));
             }
 
             @Override
-            public void focusLost(FocusEvent e) {
-                if (noteTextArea.getText().isEmpty()) {
-                    noteTextArea.setText("Ghi chú...");
-                }
+            public void mouseExited(MouseEvent e) {
+                card.setBackground(new Color(250, 250, 250));
+                card.setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(new Color(230, 230, 230)),
+                        BorderFactory.createEmptyBorder(10, 10, 10, 10)
+                ));
+            }
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                addProductToOrder(product);
             }
         });
 
-        panel.add(new JScrollPane(noteTextArea), BorderLayout.CENTER);
+        return card;
+    }
+
+    private ImageIcon loadScaledIcon(String path, int width, int height) {
+        try {
+            // Thử load từ file hệ thống trước
+            File imageFile = new File(path);
+            if (imageFile.exists()) {
+                ImageIcon icon = new ImageIcon(path);
+                Image scaledImage = icon.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH);
+                return new ImageIcon(scaledImage);
+            }
+
+            // Nếu không tìm thấy file, thử load từ resources
+            URL imageUrl = getClass().getResource(path);
+            if (imageUrl != null) {
+                ImageIcon icon = new ImageIcon(imageUrl);
+                Image scaledImage = icon.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH);
+                return new ImageIcon(scaledImage);
+            }
+
+            throw new FileNotFoundException("Không tìm thấy ảnh: " + path);
+        } catch (Exception e) {
+            System.err.println("Lỗi khi tải ảnh: " + e.getMessage());
+            // Trả về icon mặc định
+            BufferedImage defaultImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D g2d = defaultImage.createGraphics();
+            g2d.setColor(Color.LIGHT_GRAY);
+            g2d.fillRect(0, 0, width, height);
+            g2d.setColor(Color.DARK_GRAY);
+            g2d.drawString("No Image", width / 4, height / 2);
+            g2d.dispose();
+            return new ImageIcon(defaultImage);
+        }
+    }
+
+    private void addProductToOrder(Product product) {
+        // Chuyển sang panel có đơn hàng nếu đang ở panel trống
+        cardLayout.show(containerPanel, "ITEMS");
+
+        // Lấy panel chứa danh sách đơn hàng
+        JScrollPane scrollPane = (JScrollPane) containerPanel.getComponent(1);
+        JViewport viewport = scrollPane.getViewport();
+        JPanel orderListPanel = (JPanel) viewport.getView();
+
+        // Thêm sản phẩm vào đơn hàng
+        JPanel orderItem = createOrderItem(product);
+        orderListPanel.add(orderItem);
+
+        // Cập nhật lại giao diện
+        orderListPanel.revalidate();
+        orderListPanel.repaint();
+
+        // Cập nhật tổng tiền
+        updateTotalPrice();
+    }
+
+    private JPanel createOrderItem(Product product) {
+        JPanel itemPanel = new JPanel(new BorderLayout());
+        itemPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
+        // Thông tin sản phẩm
+        JPanel infoPanel = new JPanel(new GridLayout(2, 1));
+        infoPanel.add(new JLabel(product.getName()));
+        infoPanel.add(new JLabel(String.format("%,dđ", product.getPrice())));
+
+        // Nút xóa
+        JButton removeButton = new JButton("Xóa");
+        removeButton.addActionListener(e -> {
+            Container parent = itemPanel.getParent();
+            parent.remove(itemPanel);
+            parent.revalidate();
+            parent.repaint();
+            updateTotalPrice();
+        });
+
+        itemPanel.add(infoPanel, BorderLayout.CENTER);
+        itemPanel.add(removeButton, BorderLayout.EAST);
+
+        return itemPanel;
+    }
+
+    private void updateTotalPrice() {
+        // Tính tổng tiền từ các sản phẩm trong đơn hàng
+        // (Bạn cần thêm logic tính toán thực tế ở đây)
+        totalValueLabel.setText("Tổng tiền cần tính");
+    }
+
+    private JPanel createRightPanel() {
+        JPanel rightPanel = new JPanel();
+        rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS));
+        rightPanel.setBackground(new Color(245, 245, 245));
+        rightPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        // 1. Panel chứa Tổng tiền và Chiết khấu (chữ to hơn)
+        JPanel topPanel = new JPanel();
+        topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
+        topPanel.setBackground(Color.WHITE);
+        topPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(Color.LIGHT_GRAY),
+                BorderFactory.createEmptyBorder(15, 20, 15, 20) // Tăng padding
+        ));
+
+        // Tổng tiền (font size 20)
+        JPanel totalPanel = createMoneyRow("Tổng tiền:", totalValueLabel = new JLabel("0"), false, 20);
+        topPanel.add(totalPanel);
+
+        // Chiết khấu (font size 18)
+        JPanel discountPanel = createMoneyRow("Chiết khấu (F6):", discountValueLabel = new JLabel("0"), false, 18);
+        topPanel.add(discountPanel);
+
+        // Đường kẻ ngăn cách dày hơn
+        JSeparator separator = new JSeparator(SwingConstants.HORIZONTAL);
+        separator.setForeground(new Color(200, 200, 200));
+        separator.setPreferredSize(new Dimension(0, 2));
+        topPanel.add(separator);
+
+        // KHÁCH PHẢI TRẢ (font size 22, in đậm)
+        JPanel amountPanel = createMoneyRow("KHÁCH PHẢI TRẢ:", amountLabel = new JLabel("0"), true, 22);
+        topPanel.add(amountPanel);
+
+        rightPanel.add(topPanel);
+        rightPanel.add(Box.createRigidArea(new Dimension(0, 20))); // Tăng khoảng cách
+
+        // 2. Panel chứa Tiền khách đưa và Tiền thừa
+        JPanel bottomPanel = new JPanel();
+        bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.Y_AXIS));
+        bottomPanel.setBackground(Color.WHITE);
+        bottomPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(Color.LIGHT_GRAY),
+                BorderFactory.createEmptyBorder(15, 20, 15, 20) // Tăng padding
+        ));
+
+        // Tiền khách đưa (font size 18, in đậm)
+        JPanel givenPanel = createMoneyRow("Tiền khách đưa (F2):", givenAmountLabel = new JLabel("0"), true, 18);
+        bottomPanel.add(givenPanel);
+
+        // Phương thức thanh toán (font size 16)
+        JPanel paymentPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
+        paymentPanel.setBackground(Color.WHITE);
+
+        JLabel paymentLabel = new JLabel("Phương thức:");
+        paymentLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+        paymentPanel.add(paymentLabel);
+
+        paymentMethodComboBox = new JComboBox<>(new String[]{"Tiền mặt", "Chuyển khoản"});
+        paymentMethodComboBox.setFont(new Font("Arial", Font.PLAIN, 16));
+        paymentMethodComboBox.setPreferredSize(new Dimension(150, 30));
+        paymentPanel.add(paymentMethodComboBox);
+
+        bottomPanel.add(paymentPanel);
+
+        // Tiền thừa (font size 18, in đậm)
+        JPanel changePanel = createMoneyRow("Tiền thừa khách trả:", changeAmountLabel = new JLabel("0"), true, 18);
+        bottomPanel.add(changePanel);
+
+        rightPanel.add(bottomPanel);
+        rightPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+
+        // 3. Phần ghi chú mới thêm
+        // Panel chứa tiêu đề
+        JPanel noteLabelPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        noteLabelPanel.setBackground(Color.WHITE); // Đặt màu nền giống với giao diện
+        JLabel noteLabel = new JLabel("Ghi chú:");
+        noteLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        noteLabelPanel.add(noteLabel);
+
+// Panel chứa JTextArea
+        JPanel notePanel = new JPanel(new BorderLayout());
+        notePanel.setBackground(Color.WHITE);
+        notePanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(Color.LIGHT_GRAY),
+                BorderFactory.createEmptyBorder(10, 15, 10, 15)
+        ));
+
+        noteTextArea = new JTextArea(3, 20);
+        noteTextArea.setFont(new Font("Arial", Font.PLAIN, 16));
+        noteTextArea.setLineWrap(true);
+        noteTextArea.setWrapStyleWord(true);
+        noteTextArea.setBorder(null); // Xóa viền của JTextArea
+
+        JScrollPane scrollPane = new JScrollPane(noteTextArea);
+        scrollPane.setBorder(null); // Xóa viền của JScrollPane
+
+        notePanel.add(scrollPane, BorderLayout.CENTER);
+
+// Thêm label và panel vào rightPanel
+        rightPanel.add(noteLabelPanel);
+        rightPanel.add(notePanel);
+        rightPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+
+        // 4. Nút thanh toán (to hơn)
+        JButton paymentButton = createPaymentButton();
+        paymentButton.setFont(new Font("Arial", Font.BOLD, 20)); // Tăng size chữ
+        rightPanel.add(paymentButton);
+
+        return rightPanel;
+    }
+
+    private JPanel createMoneyRow(String labelText, JLabel valueLabel, boolean isBold, int fontSize) {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBackground(Color.WHITE);
+        panel.setBorder(BorderFactory.createEmptyBorder(8, 0, 8, 0)); // Tăng padding dọc
+
+        JLabel label = new JLabel(labelText);
+        label.setFont(new Font("Arial", isBold ? Font.BOLD : Font.PLAIN, fontSize));
+
+        valueLabel.setFont(new Font("Arial", isBold ? Font.BOLD : Font.PLAIN, fontSize));
+        valueLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+        if (isBold) {
+            valueLabel.setForeground(new Color(200, 0, 0));
+        }
+
+        panel.add(label, BorderLayout.WEST);
+        panel.add(valueLabel, BorderLayout.EAST);
+
         return panel;
     }
 
@@ -529,25 +654,6 @@ private JPanel createPaymentMethodPanel() {
         button.setBorder(BorderFactory.createEmptyBorder(5, 15, 5, 15));
         button.setContentAreaFilled(false);
         return button;
-    }
-
-    private ImageIcon loadScaledIcon(String path, int width, int height) {
-        try {
-            ImageIcon icon = new ImageIcon(path);
-            Image scaledImage = icon.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH);
-            return new ImageIcon(scaledImage);
-        } catch (Exception e) {
-            System.err.println("Không thể tải ảnh: " + path);
-            // Trả về icon mặc định nếu không tìm thấy ảnh
-            dfimg = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-            Graphics2D g2d = dfimg.createGraphics();
-            g2d.setColor(Color.LIGHT_GRAY);
-            g2d.fillRect(0, 0, width, height);
-            g2d.setColor(Color.DARK_GRAY);
-            g2d.drawString("No Image", width / 4, height / 2);
-            g2d.dispose();
-            return new ImageIcon(dfimg);
-        }
     }
 
     private void showDevelopmentMessage() {
