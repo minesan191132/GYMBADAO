@@ -9,5 +9,5 @@ package entity;
  * @author trong
  */
 public class BanHang {
-    
+        
 }
