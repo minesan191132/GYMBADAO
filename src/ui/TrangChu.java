@@ -1,18 +1,72 @@
 package ui;
 
-import dao.ThanhToanDAO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.sql.Connection;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
-import ui.BaoCao;
 
 public class TrangChu extends JFrame {
 
     private JPanel mainPanel;
-    private List<JButton> menuButtons;
+    private List<JButton> menuButtons; // Danh sách các nút trong sidebar
+
+    // Lớp nút bo tròn
+    class RoundedButton extends JButton {
+
+        private int arcWidth = 20; // Độ bo tròn góc
+        private int arcHeight = 20;
+
+        public RoundedButton(String text) {
+            super(text);
+            setContentAreaFilled(false);
+            setFocusPainted(false);
+            setBorderPainted(false);
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+            if (getModel().isPressed()) {
+                g2.setColor(getBackground().darker());
+            } else if (getModel().isRollover()) {
+                g2.setColor(getBackground().brighter());
+            } else {
+                g2.setColor(getBackground());
+            }
+
+            g2.fillRoundRect(0, 0, getWidth(), getHeight(), arcWidth, arcHeight);
+            g2.setColor(getForeground());
+            g2.setFont(getFont());
+
+            FontMetrics fm = g2.getFontMetrics();
+            Rectangle textRect = new Rectangle(getWidth(), getHeight());
+
+            // Vẽ icon nếu có
+            if (getIcon() != null) {
+                int iconWidth = getIcon().getIconWidth();
+                int iconHeight = getIcon().getIconHeight();
+                int iconX = 20; // Khoảng cách từ lề trái
+                int iconY = (getHeight() - iconHeight) / 2;
+                getIcon().paintIcon(this, g2, iconX, iconY);
+
+                // Vẽ text sau icon
+                int textX = iconX + iconWidth + getIconTextGap();
+                int textY = ((getHeight() - fm.getHeight()) / 2) + fm.getAscent();
+                g2.drawString(getText(), textX, textY);
+            } else {
+                // Vẽ text nếu không có icon
+                int textX = (getWidth() - fm.stringWidth(getText())) / 2;
+                int textY = ((getHeight() - fm.getHeight()) / 2) + fm.getAscent();
+                g2.drawString(getText(), textX, textY);
+            }
+
+            g2.dispose();
+        }
+    }
 
     public TrangChu() {
         setTitle("Gym Management Dashboard");
@@ -30,41 +84,38 @@ public class TrangChu extends JFrame {
         add(sidebar);
 
         JLabel lblLogo = new JLabel(new ImageIcon("/GYMBADAO/src/icon/logo.png"));
-        lblLogo.setBounds(0, 10, 200, 60);
+        lblLogo.setBounds(0, 10, 200, 60); // Kích thước phù hợp
         lblLogo.setOpaque(true);
-        lblLogo.setBackground(new Color(25, 25, 50));
-        lblLogo.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        lblLogo.setBackground(new Color(25, 25, 50)); // Nền tối
+        lblLogo.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10)); // Khoảng cách giữa chữ và viền
         sidebar.add(lblLogo);
 
         String[] menu = {"Tổng Quan", "Khách Hàng", "Đơn Hàng", "Bán Hàng", "Báo Cáo"};
-        String[] icons = {"/GYMBADAO/src/icon/home.png", "/GYMBADAO/src/icon/contact-list.png",
-            "/GYMBADAO/src/icon/guest-list.png", "/GYMBADAO/src/icon/add-to-basket.png",
-            "/GYMBADAO/src/icon/sales.png"};
+        String[] icons = {"/GYMBADAO/src/icon/home.png", "/GYMBADAO/src/icon/contact-list.png", "/GYMBADAO/src/icon/guest-list.png", "/GYMBADAO/src/icon/add-to-basket.png", "/GYMBADAO/src/icon/sales.png"};
 
-        menuButtons = new ArrayList<>();
+        menuButtons = new ArrayList<>(); // Khởi tạo danh sách các nút
+
         int y = 80;
         for (int i = 0; i < menu.length; i++) {
-            JButton btn = new JButton(menu[i]);
+            RoundedButton btn = new RoundedButton(menu[i]); // Sử dụng RoundedButton thay vì JButton
+
+            // Tải hình ảnh và thay đổi kích thước cho tất cả các icon
             ImageIcon icon = new ImageIcon(icons[i]);
             Image image = icon.getImage();
-            Image scaledImage = image.getScaledInstance(30, 30, Image.SCALE_SMOOTH);
+            Image scaledImage = image.getScaledInstance(30, 30, Image.SCALE_SMOOTH); // Đổi kích thước thành 20x20
             icon = new ImageIcon(scaledImage);
-            btn.setIcon(icon);
+
+            btn.setIcon(icon); // Gán icon đã thay đổi kích thước vào nút
             btn.setBounds(10, y, 180, 50);
             btn.setBackground(i == 0 ? new Color(255, 200, 0) : new Color(44, 44, 80));
             btn.setForeground(i == 0 ? Color.BLACK : Color.WHITE);
-            btn.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 10));
             btn.setFont(new Font("Arial", Font.BOLD, 14));
-            btn.setFocusPainted(false);
             btn.setHorizontalAlignment(SwingConstants.LEFT);
             btn.setIconTextGap(15);
-            btn.setBorder(BorderFactory.createCompoundBorder(
-                    BorderFactory.createLineBorder(new Color(255, 255, 255, 50), 1),
-                    BorderFactory.createEmptyBorder(10, 20, 10, 10)
-            ));
+
             int index = i;
             btn.addActionListener(e -> {
-                setSelectedButton(index);
+                setSelectedButton(index); // Đặt nút được chọn
                 switch (index) {
                     case 0 ->
                         showDashboardPanel();
@@ -79,11 +130,11 @@ public class TrangChu extends JFrame {
                 }
             });
             sidebar.add(btn);
-            menuButtons.add(btn);
+            menuButtons.add(btn); // Thêm nút vào danh sách
             y += 60;
         }
 
-        JButton btnLogout = new JButton("Log out");
+        RoundedButton btnLogout = new RoundedButton("Log out"); // Sử dụng RoundedButton cho nút logout
         btnLogout.setBounds(20, 550, 160, 50);
         btnLogout.setBackground(new Color(255, 153, 51));
         btnLogout.setForeground(Color.BLACK);
@@ -91,26 +142,30 @@ public class TrangChu extends JFrame {
         btnLogout.setIcon(new ImageIcon("/GYMBADAO/src/icon/logout.png"));
         btnLogout.setHorizontalAlignment(SwingConstants.LEFT);
         btnLogout.setIconTextGap(15);
-        btnLogout.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(255, 255, 255, 50), 1),
-                BorderFactory.createEmptyBorder(10, 20, 10, 10)
-        ));
         sidebar.add(btnLogout);
+        btnLogout.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                boolean confirm = utils.MsgBox.confirm(TrangChu.this, "Bạn có chắc chắn muốn đăng xuất?");
+                if (confirm) {
+                    // Clear thông tin người dùng
+                    utils.Auth.clear();
 
-        btnLogout.addActionListener(e -> {
-            boolean confirm = utils.MsgBox.confirm(TrangChu.this, "Bạn có chắc chắn muốn đăng xuất?");
-            if (confirm) {
-                utils.Auth.clear();
-                dispose();
-                showLoginAndOpenTrangChu();
+                    // Đóng giao diện hiện tại (Trang chủ)
+                    dispose();
+
+                    // Quay về login và kiểm tra đăng nhập lại
+                    showLoginAndOpenTrangChu();
+                }
             }
         });
 
         mainPanel = new JPanel();
         mainPanel.setBounds(200, 0, 800, 650);
-        mainPanel.setLayout(new BorderLayout());
+        mainPanel.setLayout(null);
         add(mainPanel);
 
+        // Default view là Dashboard
         showDashboardPanel();
     }
 
@@ -119,8 +174,10 @@ public class TrangChu extends JFrame {
         dn.setVisible(true);
 
         if (utils.Auth.isLogin()) {
+            // Sau khi login thành công sẽ mở lại TrangChu
             new TrangChu().setVisible(true);
         } else {
+            // Nếu không đăng nhập thì thoát hẳn chương trình
             System.exit(0);
         }
     }
@@ -129,10 +186,10 @@ public class TrangChu extends JFrame {
         for (int i = 0; i < menuButtons.size(); i++) {
             JButton btn = menuButtons.get(i);
             if (i == index) {
-                btn.setBackground(new Color(255, 200, 0));
+                btn.setBackground(new Color(255, 200, 0)); // Màu vàng cho nút được chọn
                 btn.setForeground(Color.BLACK);
             } else {
-                btn.setBackground(new Color(44, 44, 80));
+                btn.setBackground(new Color(44, 44, 80)); // Màu mặc định cho các nút khác
                 btn.setForeground(Color.WHITE);
             }
         }
@@ -140,31 +197,21 @@ public class TrangChu extends JFrame {
 
     private void showDashboardPanel() {
         mainPanel.removeAll();
-        mainPanel.add(new DashboardPanel(), BorderLayout.CENTER);
-        mainPanel.revalidate();
-        mainPanel.repaint();
-    }
-
-    private ThanhToanDAO thanhToanDAO;
-
-    private void showBaoCaoPanel() {
-        mainPanel.removeAll();
-        mainPanel.add(new BaoCao(), BorderLayout.CENTER);
-
+        mainPanel.add(new DashboardPanel());
         mainPanel.revalidate();
         mainPanel.repaint();
     }
 
     private void showKhachHangPanel() {
         mainPanel.removeAll();
-        mainPanel.add(new KhachHang(), BorderLayout.CENTER);
+        mainPanel.add(new KhachHang());
         mainPanel.revalidate();
         mainPanel.repaint();
     }
 
     private void showDonHangPanel() {
         mainPanel.removeAll();
-        mainPanel.add(new DonHang(), BorderLayout.CENTER);
+        mainPanel.add(new DonHang());
         mainPanel.revalidate();
         mainPanel.repaint();
     }
@@ -174,12 +221,23 @@ public class TrangChu extends JFrame {
         new BanHang().setVisible(true);
     }
 
+    private void showBaoCaoPanel() {
+        mainPanel.removeAll();
+        mainPanel.setLayout(new BorderLayout());
+        mainPanel.add(new BaoCao(), BorderLayout.CENTER);
+        mainPanel.revalidate();
+        mainPanel.repaint();
+    }
+
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             new ManHinhChao(null, true);
+
             DangNhap dn = new DangNhap(null, true);
             dn.setVisible(true);
-            new TrangChu().setVisible(true);
+
+            TrangChu tc = new TrangChu();
+            tc.setVisible(true);
         });
     }
 }

@@ -142,6 +142,8 @@ public class KhachHang extends JPanel {
         genderGroup.add(rbNu);
         rbNam.setBounds(150, 200, 70, 30);
         rbNu.setBounds(230, 200, 70, 30);
+        rbNam.setBackground(Color.WHITE);
+        rbNu.setBackground(Color.WHITE);
 
         // Gói tập
         JLabel lblGoiTap = new JLabel("Gói tập:");

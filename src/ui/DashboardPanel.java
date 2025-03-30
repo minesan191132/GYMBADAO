@@ -70,7 +70,7 @@ public class DashboardPanel extends JPanel {
         JLabel lblUserName = new JLabel(firstName);
         lblUserName.setFont(new Font("Arial", Font.BOLD, 16));
         lblUserName.setForeground(new Color(70, 70, 70));
-        lblUserName.setBounds(600, 25, 70, 30);
+        lblUserName.setBounds(620, 25, 70, 30);
         headerPanel.add(lblUserName);
 
         // Cards section
