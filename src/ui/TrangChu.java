@@ -126,7 +126,7 @@ public class TrangChu extends JFrame {
                     case 3 ->
                         showBanHangPanel();
                     case 4 ->
-                        showBaoCaoPanel();
+                        showBaoCaoPanel();    
                 }
             });
             sidebar.add(btn);
@@ -221,7 +221,7 @@ public class TrangChu extends JFrame {
         new BanHang().setVisible(true);
     }
 
-    private void showBaoCaoPanel() {
+private void showBaoCaoPanel() {
         mainPanel.removeAll();
         mainPanel.setLayout(new BorderLayout());
         mainPanel.add(new BaoCao(), BorderLayout.CENTER);
