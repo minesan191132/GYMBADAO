@@ -27,4 +27,8 @@ public class ThanhToanDAO {
                 new ThanhToan(method, 200000)
         );
     }
+
+    public List<ThanhToan> layDuLieuThongKe(String toString, String toString0) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
 }
