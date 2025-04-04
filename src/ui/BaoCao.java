@@ -3,10 +3,12 @@ package ui;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.JTableHeader;
+import javax.swing.table.TableCellRenderer;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -39,6 +41,7 @@ public class BaoCao extends JFrame {
         setLocationRelativeTo(null);
         setLayout(null);
         setResizable(false);
+        getContentPane().setBackground(new Color(240, 240, 240)); // Thêm dòng này
     }
 
     private JPanel createSidebar() {
@@ -48,7 +51,7 @@ public class BaoCao extends JFrame {
         sidebar.setBounds(0, 0, 200, 650);
 
         // Logo
-        JLabel lblLogo = new JLabel("GYM BADAO", SwingConstants.CENTER);
+        JLabel lblLogo = new JLabel(new ImageIcon("/GYMBADAO/src/icon/logo.png"));
         lblLogo.setBounds(0, 10, 200, 60);
         lblLogo.setOpaque(true);
         lblLogo.setBackground(new Color(25, 25, 50));
@@ -103,46 +106,69 @@ public class BaoCao extends JFrame {
     }
 
     private JPanel createHeaderPanel() {
-        JPanel headerPanel = new JPanel();
-        headerPanel.setLayout(null);
-        headerPanel.setBackground(new Color(240, 240, 240));
-        headerPanel.setBounds(200, 0, 800, 80);
+    JPanel headerPanel = new JPanel();
+    headerPanel.setLayout(null);
+    headerPanel.setBackground(new Color(241, 239, 236));
+    headerPanel.setBounds(200, 0, 800, 80);
 
-        // Nút xem theo ngày
-        JButton btnXemNgay = new JButton("Xem theo ngày") {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+    // Nút xem theo ngày (đã có)
+    JButton btnXemNgay = new JButton("Xem theo ngày") {
+        @Override
+        protected void paintComponent(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-                GradientPaint gradient = new GradientPaint(
-                    0, 0, new Color(44, 44, 80), 
-                    getWidth(), getHeight(), new Color(33, 33, 61)
-                );
-                g2.setPaint(gradient);
-                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
-                g2.dispose();
-                super.paintComponent(g);
-            }
-        };
-        btnXemNgay.setFont(new Font("Arial", Font.BOLD, 14));
-        btnXemNgay.setForeground(Color.WHITE);
-        btnXemNgay.setFocusPainted(false);
-        btnXemNgay.setContentAreaFilled(false);
-        btnXemNgay.setOpaque(false);
-        btnXemNgay.setBorderPainted(false);
-        btnXemNgay.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
-        btnXemNgay.setBounds(20, 20, 180, 40);
-        btnXemNgay.addActionListener(e -> showDateRangeDialog());
-        headerPanel.add(btnXemNgay);
+            GradientPaint gradient = new GradientPaint(
+                0, 0, new Color(44, 44, 80), 
+                getWidth(), getHeight(), new Color(33, 33, 61)
+            );
+            g2.setPaint(gradient);
+            g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
+            g2.dispose();
+            super.paintComponent(g);
+        }
+    };
+    btnXemNgay.setFont(new Font("Arial", Font.BOLD, 14));
+    btnXemNgay.setForeground(Color.WHITE);
+    btnXemNgay.setFocusPainted(false);
+    btnXemNgay.setContentAreaFilled(false);
+    btnXemNgay.setOpaque(false);
+    btnXemNgay.setBorderPainted(false);
+    btnXemNgay.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+    btnXemNgay.setBounds(20, 20, 180, 40);
+    btnXemNgay.addActionListener(e -> showDateRangeDialog());
+    headerPanel.add(btnXemNgay);
 
-        return headerPanel;
-    }
+    // Điều chỉnh vị trí các icon và text (dịch xuống 10px so với trước)
+    int yPosition = 25; // Tăng từ 20 lên 30 để dịch xuống
+
+    // Icon và text Trợ giúp
+    JLabel lblHelpIcon = new JLabel(new ImageIcon("D:/GYMBADAO/src/icon/question-sign.png"));
+    lblHelpIcon.setBounds(240, yPosition, 30, 30);
+    headerPanel.add(lblHelpIcon);
+
+    JLabel lblHelpText = new JLabel("Trợ giúp");
+    lblHelpText.setBounds(275, yPosition, 80, 30);
+    lblHelpText.setFont(new Font("Arial", Font.PLAIN, 14));
+    headerPanel.add(lblHelpText);
+
+    // Icon và text Góp ý
+    JLabel lblFeedbackIcon = new JLabel(new ImageIcon("D:/GYMBADAO/src/icon/heart.png"));
+    lblFeedbackIcon.setBounds(360, yPosition, 30, 30);
+    headerPanel.add(lblFeedbackIcon);
+
+    JLabel lblFeedbackText = new JLabel("Góp ý");
+    lblFeedbackText.setBounds(395, yPosition, 80, 30);
+    lblFeedbackText.setFont(new Font("Arial", Font.PLAIN, 14));
+    headerPanel.add(lblFeedbackText);
+
+    return headerPanel;
+}
 
     private JPanel createMainPanel() {
         JPanel mainPanel = new JPanel();
         mainPanel.setBounds(200, 80, 800, 570);
-        mainPanel.setBackground(Color.WHITE);
+        mainPanel.setBackground(new Color(240, 240, 240));
         mainPanel.setLayout(new BorderLayout());
 
         // Tạo và thêm biểu đồ vào main panel
@@ -152,66 +178,125 @@ public class BaoCao extends JFrame {
     }
 
 private JPanel createChartPanel() {
-    // 1. Tạo panel chứa biểu đồ với layout BorderLayout
-    JPanel chartContainer = new JPanel(new BorderLayout());
-    chartContainer.setBackground(Color.WHITE);
-    chartContainer.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+    // Panel chính sử dụng BorderLayout
+    JPanel mainContainer = new JPanel(new BorderLayout());
+    mainContainer.setBackground(new Color(240, 240, 240));
     
-    // 2. Tạo dataset với dữ liệu mẫu
+    // ===== PHẦN BIỂU ĐỒ =====
     DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-    dataset.addValue(35, "Tiền mặt", "");
-    dataset.addValue(20, "Chuyển khoản", "");
+    double tienMat = 2000000;
+    double chuyenKhoan = 1500000;
+    double tong = tienMat + chuyenKhoan;
+    
+    // Thêm dữ liệu vào biểu đồ
+    dataset.addValue(tienMat, "Tiền mặt", "");
+    dataset.addValue(chuyenKhoan, "Chuyển khoản", "");
 
-    // 3. Tạo biểu đồ không tiêu đề
     JFreeChart chart = ChartFactory.createBarChart(
         null, null, null, dataset,
         PlotOrientation.VERTICAL,
         true, false, false
     );
 
-    // 4. Cấu hình màu sắc và style
-    Color niceBlue = new Color(70, 130, 180); // Màu xanh đậm hơn
+    // Cấu hình biểu đồ
     BarRenderer renderer = (BarRenderer) chart.getCategoryPlot().getRenderer();
-    
-    // Cấu hình renderer
-    renderer.setSeriesPaint(0, niceBlue);
-    renderer.setSeriesPaint(1, niceBlue);
+    renderer.setSeriesPaint(0, new Color(70, 130, 180));
+    renderer.setSeriesPaint(1, new Color(70, 130, 180));
     renderer.setShadowVisible(false);
     renderer.setDrawBarOutline(false);
-    renderer.setBarPainter(new StandardBarPainter());
+    renderer.setBarPainter(new StandardBarPainter()); // Thêm dòng này
     
-    // 5. Cấu hình plot
     CategoryPlot plot = chart.getCategoryPlot();
-    plot.setBackgroundPaint(Color.WHITE); // Nền trắng
-    plot.setRangeGridlinePaint(Color.WHITE); // Ẩn đường lưới
-    plot.setOutlineVisible(false); // Ẩn đường viền
-    
-    // 6. Tăng chiều cao các cột
-    plot.getDomainAxis().setLowerMargin(0.15); // Giảm khoảng trống 2 bên
-    plot.getDomainAxis().setUpperMargin(0.15);
-    renderer.setItemMargin(0.1); // Giảm khoảng cách giữa các cột
-    
-    // 7. Tạo ChartPanel với kích thước dài hơn
-    ChartPanel chartPanel = new ChartPanel(chart) {
-        @Override
-        public Dimension getPreferredSize() {
-            return new Dimension(550, 230); 
-        }
-    };
-    
-    // 8. Căn giữa và đẩy lên trên
-    JPanel centerPanel = new JPanel(new GridBagLayout());
-    centerPanel.setBackground(Color.WHITE);
-    GridBagConstraints gbc = new GridBagConstraints();
-    gbc.anchor = GridBagConstraints.NORTH; // Căn lên trên
-    gbc.insets = new Insets(0, 0, 0, 0); // Không padding
-    centerPanel.add(chartPanel, gbc);
-    
-    chartContainer.add(centerPanel, BorderLayout.NORTH); // Đặt ở phía trên
-    
-    return chartContainer;
-}
+    plot.setBackgroundPaint(Color.WHITE);
+    plot.setDomainGridlinesVisible(false); // Tắt đường kẻ dọc
+    plot.setRangeGridlinesVisible(false);  // Tắt đường kẻ ngang
 
+    ChartPanel chartPanel = new ChartPanel(chart);
+    chartPanel.setPreferredSize(new Dimension(750, 300)); // Kích thước lớn hơn
+    
+    // Panel chứa biểu đồ
+    JPanel chartContainer = new JPanel(new BorderLayout());
+    chartContainer.setBackground(Color.WHITE);
+    chartContainer.add(chartPanel, BorderLayout.CENTER);
+    chartContainer.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+    
+    // ===== PHẦN BẢNG =====
+    DecimalFormat df = new DecimalFormat("#,##0");
+
+Object[][] data = {
+    {"Tổng", df.format(tong)},
+    {"Tiền mặt", df.format(tienMat)}, 
+    {"Chuyển khoản", df.format(chuyenKhoan)}
+};
+
+String[] columns = {"Phương thức thanh toán", "Tiền đã thanh toán"};
+
+JTable table = new JTable(data, columns) {
+    @Override
+    public boolean isCellEditable(int row, int column) {
+        return false;
+    }
+    
+    @Override
+    public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
+        Component c = super.prepareRenderer(renderer, row, column);
+        
+        // Đổi màu chữ cho dòng "Tiền mặt" và "Chuyển khoản"
+        if (row == 1 || row == 2) { // Dòng 1 và 2 (0-based index)
+            c.setForeground(Color.BLUE); // Màu xanh
+        } else {
+            c.setForeground(Color.BLACK); // Màu đen cho dòng "Tổng"
+        }
+        
+        return c;
+    }
+};
+
+// Renderer căn giữa
+DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer() {
+    @Override
+    public Component getTableCellRendererComponent(JTable table, Object value,
+            boolean isSelected, boolean hasFocus, int row, int column) {
+        JLabel label = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+        label.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
+        label.setHorizontalAlignment(JLabel.CENTER);
+        return label;
+    }
+};
+
+// Áp dụng renderer
+table.setDefaultRenderer(Object.class, centerRenderer);
+
+// Cấu hình kích thước
+table.setRowHeight(35);
+table.setShowGrid(false);
+table.setFont(new Font("Arial", Font.PLAIN, 13));
+
+// Header
+JTableHeader header = table.getTableHeader();
+header.setPreferredSize(new Dimension(header.getWidth(), 30));
+header.setFont(new Font("Arial", Font.BOLD, 13));
+header.setBackground(new Color(70, 130, 180));
+header.setForeground(Color.WHITE);
+
+// Cấu hình scroll pane
+JScrollPane scrollPane = new JScrollPane(table);
+scrollPane.setBorder(BorderFactory.createEmptyBorder());
+scrollPane.setViewportBorder(BorderFactory.createEmptyBorder());
+
+// Panel chứa bảng
+JPanel tableContainer = new JPanel(new BorderLayout());
+tableContainer.add(scrollPane, BorderLayout.CENTER);
+tableContainer.setBackground(new Color(241, 239, 236));
+tableContainer.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+    
+    
+    // Thêm cả 2 vào main container
+    mainContainer.add(chartContainer, BorderLayout.NORTH);
+    mainContainer.add(tableContainer, BorderLayout.CENTER);
+    
+    return mainContainer;
+}
     private void showDateRangeDialog() {
         JDialog dialog = new JDialog(this, "Chọn khoảng thời gian", true);
         dialog.setSize(400, 220);
