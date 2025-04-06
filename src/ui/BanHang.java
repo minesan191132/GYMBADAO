@@ -291,11 +291,11 @@ public class BanHang extends JFrame {
                 new Product("P001", "Pocari Sweat", 20000, "/GYMBADAO/src/icon/pocari.png"),
                 new Product("P002", "Revive", 15000, "/GYMBADAO/src/icon/revive.png"),
                 new Product("P003", "Whey Gold Standard", 1120000, "/GYMBADAO/src/icon/whey.png"),
-                new Product("P004", "Protein Bar", 25000, "/GYMBADAO/src/icon/protein_bar.png"),
+                new Product("P004", "Protein Bar", 25000, "/GYMBADAO/src/icon/Protein_Bar.png"),
                 new Product("P005", "Whey Hydropure", 1250000, "/GYMBADAO/src/icon/whey2.png"),
                 new Product("P006", "Multi Vitamin", 350000, "/GYMBADAO/src/icon/vitamin.png"),
-                new Product("P007", "BCAA", 450000, "/GYMBADAO/src/icon/bcaa.png"),
-                new Product("P008", "Creatine", 300000, "/GYMBADAO/src/icon/creatine.png"),
+                new Product("P007", "BCAA", 450000, "/GYMBADAO/src/icon/whey_BCAA.png"),
+                new Product("P008", "Creatine", 300000, "/GYMBADAO/src/icon/Creatine.png"),
                 new Product("P009", "Pre-workout", 500000, "/GYMBADAO/src/icon/preworkout.png")
         );
 

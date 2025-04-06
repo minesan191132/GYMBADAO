@@ -179,7 +179,7 @@ public class DashboardPanel extends JPanel {
             int donHang = dao.getSoDonHang();
             int thanhVien = dao.getSoThanhVien();
 
-            lblDoanhThu.setText(String.format("%.0fVND", doanhThu / 1000));
+            lblDoanhThu.setText(String.format("%.0f", doanhThu / 1000));
             lblDonHang.setText(String.valueOf(donHang));
             lblThanhVien.setText(String.valueOf(thanhVien));
 

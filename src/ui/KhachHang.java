@@ -307,84 +307,154 @@ public class KhachHang extends JPanel {
         });
         searchPanel.add(btnLoc);
         // Nút xem theo ngày
-        JButton btnXemNgay = new JButton("Xem theo ngày") {
+JButton btnXemNgay = new JButton("Xem theo ngày") {
+    @Override
+    protected void paintComponent(Graphics g) {
+        Graphics2D g2 = (Graphics2D) g.create();
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+        GradientPaint gradient = new GradientPaint(0, 0, new Color(44, 44, 80), 
+                        getWidth(), getHeight(), new Color(33, 33, 61));
+        g2.setPaint(gradient);
+        g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
+        g2.dispose();
+        super.paintComponent(g);
+    }
+};
+btnXemNgay.setFont(new Font("Arial", Font.BOLD, 14));
+btnXemNgay.setForeground(Color.WHITE);
+btnXemNgay.setFocusPainted(false);
+btnXemNgay.setContentAreaFilled(false);
+btnXemNgay.setOpaque(false);
+btnXemNgay.setBorderPainted(false);
+btnXemNgay.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+btnXemNgay.setBounds(640, 70, 120, 40);
+btnXemNgay.addActionListener(new ActionListener() {
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        // Tạo dialog với parent frame và modal=true
+        JDialog dateDialog = new JDialog((Frame)SwingUtilities.getWindowAncestor(btnXemNgay), "Chọn khoảng thời gian", true);
+        dateDialog.setTitle("Chọn khoảng thời gian");
+        dateDialog.setSize(400, 220);
+        dateDialog.setLayout(new BorderLayout(10, 10));
+        dateDialog.setLocationRelativeTo(null);
+        
+        // Panel chính chứa các trường nhập
+        JPanel inputPanel = new JPanel(new GridLayout(2, 2, 15, 15));
+        inputPanel.setBorder(new EmptyBorder(20, 30, 20, 30));
+        
+        // Ngày bắt đầu
+        JLabel lblNgayBatDau = new JLabel("Ngày bắt đầu:");
+        lblNgayBatDau.setFont(new Font("Arial", Font.BOLD, 14));
+        inputPanel.add(lblNgayBatDau);
+        
+        JSpinner spnNgayBatDau = new JSpinner(new SpinnerDateModel());
+        JSpinner.DateEditor editorNgayBatDau = new JSpinner.DateEditor(spnNgayBatDau, "dd/MM/yyyy");
+        spnNgayBatDau.setEditor(editorNgayBatDau);
+        editorNgayBatDau.getTextField().setColumns(10);
+        editorNgayBatDau.getTextField().setFont(new Font("Arial", Font.PLAIN, 14));
+        inputPanel.add(spnNgayBatDau);
+
+        // Ngày kết thúc
+        JLabel lblNgayKetThuc = new JLabel("Ngày kết thúc:");
+        lblNgayKetThuc.setFont(new Font("Arial", Font.BOLD, 14));
+        inputPanel.add(lblNgayKetThuc);
+        
+        JSpinner spnNgayKetThuc = new JSpinner(new SpinnerDateModel());
+        JSpinner.DateEditor editorNgayKetThuc = new JSpinner.DateEditor(spnNgayKetThuc, "dd/MM/yyyy");
+        spnNgayKetThuc.setEditor(editorNgayKetThuc);
+        editorNgayKetThuc.getTextField().setColumns(10);
+        editorNgayKetThuc.getTextField().setFont(new Font("Arial", Font.PLAIN, 14));
+        inputPanel.add(spnNgayKetThuc);
+        
+        // Panel chứa các nút
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
+        buttonPanel.setBorder(new EmptyBorder(0, 0, 15, 0));
+        
+        // Nút Xác nhận với góc bo tròn
+        JButton btnXacNhan = new JButton("Xác nhận") {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-                GradientPaint gradient = new GradientPaint(0, 0, new Color(44, 44, 80), getWidth(), getHeight(), new Color(33, 33, 61));
-                g2.setPaint(gradient);
-                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
+                g2.setColor(getBackground());
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 15, 15);
                 g2.dispose();
-                super.paintComponent(g); // Quan trọng: Gọi super để vẽ chữ và icon
+                super.paintComponent(g);
+            }
+            
+            @Override
+            protected void paintBorder(Graphics g) {
+                // Không vẽ viền mặc định
             }
         };
-        btnXemNgay.setFont(new Font("Arial", Font.BOLD, 14));
-        btnXemNgay.setForeground(Color.WHITE);
-        btnXemNgay.setFocusPainted(false);
-        btnXemNgay.setContentAreaFilled(false); // Tắt nền mặc định
-        btnXemNgay.setOpaque(false); // Đảm bảo nút trong suốt
-        btnXemNgay.setBorderPainted(false); // Tắt viền mặc định
-        btnXemNgay.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20)); // Đặt padding
-        btnXemNgay.setBounds(640, 70, 120, 40); // Điều chỉnh kích thước (ngắn hơn)
-        btnXemNgay.addActionListener(new ActionListener() {
+        btnXacNhan.setBackground(new Color(76, 175, 80));
+        btnXacNhan.setForeground(Color.WHITE);
+        btnXacNhan.setFont(new Font("Arial", Font.BOLD, 14));
+        btnXacNhan.setPreferredSize(new Dimension(120, 35));
+        btnXacNhan.setContentAreaFilled(false);
+        btnXacNhan.setBorderPainted(false);
+        btnXacNhan.setFocusPainted(false);
+        btnXacNhan.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JDialog dateDialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(btnXemNgay), "Chọn khoảng thời gian", true);
-                dateDialog.setTitle("Chọn khoảng thời gian");
-                dateDialog.setSize(300, 150);
-                dateDialog.setLayout(new GridLayout(3, 2, 10, 10));
-                dateDialog.setLocationRelativeTo(null);
+                Date ngayBatDau = (Date) spnNgayBatDau.getValue();
+                Date ngayKetThuc = (Date) spnNgayKetThuc.getValue();
 
-                // Ngày bắt đầu
-                JLabel lblNgayBatDau = new JLabel("Ngày bắt đầu:");
-                JSpinner spnNgayBatDau = new JSpinner(new SpinnerDateModel());
-                JSpinner.DateEditor editorNgayBatDau = new JSpinner.DateEditor(spnNgayBatDau, "dd/MM/yyyy");
-                spnNgayBatDau.setEditor(editorNgayBatDau);
-                dateDialog.add(lblNgayBatDau);
-                dateDialog.add(spnNgayBatDau);
+                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+                String ngayBD = sdf.format(ngayBatDau);
+                String ngayKT = sdf.format(ngayKetThuc);
 
-                // Ngày kết thúc
-                JLabel lblNgayKetThuc = new JLabel("Ngày kết thúc:");
-                JSpinner spnNgayKetThuc = new JSpinner(new SpinnerDateModel());
-                JSpinner.DateEditor editorNgayKetThuc = new JSpinner.DateEditor(spnNgayKetThuc, "dd/MM/yyyy");
-                spnNgayKetThuc.setEditor(editorNgayKetThuc);
-                dateDialog.add(lblNgayKetThuc);
-                dateDialog.add(spnNgayKetThuc);
-
-                // Nút Xác nhận
-                JButton btnXacNhan = new JButton("Xác nhận");
-                btnXacNhan.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        Date ngayBatDau = (Date) spnNgayBatDau.getValue();
-                        Date ngayKetThuc = (Date) spnNgayKetThuc.getValue();
-
-                        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-                        String ngayBD = sdf.format(ngayBatDau);
-                        String ngayKT = sdf.format(ngayKetThuc);
-
-                        JOptionPane.showMessageDialog(null, "Đã chọn từ ngày " + ngayBD + " đến ngày " + ngayKT);
-                        dateDialog.dispose();
-                    }
-                });
-                dateDialog.add(btnXacNhan);
-
-                // Nút Hủy
-                JButton btnHuy = new JButton("Hủy");
-                btnHuy.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        dateDialog.dispose();
-                    }
-                });
-                dateDialog.add(btnHuy);
-
-                dateDialog.setVisible(true);
+                JOptionPane.showMessageDialog(
+                    dateDialog, 
+                    "Đã chọn khoảng thời gian:\nTừ: " + ngayBD + "\nĐến: " + ngayKT,
+                    "Thông báo",
+                    JOptionPane.INFORMATION_MESSAGE
+                );
+                dateDialog.dispose();
             }
         });
-        searchPanel.add(btnXemNgay);
+
+        // Nút Hủy với góc bo tròn
+        JButton btnHuy = new JButton("Hủy") {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(getBackground());
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 15, 15);
+                g2.dispose();
+                super.paintComponent(g);
+            }
+            
+            @Override
+            protected void paintBorder(Graphics g) {
+                // Không vẽ viền mặc định
+            }
+        };
+        btnHuy.setBackground(new Color(244, 67, 54));
+        btnHuy.setForeground(Color.WHITE);
+        btnHuy.setFont(new Font("Arial", Font.BOLD, 14));
+        btnHuy.setPreferredSize(new Dimension(120, 35));
+        btnHuy.setContentAreaFilled(false);
+        btnHuy.setBorderPainted(false);
+        btnHuy.setFocusPainted(false);
+        btnHuy.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dateDialog.dispose();
+            }
+        });
+        
+        buttonPanel.add(btnHuy);
+        buttonPanel.add(btnXacNhan);
+        
+        dateDialog.add(inputPanel, BorderLayout.CENTER);
+        dateDialog.add(buttonPanel, BorderLayout.SOUTH);
+        dateDialog.setVisible(true);
+    }
+});
+searchPanel.add(btnXemNgay);
 
         // Thêm searchPanel vào listPanel
         listPanel.add(searchPanel);

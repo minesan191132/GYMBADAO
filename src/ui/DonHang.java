@@ -1,11 +1,16 @@
 package ui;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.Insets;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -17,7 +22,6 @@ import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -26,8 +30,7 @@ import javax.swing.JSpinner;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SpinnerDateModel;
-import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
+import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
 public class DonHang extends JPanel {
@@ -75,7 +78,7 @@ public class DonHang extends JPanel {
 
         // Thanh tìm kiếm bo tròn và có thể nhập liệu
         RoundTextField txtTimKiem = new RoundTextField("Tìm kiếm", 20);
-        txtTimKiem.setBounds(50, 70, 500, 40); // Kéo dài thanh tìm kiếm
+        txtTimKiem.setBounds(50, 70, 500, 40);
         searchPanel.add(txtTimKiem);
 
         txtTimKiem.addFocusListener(new FocusAdapter() {
@@ -101,7 +104,6 @@ public class DonHang extends JPanel {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-                // Gradient màu xanh
                 GradientPaint gradient = new GradientPaint(0, 0, new Color(44, 44, 80), getWidth(), getHeight(), new Color(33, 33, 61));
                 g2.setPaint(gradient);
                 g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
@@ -115,7 +117,7 @@ public class DonHang extends JPanel {
         btnLoc.setContentAreaFilled(false);
         btnLoc.setBorderPainted(false);
         btnLoc.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
-        btnLoc.setPreferredSize(new java.awt.Dimension(100, 40)); // Thu ngắn lại
+        btnLoc.setPreferredSize(new java.awt.Dimension(100, 40));
         btnLoc.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -131,7 +133,6 @@ public class DonHang extends JPanel {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-                // Gradient màu xanh
                 GradientPaint gradient = new GradientPaint(0, 0, new Color(44, 44, 80), getWidth(), getHeight(), new Color(33, 33, 61));
                 g2.setPaint(gradient);
                 g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
@@ -145,61 +146,135 @@ public class DonHang extends JPanel {
         btnXemNgay.setContentAreaFilled(false);
         btnXemNgay.setBorderPainted(false);
         btnXemNgay.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
-        btnXemNgay.setPreferredSize(new java.awt.Dimension(120, 40)); // Thu ngắn lại
+        btnXemNgay.setPreferredSize(new java.awt.Dimension(120, 40));
         btnXemNgay.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JDialog dateDialog = new JDialog();
-                dateDialog.setTitle("Chọn khoảng thời gian");
-                dateDialog.setSize(300, 150);
-                dateDialog.setLayout(new GridLayout(3, 2, 10, 10));
-                dateDialog.setLocationRelativeTo(null);
+        JDialog dateDialog = new JDialog();
+        dateDialog.setTitle("Chọn khoảng thời gian");
+        dateDialog.setSize(450, 250); // Kích thước dialog lớn hơn
+        dateDialog.setLayout(new BorderLayout());
+        dateDialog.setLocationRelativeTo(null);
+        
+        // Panel chính với GridBagLayout để căn chỉnh linh hoạt
+        JPanel mainPanel = new JPanel(new GridBagLayout());
+        mainPanel.setBorder(new EmptyBorder(30, 40, 20, 40)); // Thêm padding xung quanh
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(15, 15, 15, 15); // Khoảng cách giữa các thành phần
+        gbc.anchor = GridBagConstraints.WEST;
 
-                // Ngày bắt đầu
-                JLabel lblNgayBatDau = new JLabel("Ngày bắt đầu:");
-                JSpinner spnNgayBatDau = new JSpinner(new SpinnerDateModel());
-                JSpinner.DateEditor editorNgayBatDau = new JSpinner.DateEditor(spnNgayBatDau, "dd/MM/yyyy");
-                spnNgayBatDau.setEditor(editorNgayBatDau);
-                dateDialog.add(lblNgayBatDau);
-                dateDialog.add(spnNgayBatDau);
+        // Ngày bắt đầu - được làm to hơn
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        JLabel lblNgayBatDau = new JLabel("Ngày bắt đầu:");
+        lblNgayBatDau.setFont(new Font("Arial", Font.BOLD, 14)); // Font đậm và to hơn
+        mainPanel.add(lblNgayBatDau, gbc);
 
-                // Ngày kết thúc
-                JLabel lblNgayKetThuc = new JLabel("Ngày kết thúc:");
-                JSpinner spnNgayKetThuc = new JSpinner(new SpinnerDateModel());
-                JSpinner.DateEditor editorNgayKetThuc = new JSpinner.DateEditor(spnNgayKetThuc, "dd/MM/yyyy");
-                spnNgayKetThuc.setEditor(editorNgayKetThuc);
-                dateDialog.add(lblNgayKetThuc);
-                dateDialog.add(spnNgayKetThuc);
+        gbc.gridx = 1;
+        JSpinner spnNgayBatDau = new JSpinner(new SpinnerDateModel());
+        JSpinner.DateEditor editorNgayBatDau = new JSpinner.DateEditor(spnNgayBatDau, "dd/MM/yyyy");
+        spnNgayBatDau.setEditor(editorNgayBatDau);
+        // Tăng kích thước spinner
+        editorNgayBatDau.getTextField().setColumns(12); // Rộng hơn
+        editorNgayBatDau.getTextField().setFont(new Font("Arial", Font.PLAIN, 14)); // Font to hơn
+        editorNgayBatDau.getTextField().setPreferredSize(new Dimension(180, 28)); // Cao và rộng hơn
+        mainPanel.add(spnNgayBatDau, gbc);
 
-                // Nút Xác nhận
-                JButton btnXacNhan = new JButton("Xác nhận");
-                btnXacNhan.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        Date ngayBatDau = (Date) spnNgayBatDau.getValue();
-                        Date ngayKetThuc = (Date) spnNgayKetThuc.getValue();
+        // Ngày kết thúc - được làm to hơn
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        JLabel lblNgayKetThuc = new JLabel("Ngày kết thúc:");
+        lblNgayKetThuc.setFont(new Font("Arial", Font.BOLD, 14)); // Font đậm và to hơn
+        mainPanel.add(lblNgayKetThuc, gbc);
 
-                        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-                        String ngayBD = sdf.format(ngayBatDau);
-                        String ngayKT = sdf.format(ngayKetThuc);
+        gbc.gridx = 1;
+        JSpinner spnNgayKetThuc = new JSpinner(new SpinnerDateModel());
+        JSpinner.DateEditor editorNgayKetThuc = new JSpinner.DateEditor(spnNgayKetThuc, "dd/MM/yyyy");
+        spnNgayKetThuc.setEditor(editorNgayKetThuc);
+        // Tăng kích thước spinner
+        editorNgayKetThuc.getTextField().setColumns(12); // Rộng hơn
+        editorNgayKetThuc.getTextField().setFont(new Font("Arial", Font.PLAIN, 14)); // Font to hơn
+        editorNgayKetThuc.getTextField().setPreferredSize(new Dimension(180, 28)); // Cao và rộng hơn
+        mainPanel.add(spnNgayKetThuc, gbc);
 
-                        JOptionPane.showMessageDialog(null, "Đã chọn từ ngày " + ngayBD + " đến ngày " + ngayKT);
-                        dateDialog.dispose();
-                    }
-                });
-                dateDialog.add(btnXacNhan);
-
-                // Nút Hủy
-                JButton btnHuy = new JButton("Hủy");
-                btnHuy.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        dateDialog.dispose();
-                    }
-                });
-                dateDialog.add(btnHuy);
-
-                dateDialog.setVisible(true);
+        // Panel chứa nút
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setBorder(new EmptyBorder(15, 0, 15, 0));
+        
+        // Nút Xác nhận (giữ nguyên style nhưng to hơn)
+        JButton btnXacNhan = new JButton("Xác nhận") {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(getBackground());
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 15, 15);
+                g2.dispose();
+                super.paintComponent(g);
+            }
+        };
+        btnXacNhan.setBackground(new Color(76, 175, 80));
+        btnXacNhan.setForeground(Color.WHITE);
+        btnXacNhan.setFont(new Font("Arial", Font.BOLD, 14));
+        btnXacNhan.setPreferredSize(new Dimension(120, 40)); // Nút to hơn
+        btnXacNhan.setOpaque(false);
+        btnXacNhan.setBorderPainted(false);
+        btnXacNhan.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+        // Lấy giá trị ngày từ spinner
+        Date ngayBatDau = (Date) spnNgayBatDau.getValue();
+        Date ngayKetThuc = (Date) spnNgayKetThuc.getValue();
+        
+        // Định dạng ngày tháng
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+        String ngayBD = sdf.format(ngayBatDau);
+        String ngayKT = sdf.format(ngayKetThuc);
+        
+        // Hiển thị thông báo
+        JOptionPane.showMessageDialog(
+            dateDialog, 
+            "Bạn đã chọn khoảng thời gian:\nTừ: " + ngayBD + "\nĐến: " + ngayKT,
+            "Thông báo",
+            JOptionPane.INFORMATION_MESSAGE
+        );
+        
+        // Đóng dialog sau khi xác nhận
+        dateDialog.dispose();
+            }
+        });
+        
+        // Nút Hủy (giữ nguyên style nhưng to hơn)
+        JButton btnHuy = new JButton("Hủy") {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(getBackground());
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 15, 15);
+                g2.dispose();
+                super.paintComponent(g);
+            }
+        };
+        btnHuy.setBackground(new Color(244, 67, 54));
+        btnHuy.setForeground(Color.WHITE);
+        btnHuy.setFont(new Font("Arial", Font.BOLD, 14));
+        btnHuy.setPreferredSize(new Dimension(120, 40)); // Nút to hơn
+        btnHuy.setOpaque(false);
+        btnHuy.setBorderPainted(false);
+        btnHuy.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dateDialog.dispose();
+            }
+        });
+        
+        buttonPanel.add(btnHuy);
+        buttonPanel.add(btnXacNhan);
+        
+        dateDialog.add(mainPanel, BorderLayout.CENTER);
+        dateDialog.add(buttonPanel, BorderLayout.SOUTH);
+        dateDialog.setVisible(true);
             }
         });
         searchPanel.add(btnXemNgay);
@@ -209,7 +284,7 @@ public class DonHang extends JPanel {
 
         // Thêm bảng đơn hàng
         String[] columnNames = {"Mã đơn", "Tên khách hàng", "Ngày tạo", "Trạng thái", "Khách trả"};
-        DefaultTableModel model = new DefaultTableModel(columnNames, 0); // Bảng trống ban đầu
+        DefaultTableModel model = new DefaultTableModel(columnNames, 0);
         JTable table = new JTable(model);
         JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.setBounds(50, 130, 700, 450);
@@ -219,23 +294,19 @@ public class DonHang extends JPanel {
     // Lớp RoundTextField
     static class RoundTextField extends JTextField {
         public RoundTextField(String placeholder, int columns) {
-            super(placeholder, columns); // Sử dụng placeholder và số cột
-            setOpaque(false); // Làm nền trong suốt
-            setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20)); // Thêm padding
+            super(placeholder, columns);
+            setOpaque(false);
+            setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
             setFont(new Font("Arial", Font.PLAIN, 14));
-            setBackground(new Color(240, 240, 240)); // Màu nền
+            setBackground(new Color(240, 240, 240));
         }
 
         @Override
         protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-            // Vẽ nền bo góc
             g2.setColor(getBackground());
-            g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20); // Bo góc 20px
-
-            // Vẽ text
+            g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
             super.paintComponent(g2);
             g2.dispose();
         }
