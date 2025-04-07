@@ -31,7 +31,7 @@ public class TrangChuDao {
 
     // Đếm số thành viên
     public int getSoThanhVien() {
-        String sql = "SELECT COUNT(*) FROM ThanhVien";
+        String sql = "SELECT COUNT(*) FROM KhachHang";
         Object value = Xjdbc.value(sql);
         return value == null ? 0 : Integer.parseInt(value.toString());
     }
@@ -40,16 +40,21 @@ public class TrangChuDao {
         List<ThanhVien> list = new ArrayList<>();
         // Code SQL để lấy dữ liệu từ DB
         // VD:
-        String sql = "SELECT * FROM ThanhVien WHERE MONTH(GETDATE()) = MONTH(NgayDangKy)";
+        String sql = "SELECT kh.*, gt.TenGoi "
+                + "FROM KhachHang kh "
+                + "LEFT JOIN GoiTap gt ON kh.MaGoi = gt.MaGoi "
+                + "WHERE MONTH(GETDATE()) = MONTH(kh.NgayDangKy)";
         try {
             ResultSet rs = Xjdbc.query(sql);
             while (rs.next()) {
                 ThanhVien tv = new ThanhVien();
-                tv.setMaTV(rs.getString("MaTV"));
+                tv.setMaTV(rs.getString("MaKH"));
                 tv.setHoTen(rs.getString("HoTen"));
                 tv.setGioiTinh(rs.getString("GioiTinh"));
+                tv.setSoDT(rs.getString("SoDienThoai"));
                 tv.setNgayDK(rs.getDate("NgayDangKy"));
-                tv.setTuoi(rs.getInt("Tuoi"));
+                tv.setNgayKT(rs.getDate("NgayKetThuc"));
+                tv.setGoiTap(rs.getString("TenGoi"));
                 list.add(tv);
             }
             rs.getStatement().getConnection().close();

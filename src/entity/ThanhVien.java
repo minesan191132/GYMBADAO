@@ -11,48 +11,45 @@ import java.util.Date;
  * @author Admin
  */
 public class ThanhVien {
-
     String maTV, hoTen, gioiTinh;
     Date ngayDK;
-    int tuoi;
-    private String soDT;
-private Date ngayKT;
-private String goiTap;
+    String soDT;
+    Date ngayKT;
+    String goiTap;
 
     public ThanhVien() {
     }
 
-    public ThanhVien(String maTV, String hoTen, String gioiTinh, Date ngayDK, int tuoi) {
+    public ThanhVien(String maTV, String hoTen, String gioiTinh, Date ngayDK) {
         this.maTV = maTV;
         this.hoTen = hoTen;
         this.gioiTinh = gioiTinh;
         this.ngayDK = ngayDK;
-        this.tuoi = tuoi;
     }
 
-public String getSoDT() {
-    return soDT;
-}
+    public String getSoDT() {
+        return soDT;
+    }
 
-public void setSoDT(String soDT) {
-    this.soDT = soDT;
-}
+    public void setSoDT(String soDT) {
+        this.soDT = soDT;
+    }
 
-public Date getNgayKT() {
-    return ngayKT;
-}
+    public Date getNgayKT() {
+        return ngayKT;
+    }
 
-public void setNgayKT(Date ngayKT) {
-    this.ngayKT = ngayKT;
-}
+    public void setNgayKT(Date ngayKT) {
+        this.ngayKT = ngayKT;
+    }
 
-public String getGoiTap() {
-    return goiTap;
-}
+    public String getGoiTap() {
+        return goiTap;
+    }
 
-public void setGoiTap(String goiTap) {
-    this.goiTap = goiTap;
-}
+    public void setGoiTap(String goiTap) {
+        this.goiTap = goiTap;
+    }
 
     public String getMaTV() {
         return maTV;
@@ -85,13 +82,4 @@ public void setGoiTap(String goiTap) {
     public void setNgayDK(Date ngayDK) {
         this.ngayDK = ngayDK;
     }
-
-    public int getTuoi() {
-        return tuoi;
-    }
-
-    public void setTuoi(int tuoi) {
-        this.tuoi = tuoi;
-    }
-
 }
