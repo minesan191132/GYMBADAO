@@ -48,13 +48,13 @@ public class TrangChuDao {
             ResultSet rs = Xjdbc.query(sql);
             while (rs.next()) {
                 ThanhVien tv = new ThanhVien();
-                tv.setMaTV(rs.getString("MaKH"));
+                tv.setMaTV(rs.getInt("MaKH"));
                 tv.setHoTen(rs.getString("HoTen"));
                 tv.setGioiTinh(rs.getString("GioiTinh"));
                 tv.setSoDT(rs.getString("SoDienThoai"));
                 tv.setNgayDK(rs.getDate("NgayDangKy"));
                 tv.setNgayKT(rs.getDate("NgayKetThuc"));
-                tv.setGoiTap(rs.getString("TenGoi"));
+                tv.setTenGoi(rs.getString("TenGoi"));
                 list.add(tv);
             }
             rs.getStatement().getConnection().close();

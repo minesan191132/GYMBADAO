@@ -11,51 +11,33 @@ import java.util.Date;
  * @author Admin
  */
 public class ThanhVien {
-    String maTV, hoTen, gioiTinh;
+    int maTV;
+    String hoTen, gioiTinh;
     Date ngayDK;
     String soDT;
     Date ngayKT;
-    String goiTap;
+    int maGoi;
+    String TenGoi;
 
     public ThanhVien() {
     }
 
-    public ThanhVien(String maTV, String hoTen, String gioiTinh, Date ngayDK) {
+    public ThanhVien(int maTV, String hoTen, String gioiTinh, Date ngayDK, String soDT, Date ngayKT, int maGoi, String TenGoi) {
         this.maTV = maTV;
         this.hoTen = hoTen;
         this.gioiTinh = gioiTinh;
         this.ngayDK = ngayDK;
-    }
-
-    public String getSoDT() {
-        return soDT;
-    }
-
-    public void setSoDT(String soDT) {
         this.soDT = soDT;
-    }
-
-    public Date getNgayKT() {
-        return ngayKT;
-    }
-
-    public void setNgayKT(Date ngayKT) {
         this.ngayKT = ngayKT;
+        this.maGoi = maGoi;
+        this.TenGoi = TenGoi;
     }
 
-    public String getGoiTap() {
-        return goiTap;
-    }
-
-    public void setGoiTap(String goiTap) {
-        this.goiTap = goiTap;
-    }
-
-    public String getMaTV() {
+    public int getMaTV() {
         return maTV;
     }
 
-    public void setMaTV(String maTV) {
+    public void setMaTV(int maTV) {
         this.maTV = maTV;
     }
 
@@ -82,4 +64,37 @@ public class ThanhVien {
     public void setNgayDK(Date ngayDK) {
         this.ngayDK = ngayDK;
     }
+
+    public String getSoDT() {
+        return soDT;
+    }
+
+    public void setSoDT(String soDT) {
+        this.soDT = soDT;
+    }
+
+    public Date getNgayKT() {
+        return ngayKT;
+    }
+
+    public void setNgayKT(Date ngayKT) {
+        this.ngayKT = ngayKT;
+    }
+
+    public int getMaGoi() {
+        return maGoi;
+    }
+
+    public void setMaGoi(int maGoi) {
+        this.maGoi = maGoi;
+    }
+
+    public String getTenGoi() {
+        return TenGoi;
+    }
+
+    public void setTenGoi(String TenGoi) {
+        this.TenGoi = TenGoi;
+    }
+
 }

@@ -188,7 +188,7 @@ public class DashboardPanel extends JPanel {
             for (ThanhVien tv : list) {
                 model.addRow(new Object[]{
                     tv.getMaTV(), tv.getHoTen(), tv.getGioiTinh(), tv.getSoDT(),
-                    tv.getNgayDK(), tv.getNgayKT(), tv.getGoiTap()
+                    tv.getNgayDK(), tv.getNgayKT(), tv.getTenGoi()
                 });
             }
         } catch (Exception e) {
