@@ -4,10 +4,122 @@
  */
 package dao;
 
+import entity.GoiTap;
+import entity.KhachHangViewModel;
+import entity.ThanhVien;
+import java.util.ArrayList;
+import java.util.List;
+import utils.Xjdbc;
+import java.sql.*;
+
 /**
  *
  * @author Admin
  */
 public class KhachHangDao {
+
+    public void insert(ThanhVien kh) {
+        String sql = "INSERT INTO KhachHang (HoTen, GioiTinh, SoDienThoai, NgayDangKy, NgayKetThuc, MaGoi) VALUES (?, ?, ?, ?, ?, ?)";
+        Xjdbc.update(sql,
+                kh.getHoTen(),
+                kh.getGioiTinh(),
+                kh.getSoDT(),
+                kh.getNgayDK(),
+                kh.getNgayKT(),
+                kh.getMaGoi()); // Lưu mã gói dạng số
+    }
+
+    public void update(ThanhVien kh) {
+        String sql = "UPDATE KhachHang SET HoTen=?, GioiTinh=?, SoDienThoai=?, NgayDangKy=?, NgayKetThuc=?, MaGoi=? WHERE MaKH=?";
+        Xjdbc.update(sql,
+                kh.getHoTen(),
+                kh.getGioiTinh(),
+                kh.getSoDT(),
+                kh.getNgayDK(),
+                kh.getNgayKT(),
+                kh.getMaGoi());
+    }
     
+    public ThanhVien selectById(Integer id) {
+        String sql = "SELECT * FROM KhachHang WHERE MaKH=?";
+        List<ThanhVien> list = this.selectBySql(sql, id);
+        return list.size() > 0 ? list.get(0) : null;
+    }
+
+    public List<ThanhVien> selectAll() {
+        String sql = "SELECT * FROM KhachHang";
+        return this.selectBySql(sql);
+    }
+
+    protected List<ThanhVien> selectBySql(String sql, Object... args) {
+        List<ThanhVien> list = new ArrayList<>();
+        try {
+            ResultSet rs = null;
+            try {
+                rs = Xjdbc.query(sql, args);
+                while (rs.next()) {
+                    ThanhVien entity = new ThanhVien();
+                    entity.setMaTV(rs.getInt("MaKH"));
+                    entity.setHoTen(rs.getString("HoTen"));
+                    entity.setGioiTinh(rs.getString("GioiTinh"));
+                    entity.setSoDT(rs.getString("SoDienThoai"));
+                    entity.setNgayDK(rs.getDate("NgayDangKy"));
+                    entity.setNgayKT(rs.getDate("NgayKetThuc"));
+                    entity.setMaGoi(rs.getInt("MaGoi"));
+                    list.add(entity);
+                }
+            } finally {
+                rs.getStatement().getConnection().close();
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            throw new RuntimeException(ex);
+        }
+        return list;
+    }
+
+    public List<KhachHangViewModel> getAllForDisplay() {
+        String sql = "SELECT kh.*, gt.TenGoi FROM KhachHang kh JOIN GoiTap gt ON kh.MaGoi = gt.MaGoi";
+        List<KhachHangViewModel> list = new ArrayList<>();
+        
+        try (ResultSet rs = Xjdbc.query(sql)) {
+            while (rs.next()) {
+                KhachHangViewModel vm = new KhachHangViewModel();
+                vm.setMaKH(rs.getInt("MaKH"));
+                vm.setHoTen(rs.getString("HoTen"));
+                vm.setGioiTinh(rs.getString("GioiTinh"));
+                vm.setSoDienThoai(rs.getString("SoDienThoai"));
+                vm.setNgayDangKy(rs.getDate("NgayDangKy"));
+                vm.setNgayKetThuc(rs.getDate("NgayKetThuc"));
+                vm.setMaGoi(rs.getInt("MaGoi"));
+                vm.setTenGoi(rs.getString("TenGoi")); // Lấy tên gói để hiển thị
+                list.add(vm);
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            throw new RuntimeException(ex);
+        }
+        return list;
+    }
+
+    // 3. Phương thức lấy danh sách gói tập cho ComboBox
+    public List<GoiTap> getAllGoiTap() {
+        String sql = "SELECT * FROM GoiTap";
+        List<GoiTap> list = new ArrayList<>();
+        
+        try (ResultSet rs = Xjdbc.query(sql)) {
+            while (rs.next()) {
+                GoiTap gt = new GoiTap();
+                gt.setMaGoi(rs.getInt("MaGoi"));
+                gt.setTenGoi(rs.getString("TenGoi"));
+                gt.setThoiHan(rs.getInt("ThoiHan"));
+                gt.setGia(rs.getDouble("Gia"));
+                list.add(gt);
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            throw new RuntimeException(ex);
+        }
+        return list;
+    }
 }

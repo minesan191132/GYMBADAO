@@ -1,6 +1,6 @@
 package ui;
 
-import dao.KhachHangDAO;
+import dao.KhachHangDao;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -24,7 +24,7 @@ public class KhachHang extends JPanel {
     private DefaultTableModel tableModel;
     private JTextField txtMaTV, txtTenTV, txtNgayDK, txtSoDT, txtTimKiem;
     private JComboBox<String> cboGoiTap;
-    private KhachHangDAO khachHangDAO = new KhachHangDAO();
+    private KhachHangDao khachHangDAO = new KhachHangDao();
     private boolean isEditing = false; // Cờ kiểm tra trạng thái chỉnh sửa
     private int currentMaKH = -1; // Lưu mã KH đang chỉnh sửa
 
