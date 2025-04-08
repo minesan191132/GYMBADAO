@@ -19,27 +19,26 @@ import java.sql.*;
 public class KhachHangDao {
 
     public void insert(ThanhVien kh) {
-        String sql = "INSERT INTO KhachHang (HoTen, GioiTinh, SoDienThoai, NgayDangKy, NgayKetThuc, MaGoi) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO KhachHang (HoTen, GioiTinh, SoDienThoai, NgayDangKy, MaGoi) VALUES (?, ?, ?, ?, ?)";
         Xjdbc.update(sql,
                 kh.getHoTen(),
                 kh.getGioiTinh(),
                 kh.getSoDT(),
                 kh.getNgayDK(),
-                kh.getNgayKT(),
                 kh.getMaGoi()); // Lưu mã gói dạng số
     }
 
     public void update(ThanhVien kh) {
-        String sql = "UPDATE KhachHang SET HoTen=?, GioiTinh=?, SoDienThoai=?, NgayDangKy=?, NgayKetThuc=?, MaGoi=? WHERE MaKH=?";
+        String sql = "UPDATE KhachHang SET HoTen=?, GioiTinh=?, SoDienThoai=?, NgayDangKy=?, MaGoi=? WHERE MaKH=?";
         Xjdbc.update(sql,
                 kh.getHoTen(),
                 kh.getGioiTinh(),
                 kh.getSoDT(),
                 kh.getNgayDK(),
-                kh.getNgayKT(),
-                kh.getMaGoi());
+                kh.getMaGoi(),
+                kh.getMaTV());
     }
-    
+
     public ThanhVien selectById(Integer id) {
         String sql = "SELECT * FROM KhachHang WHERE MaKH=?";
         List<ThanhVien> list = this.selectBySql(sql, id);
@@ -81,7 +80,7 @@ public class KhachHangDao {
     public List<KhachHangViewModel> getAllForDisplay() {
         String sql = "SELECT kh.*, gt.TenGoi FROM KhachHang kh JOIN GoiTap gt ON kh.MaGoi = gt.MaGoi";
         List<KhachHangViewModel> list = new ArrayList<>();
-        
+
         try (ResultSet rs = Xjdbc.query(sql)) {
             while (rs.next()) {
                 KhachHangViewModel vm = new KhachHangViewModel();
@@ -106,7 +105,7 @@ public class KhachHangDao {
     public List<GoiTap> getAllGoiTap() {
         String sql = "SELECT * FROM GoiTap";
         List<GoiTap> list = new ArrayList<>();
-        
+
         try (ResultSet rs = Xjdbc.query(sql)) {
             while (rs.next()) {
                 GoiTap gt = new GoiTap();
@@ -118,8 +117,25 @@ public class KhachHangDao {
             }
         } catch (SQLException ex) {
             ex.printStackTrace();
-            throw new RuntimeException(ex);
         }
         return list;
+    }
+
+    public GoiTap getGoiTapById(int maGoi) {
+        String sql = "SELECT * FROM GoiTap WHERE MaGoi=?";
+        try {
+            ResultSet rs = Xjdbc.query(sql, maGoi);
+            if (rs.next()) {
+                GoiTap gt = new GoiTap();
+                gt.setMaGoi(rs.getInt("MaGoi"));
+                gt.setTenGoi(rs.getString("TenGoi"));
+                gt.setThoiHan(rs.getInt("ThoiHan"));
+                gt.setGia(rs.getDouble("Gia"));
+                return gt;
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        return null;
     }
 }

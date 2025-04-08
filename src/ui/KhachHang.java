@@ -1,15 +1,21 @@
 package ui;
 
 import dao.KhachHangDao;
+import entity.GoiTap;
+import entity.KhachHangViewModel;
+import entity.ThanhVien;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import static java.awt.SystemColor.menu;
+import java.util.List;
+import javax.swing.DefaultListCellRenderer;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -23,7 +29,10 @@ public class KhachHang extends JPanel {
     private JButton btnDanhSach;
     private DefaultTableModel tableModel;
     private JTextField txtMaTV, txtTenTV, txtNgayDK, txtSoDT, txtTimKiem;
-    private JComboBox<String> cboGoiTap;
+    private JRadioButton rbNam, rbNu;
+    private JLabel lblGhiChu;
+    private JComboBox<GoiTap> cboGoiTap;
+    private ButtonGroup genderGroup;
     private KhachHangDao khachHangDAO = new KhachHangDao();
     private boolean isEditing = false; // Cờ kiểm tra trạng thái chỉnh sửa
     private int currentMaKH = -1; // Lưu mã KH đang chỉnh sửa
@@ -100,6 +109,9 @@ public class KhachHang extends JPanel {
         txtNgayDK.setBounds(50, 260, 250, 40);
         txtSoDT.setBounds(350, 260, 250, 40);
 
+        txtMaTV.setEditable(false);  // Không cho phép chỉnh sửa
+        txtMaTV.setBackground(new Color(128, 128, 128));  // Đổi màu nền để thể hiện là ô bị khóa
+
         // Thêm FocusListener để ẩn chữ gợi ý khi click vào ô điền
         FocusListener focusListener = new FocusListener() {
             public void focusGained(FocusEvent e) {
@@ -139,9 +151,9 @@ public class KhachHang extends JPanel {
         lblGioiTinh.setBounds(50, 200, 100, 30);
         lblGioiTinh.setFont(new Font("Arial", Font.BOLD, 14));
 
-        JRadioButton rbNam = new JRadioButton("Nam");
-        JRadioButton rbNu = new JRadioButton("Nữ");
-        ButtonGroup genderGroup = new ButtonGroup();
+        rbNam = new JRadioButton("Nam");
+        rbNu = new JRadioButton("Nữ");
+        genderGroup = new ButtonGroup();
         genderGroup.add(rbNam);
         genderGroup.add(rbNu);
         rbNam.setBounds(150, 200, 70, 30);
@@ -154,13 +166,32 @@ public class KhachHang extends JPanel {
         lblGoiTap.setBounds(350, 200, 100, 30);
         lblGoiTap.setFont(new Font("Arial", Font.BOLD, 14));
 
-        String[] goiTap = {"Chọn gói tập", "1 tháng", "3 tháng", "6 tháng"};
-        cboGoiTap = new JComboBox<>(goiTap);
+        cboGoiTap = new JComboBox<>();
+        cboGoiTap.addItem(new GoiTap(0, "Chọn gói tập", 0, 0)); // Item mặc định
+
+        List<GoiTap> listGoiTap = new KhachHangDao().getAllGoiTap();
+        for (GoiTap gt : listGoiTap) {
+            cboGoiTap.addItem(gt);
+        }
+
+// Thiết lập hiển thị tên gói
+        cboGoiTap.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value,
+                    int index, boolean isSelected,
+                    boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value instanceof GoiTap) {
+                    setText(((GoiTap) value).getTenGoi());
+                }
+                return this;
+            }
+        });
         cboGoiTap.setBounds(420, 200, 180, 35);
         cboGoiTap.setSelectedIndex(0);
 
         // Ghi chú
-        JLabel lblGhiChu = new JLabel("Ghi chú:");
+        lblGhiChu = new JLabel("Ghi chú:");
         lblGhiChu.setBounds(50, 320, 100, 30);
         lblGhiChu.setFont(new Font("Arial", Font.BOLD, 14));
 
@@ -190,6 +221,63 @@ public class KhachHang extends JPanel {
         btnLuu.setFont(new Font("Arial", Font.BOLD, 14));
         btnLuu.setContentAreaFilled(false);
         btnLuu.setBorder(BorderFactory.createEmptyBorder());
+
+        btnLuu.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (!validateForm()) {
+                    return;
+                }
+
+                try {
+                    // Lấy thông tin từ form
+                    String hoTen = txtTenTV.getText();
+                    String gioiTinh = rbNam.isSelected() ? "Nam" : "Nữ";
+                    String soDT = txtSoDT.getText();
+                    Date ngayDK = new SimpleDateFormat("dd/MM/yyyy").parse(txtNgayDK.getText());
+                    GoiTap selectedGoiTap = (GoiTap) cboGoiTap.getSelectedItem();
+                    int maGoi = selectedGoiTap.getMaGoi();
+
+                    // Tạo đối tượng ThanhVien
+                    ThanhVien tv = new ThanhVien();
+                    tv.setHoTen(hoTen);
+                    tv.setGioiTinh(gioiTinh);
+                    tv.setSoDT(soDT);
+                    tv.setNgayDK(ngayDK);
+                    tv.setMaGoi(maGoi);
+
+                    // Không cần set NgayKT vì trigger sẽ tự tính
+                    if (isEditing) {
+                        // Cập nhật thành viên
+                        tv.setMaTV(currentMaKH);
+                        khachHangDAO.update(tv);
+                        JOptionPane.showMessageDialog(KhachHang.this,
+                                "Cập nhật thành viên thành công!",
+                                "Thông báo",
+                                JOptionPane.INFORMATION_MESSAGE);
+                    } else {
+                        // Thêm thành viên mới
+                        khachHangDAO.insert(tv);
+                        JOptionPane.showMessageDialog(KhachHang.this,
+                                "Thêm thành viên mới thành công!",
+                                "Thông báo",
+                                JOptionPane.INFORMATION_MESSAGE);
+                    }
+                    if (listPanel.isVisible()) {
+                        loadDataToTable(); 
+                    }
+                    // Làm mới form sau khi lưu
+                    clearForm();
+
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(KhachHang.this,
+                            "Lỗi khi lưu dữ liệu: " + ex.getMessage(),
+                            "Lỗi",
+                            JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
 
         // Thêm các thành phần vào form
         formPanel.add(txtMaTV);
@@ -249,13 +337,29 @@ public class KhachHang extends JPanel {
         JTable table = new JTable(tableModel);
         table.setRowHeight(30);
         table.setFont(new Font("Arial", Font.PLAIN, 14));
-        
+
         table.getTableHeader().setReorderingAllowed(false);
-        
+
         JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.setBounds(50, 120, 650, 350);
         scrollPane.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200), 1, true));
         listPanel.add(scrollPane);
+
+        table.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    int row = table.getSelectedRow();
+                    if (row >= 0) {
+                        int maKH = (int) table.getValueAt(row, 0);
+                        loadDataFromTableToForm(maKH);
+                        formPanel.setVisible(true);
+                        listPanel.setVisible(false);
+                        updateButtonColors(btnDangKy, btnDanhSach);
+                    }
+                }
+            }
+        });
 
         // Tạo panel chứa thanh tìm kiếm, nút bộ lọc và nút xem theo ngày tháng
         JPanel searchPanel = new JPanel();
@@ -486,35 +590,9 @@ public class KhachHang extends JPanel {
                 formPanel.setVisible(false);
                 listPanel.setVisible(true);
                 updateButtonColors(btnDanhSach, btnDangKy);
+                loadDataToTable(); // Load dữ liệu khi chuyển sang tab Danh sách
             }
         });
-    }
-
-    // Tính ngày kết thúc dựa trên gói tập
-    private String tinhNgayKetThuc(String ngayDK, String goiTap) {
-        try {
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-            Date date = sdf.parse(ngayDK);
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(date);
-
-            switch (goiTap) {
-                case "1 tháng":
-                    calendar.add(Calendar.MONTH, 1);
-                    break;
-                case "3 tháng":
-                    calendar.add(Calendar.MONTH, 3);
-                    break;
-                case "6 tháng":
-                    calendar.add(Calendar.MONTH, 6);
-                    break;
-            }
-
-            return sdf.format(calendar.getTime());
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "";
-        }
     }
 
     // Kiểm tra trạng thái gói tập
@@ -557,6 +635,116 @@ public class KhachHang extends JPanel {
         inactiveButton.setForeground(Color.WHITE);
         activeButton.repaint();
         inactiveButton.repaint();
+    }
+
+    private void loadDataToTable() {
+        // Xóa dữ liệu cũ trong bảng
+        tableModel.setRowCount(0);
+
+        // Lấy dữ liệu từ database
+        List<KhachHangViewModel> list = khachHangDAO.getAllForDisplay();
+
+        // Định dạng ngày
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+
+        // Thêm dữ liệu vào bảng
+        for (KhachHangViewModel kh : list) {
+            String ngayDK = kh.getNgayDangKy() != null ? sdf.format(kh.getNgayDangKy()) : "";
+            String ngayKT = kh.getNgayKetThuc() != null ? sdf.format(kh.getNgayKetThuc()) : "";
+            String trangThai = kh.getNgayKetThuc() != null
+                    ? (kh.getNgayKetThuc().after(new Date()) ? "Còn hạn" : "Hết hạn") : "";
+
+            tableModel.addRow(new Object[]{
+                kh.getMaKH(),
+                kh.getHoTen(),
+                ngayDK,
+                kh.getSoDienThoai(),
+                kh.getTenGoi(),
+                ngayKT,
+                trangThai
+            });
+        }
+    }
+
+    private void loadDataFromTableToForm(int maKH) {
+        ThanhVien kh = khachHangDAO.selectById(maKH);
+        if (kh != null) {
+            currentMaKH = kh.getMaTV();
+            isEditing = true;
+
+            txtMaTV.setText(String.valueOf(kh.getMaTV()));
+            txtTenTV.setText(kh.getHoTen());
+            txtSoDT.setText(kh.getSoDT());
+
+            // Xử lý giới tính
+            if (kh.getGioiTinh().equalsIgnoreCase("Nam")) {
+                rbNam.setSelected(true);
+            } else {
+                rbNu.setSelected(true);
+            }
+
+            // Xử lý gói tập
+            GoiTap gt = khachHangDAO.getGoiTapById(kh.getMaGoi());
+            if (gt != null) {
+                cboGoiTap.setSelectedItem(gt);
+            }
+
+            // Xử lý ngày
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+            txtNgayDK.setText(sdf.format(kh.getNgayDK()));
+
+            // NgayKT đã được trigger tính toán tự động
+        }
+    }
+
+    // Thêm phương thức clearForm
+    private void clearForm() {
+        txtMaTV.setText("Mã thành viên");
+        txtTenTV.setText("Tên thành viên");
+        txtSoDT.setText("Số điện thoại");
+        txtNgayDK.setText("Ngày đăng ký");
+        genderGroup.clearSelection();
+        cboGoiTap.setSelectedIndex(0);
+        isEditing = false;
+        currentMaKH = -1;
+        txtMaTV.setForeground(Color.GRAY);
+        txtTenTV.setForeground(Color.GRAY);
+        txtSoDT.setForeground(Color.GRAY);
+        txtNgayDK.setForeground(Color.GRAY);
+    }
+
+    private boolean validateForm() {
+        if (txtTenTV.getText().isEmpty() || txtTenTV.getText().equals("Tên thành viên")) {
+            JOptionPane.showMessageDialog(this, "Vui lòng nhập tên thành viên", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            txtTenTV.requestFocus();
+            return false;
+        }
+
+        if (!rbNam.isSelected() && !rbNu.isSelected()) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn giới tính", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        if (cboGoiTap.getSelectedIndex() == 0) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn gói tập", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            cboGoiTap.requestFocus();
+            return false;
+        }
+
+        try {
+            if (txtNgayDK.getText().isEmpty() || txtNgayDK.getText().equals("Ngày đăng ký")) {
+                JOptionPane.showMessageDialog(this, "Vui lòng nhập ngày đăng ký", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                txtNgayDK.requestFocus();
+                return false;
+            }
+            new SimpleDateFormat("dd/MM/yyyy").parse(txtNgayDK.getText());
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Ngày đăng ký không hợp lệ (dd/MM/yyyy)", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            txtNgayDK.requestFocus();
+            return false;
+        }
+
+        return true;
     }
 
     // Lớp RoundTextField để tạo trường nhập bo tròn
