@@ -16,11 +16,20 @@ import java.sql.ResultSet;
  */
 public class TrangChuDao {
 
-    public double getTongDoanhThu() {
-        String sql = "SELECT SUM(ThanhTien) FROM DonHang";
-        Object result = Xjdbc.value(sql);
-        return result == null ? 0 : ((Number) result).doubleValue();
-    }
+public double getTongDoanhThuThang() {
+    String sql = "SELECT "
+            + "ISNULL((SELECT SUM(gt.Gia) FROM KhachHang kh "
+            + "JOIN GoiTap gt ON kh.MaGoi = gt.MaGoi "
+            + "WHERE MONTH(kh.NgayDangKy) = MONTH(GETDATE()) "
+            + "AND YEAR(kh.NgayDangKy) = YEAR(GETDATE())), 0) "
+            + "+ ISNULL((SELECT SUM(ThanhTien) FROM DonHang "
+            + "WHERE MONTH(NgayLap) = MONTH(GETDATE()) "
+            + "AND YEAR(NgayLap) = YEAR(GETDATE())), 0)";
+    
+    Object result = Xjdbc.value(sql);
+    return result == null ? 0 : ((Number) result).doubleValue();
+}
+
 
     // Đếm số đơn hàng
     public int getSoDonHang() {

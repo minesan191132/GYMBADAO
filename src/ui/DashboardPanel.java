@@ -25,9 +25,8 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import utils.Auth;
 
-
-
 public class DashboardPanel extends JPanel {
+
     private JLabel lblWelcome, lblAvatar, lblDoanhThu, lblDonHang, lblThanhVien;
     private JTable tblThanhVien;
     private DefaultTableModel model;
@@ -102,32 +101,32 @@ public class DashboardPanel extends JPanel {
         tableWrapper.setBounds(20, 260, 760, 360);
         add(tableWrapper);
 
-        JLabel lblTitle = new JLabel("Thành viên mới ");
+        JLabel lblTitle = new JLabel("Thành viên mới: ");
         lblTitle.setFont(new Font("Arial", Font.BOLD, 16));
         lblTitle.setForeground(new Color(95, 139, 76));
         lblTitle.setBounds(20, 15, 200, 30);
         tableWrapper.add(lblTitle);
 
-          model = new DefaultTableModel(new String[]{"ID", "Tên", "Giới Tính", "SĐT", "Ngày ĐK", "Ngày KT", "Gói tập"}, 0) {
+        model = new DefaultTableModel(new String[]{"ID", "Tên", "Giới Tính", "SĐT", "Ngày ĐK", "Ngày KT", "Gói tập"}, 0) {
             @Override
             public Class<?> getColumnClass(int columnIndex) {
                 return Object.class; // Cho phép căn giữa tất cả các cột
             }
         };
-        
+
         tblThanhVien = new JTable(model);
-        
+
         // Căn giữa tất cả các ô trong bảng
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
         for (int i = 0; i < tblThanhVien.getColumnCount(); i++) {
             tblThanhVien.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
         }
-        
+
         tblThanhVien.setRowHeight(30);
         tblThanhVien.setShowGrid(false);
         tblThanhVien.setIntercellSpacing(new java.awt.Dimension(0, 0));
-        
+
         JScrollPane scroll = new JScrollPane(tblThanhVien);
         scroll.setBounds(20, 50, 720, 290);
         scroll.setBorder(BorderFactory.createEmptyBorder());
@@ -175,11 +174,17 @@ public class DashboardPanel extends JPanel {
 
     private void loadDashboardData() {
         try {
-            double doanhThu = dao.getTongDoanhThu();
+            double doanhThu = dao.getTongDoanhThuThang();
             int donHang = dao.getSoDonHang();
             int thanhVien = dao.getSoThanhVien();
 
-            lblDoanhThu.setText(String.format("%.0f", doanhThu / 1000));
+            // Định dạng số doanh thu với dấu chấm phân cách hàng nghìn
+            java.text.DecimalFormat df = new java.text.DecimalFormat("#,###");
+            String formattedDoanhThu = df.format(doanhThu);
+
+            // Gán giá trị đã định dạng vào lblDoanhThu
+            lblDoanhThu.setText(formattedDoanhThu + " VND");
+
             lblDonHang.setText(String.valueOf(donHang));
             lblThanhVien.setText(String.valueOf(thanhVien));
 
@@ -198,6 +203,7 @@ public class DashboardPanel extends JPanel {
 
     // Custom RoundedPanel class
     class RoundedPanel extends JPanel {
+
         private int cornerRadius;
         private Color backgroundColor;
 
