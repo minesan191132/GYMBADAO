@@ -39,9 +39,9 @@ public class KhachHangDao {
                 kh.getMaTV());
     }
 
-    public ThanhVien selectById(Integer id) {
-        String sql = "SELECT * FROM KhachHang WHERE MaKH=?";
-        List<ThanhVien> list = this.selectBySql(sql, id);
+    public ThanhVien selectByHoTen(String hoTen) {
+        String sql = "SELECT * FROM KhachHang WHERE HoTen = ?";
+        List<ThanhVien> list = this.selectBySql(sql, hoTen);
         return list.size() > 0 ? list.get(0) : null;
     }
 

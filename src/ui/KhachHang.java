@@ -14,9 +14,12 @@ import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import javax.swing.border.EmptyBorder;
@@ -264,7 +267,7 @@ public class KhachHang extends JPanel {
                                 JOptionPane.INFORMATION_MESSAGE);
                     }
                     if (listPanel.isVisible()) {
-                        loadDataToTable(); 
+                        loadDataToTable();
                     }
                     // Làm mới form sau khi lưu
                     clearForm();
@@ -351,8 +354,8 @@ public class KhachHang extends JPanel {
                 if (e.getClickCount() == 2) {
                     int row = table.getSelectedRow();
                     if (row >= 0) {
-                        int maKH = (int) table.getValueAt(row, 0);
-                        loadDataFromTableToForm(maKH);
+                        String hoTen = table.getValueAt(row, 1).toString();
+                        loadDataFromTableToForm(hoTen);
                         formPanel.setVisible(true);
                         listPanel.setVisible(false);
                         updateButtonColors(btnDangKy, btnDanhSach);
@@ -368,16 +371,23 @@ public class KhachHang extends JPanel {
         searchPanel.setLayout(new GridLayout(1, 3, 10, 10));
 
         // Thanh tìm kiếm bo tròn
-        txtTimKiem = new RoundTextField("Mã thành viên");
+        txtTimKiem = new RoundTextField("Tên Thành Viên");
         txtTimKiem.setFont(new Font("Arial", Font.PLAIN, 14));
         txtTimKiem.setBackground(new Color(240, 240, 240));
         txtTimKiem.setBounds(50, 70, 450, 40); // Điều chỉnh kích thước (dài hơn)
         searchPanel.add(txtTimKiem);
 
+// Popup menu để hiển thị gợi ý
+        JPopupMenu suggestionPopup = new JPopupMenu();
+        JList<String> suggestionList = new JList<>();
+        suggestionList.setFont(new Font("Arial", Font.PLAIN, 14));
+        suggestionPopup.add(new JScrollPane(suggestionList));
+
+// Thêm FocusListener
         txtTimKiem.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
-                if (txtTimKiem.getText().equals("Mã thành viên")) {
+                if (txtTimKiem.getText().equals("Tên Thành Viên")) {
                     txtTimKiem.setText("");
                 }
             }
@@ -385,12 +395,63 @@ public class KhachHang extends JPanel {
             @Override
             public void focusLost(FocusEvent e) {
                 if (txtTimKiem.getText().isEmpty()) {
-                    txtTimKiem.setText("Mã thành viên");
+                    txtTimKiem.setText("Tên Thành Viên");
                 }
+                suggestionPopup.setVisible(false); // Ẩn gợi ý khi mất focus
             }
         });
 
-        // Nút bộ lọc
+// Thêm KeyListener để xử lý gợi ý và tìm kiếm trực tiếp
+        txtTimKiem.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                String input = txtTimKiem.getText().trim();
+                if (input.isEmpty() || input.equals("Tên Thành Viên")) {
+                    suggestionPopup.setVisible(false);
+                    loadDataToTable(); // Hiển thị lại toàn bộ dữ liệu nếu không có input
+                    return;
+                }
+
+                // Lấy danh sách gợi ý từ DAO
+                List<String> suggestions = getSuggestions(input);
+                if (suggestions.isEmpty()) {
+                    suggestionPopup.setVisible(false);
+                } else {
+                    // Cập nhật danh sách gợi ý
+                    suggestionList.setListData(suggestions.toArray(new String[0]));
+                    suggestionPopup.setPopupSize(txtTimKiem.getWidth(), Math.min(suggestions.size() * 30, 150));
+                    suggestionPopup.show(txtTimKiem, 0, txtTimKiem.getHeight());
+                }
+
+                // Tìm kiếm trực tiếp khi người dùng nhập, nhưng không hiển thị thông báo
+                searchByName(input, false); // Thêm tham số để kiểm soát việc hiển thị thông báo
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) { // Khi nhấn Enter
+                    String input = txtTimKiem.getText().trim();
+                    if (!input.isEmpty() && !input.equals("Tên Thành Viên")) {
+                        searchByName(input, true); // Gọi tìm kiếm và hiển thị thông báo nếu không tìm thấy
+                    }
+                }
+            }
+        });
+        suggestionList.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 1) {
+                    String selectedName = suggestionList.getSelectedValue();
+                    if (selectedName != null) {
+                        txtTimKiem.setText(selectedName);
+                        suggestionPopup.setVisible(false);
+                        // Tự động tìm kiếm và hiển thị kết quả trong bảng, có hiển thị thông báo
+                        searchByName(selectedName, true);
+                    }
+                }
+            }
+        });
+// Nút bộ lọc
         JButton btnLoc = new JButton("Bộ lọc") {
             @Override
             protected void paintComponent(Graphics g) {
@@ -666,8 +727,8 @@ public class KhachHang extends JPanel {
         }
     }
 
-    private void loadDataFromTableToForm(int maKH) {
-        ThanhVien kh = khachHangDAO.selectById(maKH);
+    private void loadDataFromTableToForm(String hoTen) {
+        ThanhVien kh = khachHangDAO.selectByHoTen(hoTen); // Sửa lại DAO cho đúng
         if (kh != null) {
             currentMaKH = kh.getMaTV();
             isEditing = true;
@@ -676,24 +737,19 @@ public class KhachHang extends JPanel {
             txtTenTV.setText(kh.getHoTen());
             txtSoDT.setText(kh.getSoDT());
 
-            // Xử lý giới tính
             if (kh.getGioiTinh().equalsIgnoreCase("Nam")) {
                 rbNam.setSelected(true);
             } else {
                 rbNu.setSelected(true);
             }
 
-            // Xử lý gói tập
             GoiTap gt = khachHangDAO.getGoiTapById(kh.getMaGoi());
             if (gt != null) {
                 cboGoiTap.setSelectedItem(gt);
             }
 
-            // Xử lý ngày
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
             txtNgayDK.setText(sdf.format(kh.getNgayDK()));
-
-            // NgayKT đã được trigger tính toán tự động
         }
     }
 
@@ -745,6 +801,56 @@ public class KhachHang extends JPanel {
         }
 
         return true;
+    }
+
+    private List<String> getSuggestions(String input) {
+        List<String> suggestions = new ArrayList<>();
+        List<ThanhVien> members = khachHangDAO.selectAll(); // Lấy tất cả thành viên
+        System.out.println("Total members: " + members.size());
+        for (ThanhVien tv : members) {
+            System.out.println("Member name: " + tv.getHoTen());
+            if (tv.getHoTen().toLowerCase().startsWith(input.toLowerCase())) {
+                suggestions.add(tv.getHoTen());
+            }
+        }
+        System.out.println("Suggestions: " + suggestions);
+        return suggestions;
+    }
+
+    private void searchByName(String name, boolean showMessage) {
+        tableModel.setRowCount(0); // Xóa dữ liệu cũ trong bảng
+        List<KhachHangViewModel> list = khachHangDAO.getAllForDisplay();
+        System.out.println("Total records for display: " + list.size());
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+
+        int count = 0; // Đếm số kết quả tìm thấy
+        for (KhachHangViewModel kh : list) {
+            String hoTen = kh.getHoTen().toLowerCase().trim();
+            String searchName = name.toLowerCase().trim();
+            System.out.println("Checking: " + hoTen + " against: " + searchName);
+            if (hoTen.contains(searchName)) {
+                String ngayDK = kh.getNgayDangKy() != null ? sdf.format(kh.getNgayDangKy()) : "";
+                String ngayKT = kh.getNgayKetThuc() != null ? sdf.format(kh.getNgayKetThuc()) : "";
+                String trangThai = kh.getNgayKetThuc() != null
+                        ? (kh.getNgayKetThuc().after(new Date()) ? "Còn hạn" : "Hết hạn") : "";
+
+                tableModel.addRow(new Object[]{
+                    kh.getMaKH(),
+                    kh.getHoTen(),
+                    ngayDK,
+                    kh.getSoDienThoai(),
+                    kh.getTenGoi(),
+                    ngayKT,
+                    trangThai
+                });
+                count++;
+            }
+        }
+
+        // Chỉ hiển thị thông báo nếu showMessage là true (khi nhấn Enter)
+        if (count == 0 && showMessage) {
+            JOptionPane.showMessageDialog(this, "Không tìm thấy thành viên nào với tên: " + name, "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+        }
     }
 
     // Lớp RoundTextField để tạo trường nhập bo tròn
