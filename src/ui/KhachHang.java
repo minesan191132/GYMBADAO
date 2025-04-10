@@ -372,7 +372,7 @@ public class KhachHang extends JPanel {
 
         // Thanh tìm kiếm bo tròn
         txtTimKiem = new RoundTextField("Tên Thành Viên");
-        txtTimKiem.setFont(new Font("Arial", Font.PLAIN, 14));
+        txtTimKiem.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         txtTimKiem.setBackground(new Color(240, 240, 240));
         txtTimKiem.setBounds(50, 70, 450, 40); // Điều chỉnh kích thước (dài hơn)
         searchPanel.add(txtTimKiem);
@@ -452,7 +452,7 @@ public class KhachHang extends JPanel {
             }
         });
 // Nút bộ lọc
-        JButton btnLoc = new JButton("Bộ lọc") {
+        JButton btnHoaDon = new JButton("Xuất hóa đơn") {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
@@ -467,21 +467,21 @@ public class KhachHang extends JPanel {
                 super.paintComponent(g); // Quan trọng: Gọi super để vẽ chữ và icon
             }
         };
-        btnLoc.setFont(new Font("Arial", Font.BOLD, 14));
-        btnLoc.setForeground(Color.WHITE);
-        btnLoc.setFocusPainted(false);
-        btnLoc.setContentAreaFilled(false); // Tắt nền mặc định
-        btnLoc.setOpaque(false); // Đảm bảo nút trong suốt
-        btnLoc.setBorderPainted(false); // Tắt viền mặc định
-        btnLoc.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20)); // Đặt padding
-        btnLoc.setBounds(510, 70, 120, 40); // Điều chỉnh kích thước (ngắn hơn)
-        btnLoc.addActionListener(new ActionListener() {
+        btnHoaDon.setFont(new Font("Arial", Font.BOLD, 14));
+        btnHoaDon.setForeground(Color.WHITE);
+        btnHoaDon.setFocusPainted(false);
+        btnHoaDon.setContentAreaFilled(false); // Tắt nền mặc định
+        btnHoaDon.setOpaque(false); // Đảm bảo nút trong suốt
+        btnHoaDon.setBorderPainted(false); // Tắt viền mặc định
+        btnHoaDon.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20)); // Đặt padding
+        btnHoaDon.setBounds(510, 70, 120, 40); // Điều chỉnh kích thước (ngắn hơn)
+        btnHoaDon.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(null, "Chức năng Bộ lọc đang được phát triển!");
+                JOptionPane.showMessageDialog(null, "Chức năng Xuất hóa đơn đang được phát triển!");
             }
         });
-        searchPanel.add(btnLoc);
+        searchPanel.add(btnHoaDon);
         // Nút xem theo ngày
         JButton btnXemNgay = new JButton("Xem theo ngày") {
             @Override
@@ -806,28 +806,28 @@ public class KhachHang extends JPanel {
     private List<String> getSuggestions(String input) {
         List<String> suggestions = new ArrayList<>();
         List<ThanhVien> members = khachHangDAO.selectAll(); // Lấy tất cả thành viên
-        System.out.println("Total members: " + members.size());
+        //System.out.println("Total members: " + members.size());
         for (ThanhVien tv : members) {
-            System.out.println("Member name: " + tv.getHoTen());
+            //System.out.println("Member name: " + tv.getHoTen());
             if (tv.getHoTen().toLowerCase().startsWith(input.toLowerCase())) {
                 suggestions.add(tv.getHoTen());
             }
         }
-        System.out.println("Suggestions: " + suggestions);
+        //System.out.println("Suggestions: " + suggestions);
         return suggestions;
     }
 
     private void searchByName(String name, boolean showMessage) {
         tableModel.setRowCount(0); // Xóa dữ liệu cũ trong bảng
         List<KhachHangViewModel> list = khachHangDAO.getAllForDisplay();
-        System.out.println("Total records for display: " + list.size());
+        //System.out.println("Total records for display: " + list.size());
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
         int count = 0; // Đếm số kết quả tìm thấy
         for (KhachHangViewModel kh : list) {
             String hoTen = kh.getHoTen().toLowerCase().trim();
             String searchName = name.toLowerCase().trim();
-            System.out.println("Checking: " + hoTen + " against: " + searchName);
+            //System.out.println("Checking: " + hoTen + " against: " + searchName);
             if (hoTen.contains(searchName)) {
                 String ngayDK = kh.getNgayDangKy() != null ? sdf.format(kh.getNgayDangKy()) : "";
                 String ngayKT = kh.getNgayKetThuc() != null ? sdf.format(kh.getNgayKetThuc()) : "";
