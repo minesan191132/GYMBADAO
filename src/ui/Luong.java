@@ -5,115 +5,144 @@ import javax.swing.border.*;
 import javax.swing.table.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.time.*;
-import java.time.format.*;
-import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.time.Duration;
+import java.time.LocalTime;
+import java.time.Year;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-public class Luong {
+public class Luong extends JFrame {
+
     // Các hằng số hệ thống
     private static final int LUONG_CO_BAN = 35000; // 35k/giờ
     private static final int LUONG_TANG_CA = 50000; // 50k/giờ
     private static final int PHAT_TRE = 50000; // Phạt 50k nếu trễ >30p
-    private static final Duration GIOI_HAN_TRE = Duration.ofMinutes(30);
-    private static final LocalTime CA1_BAT_DAU = LocalTime.of(8, 0);
-    private static final LocalTime CA1_KET_THUC = LocalTime.of(16, 0);
-    private static final LocalTime CA2_BAT_DAU = LocalTime.of(16, 0);
-    private static final LocalTime CA2_KET_THUC = LocalTime.of(23, 59, 59);
 
-    public static void main(String[] args) {
-        JFrame frame = new JFrame("THEO DÕI GIỜ LÀM VÀ TÍNH LƯƠNG");
-        frame.setSize(1200, 800);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setLayout(new BorderLayout(15, 15));
+    private DefaultTableModel tableModel;
+    private JTextField txtEmployeeId;
+    private JComboBox<String> cmbMonth;
+    private JComboBox<String> cmbYear;
+    private JLabel lblWorkDays, lblWorkHours, lblTotalSalary;
+    private JButton btnSearch, btnExit, btnExportExcel;
+    private static final Font LABEL_FONT = new Font("Arial", Font.BOLD, 14);
+    private static final Font BUTTON_FONT = new Font("Arial", Font.BOLD, 16);
+    private static final Color SEARCH_COLOR = new Color(41, 98, 255);
+    private static final Color EXIT_COLOR = new Color(239, 83, 80);
+    private static final Color EXPORT_COLOR = new Color(0, 150, 136);
 
-        // ======== STYLE ========
-        Font fontNhan = new Font("Arial", Font.BOLD, 14);
-        Font fontNut = new Font("Arial", Font.BOLD, 16);
-        Color mauTimKiem = new Color(41, 98, 255);
-        Color mauXuatExcel = new Color(0, 150, 136);
-        Color mauThoat = new Color(239, 83, 80);
+    public Luong() {
+        initUI();
+    }
 
-        // ======== PANEL TÌM KIẾM ========
-        JPanel panelTimKiem = new JPanel(new GridBagLayout());
-        panelTimKiem.setBorder(BorderFactory.createTitledBorder(
+    private void initUI() {
+        setupMainWindow();
+        createMainContent();
+        setupEventListeners();
+        setVisible(true);
+    }
+
+    private void setupMainWindow() {
+        setTitle("Theo Dõi Giờ Làm Và Tính Lương");
+        setSize(1200, 800);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+        setLayout(new BorderLayout(15, 15));
+    }
+
+    private void createMainContent() {
+        JPanel topPanel = createTopPanel();
+        JScrollPane tableScrollPane = createTablePanel();
+        JPanel bottomPanel = createBottomPanel();
+
+        add(topPanel, BorderLayout.NORTH);
+        add(tableScrollPane, BorderLayout.CENTER);
+        add(bottomPanel, BorderLayout.SOUTH);
+    }
+
+    private JPanel createTopPanel() {
+        JPanel topPanel = new JPanel(new GridBagLayout());
+        topPanel.setBorder(BorderFactory.createTitledBorder(
             BorderFactory.createEmptyBorder(15, 15, 15, 15),
             "",
             TitledBorder.CENTER,
             TitledBorder.TOP,
             new Font("Arial", Font.BOLD, 16)
         ));
-        panelTimKiem.setBackground(new Color(240, 240, 240));
+        topPanel.setBackground(new Color(240, 240, 240));
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 15, 10, 15);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
         // Mã nhân viên
-        JLabel lblMaNV = new JLabel("MÃ NHÂN VIÊN:");
-        lblMaNV.setFont(fontNhan);
+        JLabel lblEmployeeId = new JLabel("MÃ NHÂN VIÊN:");
+        lblEmployeeId.setFont(LABEL_FONT);
         gbc.gridx = 0; gbc.gridy = 0; gbc.weightx = 0.1;
-        panelTimKiem.add(lblMaNV, gbc);
+        topPanel.add(lblEmployeeId, gbc);
 
-        JTextField txtMaNV = new JTextField();
-        txtMaNV.setFont(fontNhan);
-        txtMaNV.setBorder(BorderFactory.createCompoundBorder(
+        txtEmployeeId = new JTextField();
+        txtEmployeeId.setFont(LABEL_FONT);
+        txtEmployeeId.setBorder(BorderFactory.createCompoundBorder(
             new RoundBorder(10, Color.GRAY),
             BorderFactory.createEmptyBorder(5, 15, 5, 15)
         ));
         gbc.gridx = 1; gbc.gridy = 0; gbc.weightx = 0.4;
-        panelTimKiem.add(txtMaNV, gbc);
+        topPanel.add(txtEmployeeId, gbc);
 
         // Chọn tháng/năm
-        JLabel lblThangNam = new JLabel("THÁNG/NĂM:");
-        lblThangNam.setFont(fontNhan);
+        JLabel lblMonthYear = new JLabel("THÁNG/NĂM:");
+        lblMonthYear.setFont(LABEL_FONT);
         gbc.gridx = 2; gbc.gridy = 0; gbc.weightx = 0.1;
-        panelTimKiem.add(lblThangNam, gbc);
+        topPanel.add(lblMonthYear, gbc);
 
         // Panel chứa tháng và năm
-        JPanel panelThangNam = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
-        panelThangNam.setOpaque(false);
+        JPanel panelMonthYear = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+        panelMonthYear.setOpaque(false);
 
         // ComboBox tháng
-        JComboBox<String> cbThang = new JComboBox<>();
-        for (int i = 1; i <= 12; i++) {
-            cbThang.addItem("Tháng " + i);
-        }
-        cbThang.setFont(fontNhan);
-        cbThang.setBorder(new RoundBorder(10, Color.GRAY));
-        panelThangNam.add(cbThang);
+        String[] months = {"Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6",
+                          "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"};
+        cmbMonth = new JComboBox<>(months);
+        cmbMonth.setFont(LABEL_FONT);
+        cmbMonth.setBorder(new RoundBorder(10, Color.GRAY));
+        panelMonthYear.add(cmbMonth);
 
         // ComboBox năm
-        JComboBox<String> cbNam = new JComboBox<>();
-        int namHienTai = Year.now().getValue();
-        for (int i = namHienTai - 5; i <= namHienTai + 1; i++) {
-            cbNam.addItem(String.valueOf(i));
+        cmbYear = new JComboBox<>();
+        int currentYear = Year.now().getValue();
+        for (int i = currentYear - 5; i <= currentYear + 1; i++) {
+            cmbYear.addItem(String.valueOf(i));
         }
-        cbNam.setSelectedItem(String.valueOf(namHienTai));
-        cbNam.setFont(fontNhan);
-        cbNam.setBorder(new RoundBorder(10, Color.GRAY));
-        panelThangNam.add(cbNam);
+        cmbYear.setSelectedItem(String.valueOf(currentYear));
+        cmbYear.setFont(LABEL_FONT);
+        cmbYear.setBorder(new RoundBorder(10, Color.GRAY));
+        panelMonthYear.add(cmbYear);
 
         gbc.gridx = 3; gbc.gridy = 0; gbc.weightx = 0.3;
-        panelTimKiem.add(panelThangNam, gbc);
+        topPanel.add(panelMonthYear, gbc);
 
         // Nút tìm kiếm
-        JButton btnTimKiem = taoNutTron("TÌM KIẾM (F1)", mauTimKiem, fontNut);
+        btnSearch = taoNutTron("TÌM KIẾM (F1)", SEARCH_COLOR, BUTTON_FONT);
         gbc.gridx = 4; gbc.gridy = 0; gbc.weightx = 0.2;
-        panelTimKiem.add(btnTimKiem, gbc);
+        topPanel.add(btnSearch, gbc);
 
-        // ======== BẢNG DỮ LIỆU ========
-        String[] cot = {"MÃ NV", "TÊN NHÂN VIÊN", "NGÀY", "CA", "CHECK-IN", "CHECK-OUT", "GIỜ LÀM", "TĂNG CA", "TRỄ", "GHI CHÚ", "LƯƠNG"};
-        DefaultTableModel model = new DefaultTableModel(cot, 0) {
+        return topPanel;
+    }
+
+    private JScrollPane createTablePanel() {
+        String[] columns = {"MÃ NV", "TÊN NHÂN VIÊN", "NGÀY", "CA", "CHECK-IN", "CHECK-OUT", 
+                          "GIỜ LÀM", "TĂNG CA", "TRỄ", "GHI CHÚ", "LƯƠNG"};
+        tableModel = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return column == 9; // Chỉ cho sửa cột ghi chú
+                return column == 9; // Chỉ cho phép chỉnh sửa cột Ghi Chú
             }
         };
-        
-        JTable table = new JTable(model) {
-            // Căn giữa tất cả các ô trong bảng
+
+        JTable table = new JTable(tableModel) {
             @Override
             public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
                 Component c = super.prepareRenderer(renderer, row, column);
@@ -123,106 +152,140 @@ public class Luong {
                 return c;
             }
         };
-        
-        // Căn giữa tiêu đề cột
+
         DefaultTableCellRenderer headerRenderer = new DefaultTableCellRenderer();
         headerRenderer.setHorizontalAlignment(JLabel.CENTER);
         for (int i = 0; i < table.getColumnCount(); i++) {
             table.getColumnModel().getColumn(i).setHeaderRenderer(headerRenderer);
         }
-        
+
         table.setRowHeight(35);
         table.setFont(new Font("Arial", Font.PLAIN, 14));
         table.getTableHeader().setFont(new Font("Arial", Font.BOLD, 14));
         table.setAutoCreateRowSorter(true);
-        
+
         JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
-        // ======== PANEL THỐNG KÊ ========
-        JPanel panelThongKe = new JPanel(new GridLayout(1, 4, 10, 10));
-        panelThongKe.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
-
-        // Tổng ngày làm
-        JPanel panelNgayLam = taoPanelThongKe("NGÀY LÀM", "0 ngày");
-
-        // Tổng giờ làm
-        JPanel panelGioLam = taoPanelThongKe("GIỜ LÀM", "0.00 giờ");
-
-        // Tổng lương
-        JPanel panelLuong = taoPanelThongKe("TỔNG LƯƠNG", "0 VNĐ");
-
-        // Panel chức năng
-        JPanel panelChucNang = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
-        panelChucNang.setOpaque(false);
-        
-        // Nút thoát
-        JButton btnThoat = taoNutTron("THOÁT (ESC)", mauThoat, fontNut);
-        btnThoat.setPreferredSize(new Dimension(120, 40));
-        
-        // Nút xuất Excel
-        JButton btnXuatExcel = taoNutTron("EXCEL (F2)", mauXuatExcel, fontNut);
-        btnXuatExcel.setPreferredSize(new Dimension(120, 40));
-        
-        panelChucNang.add(btnThoat);
-        panelChucNang.add(btnXuatExcel);
-
-        panelThongKe.add(panelNgayLam);
-        panelThongKe.add(panelGioLam);
-        panelThongKe.add(panelLuong);
-        panelThongKe.add(panelChucNang);
-
-        // ======== THÊM CÁC THÀNH PHẦN VÀO FRAME ========
-        frame.add(panelTimKiem, BorderLayout.NORTH);
-        frame.add(scrollPane, BorderLayout.CENTER);
-        frame.add(panelThongKe, BorderLayout.SOUTH);
-
-        // ======== XỬ LÝ SỰ KIỆN ========
-        btnTimKiem.addActionListener(e -> {
-            String maNV = txtMaNV.getText().trim();
-            String thang = String.format("%02d", cbThang.getSelectedIndex() + 1);
-            String nam = (String) cbNam.getSelectedItem();
-            
-            List<Object[]> duLieu = timDuLieuChamCong(maNV, thang, nam);
-            
-            model.setRowCount(0);
-            for (Object[] dong : duLieu) {
-                model.addRow(dong);
-            }
-            
-            capNhatThongKe(model, 
-                (JLabel) panelNgayLam.getComponent(0), 
-                (JLabel) panelGioLam.getComponent(0),
-                (JLabel) panelLuong.getComponent(0));
-        });
-
-        btnXuatExcel.addActionListener(e -> {
-            if (model.getRowCount() == 0) {
-                hienThiLoi(frame, "Không có dữ liệu để xuất!");
-                return;
-            }
-            
-            JOptionPane.showMessageDialog(frame, 
-                "Xuất Excel thành công!\n" + model.getRowCount() + " bản ghi đã được xuất.", 
-                "Thông báo", 
-                JOptionPane.INFORMATION_MESSAGE);
-        });
-
-        btnThoat.addActionListener(e -> frame.dispose());
-
-        frame.addKeyListener(new KeyAdapter() {
-            public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_F1) btnTimKiem.doClick();
-                if (e.getKeyCode() == KeyEvent.VK_F2) btnXuatExcel.doClick();
-                if (e.getKeyCode() == KeyEvent.VK_ESCAPE) btnThoat.doClick();
-            }
-        });
-
-        frame.setVisible(true);
+        return scrollPane;
     }
 
-    // ======== CÁC PHƯƠNG THỨC HỖ TRỢ ========
-    private static JPanel taoPanelThongKe(String tieuDe, String giaTri) {
+    private JPanel createBottomPanel() {
+        JPanel bottomPanel = new JPanel(new GridLayout(1, 4, 10, 10));
+        bottomPanel.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
+
+        // Tổng ngày làm
+        JPanel panelWorkDays = taoPanelThongKe("NGÀY LÀM", "0 ngày");
+        lblWorkDays = (JLabel) panelWorkDays.getComponent(0);
+
+        // Tổng giờ làm
+        JPanel panelWorkHours = taoPanelThongKe("GIỜ LÀM", "0.00 giờ");
+        lblWorkHours = (JLabel) panelWorkHours.getComponent(0);
+
+        // Tổng lương
+        JPanel panelTotalSalary = taoPanelThongKe("TỔNG LƯƠNG", "0 VNĐ");
+        lblTotalSalary = (JLabel) panelTotalSalary.getComponent(0);
+
+        // Panel chức năng
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        buttonPanel.setOpaque(false);
+
+        btnExit = taoNutTron("THOÁT (ESC)", EXIT_COLOR, BUTTON_FONT);
+        btnExit.setPreferredSize(new Dimension(120, 40));
+
+        btnExportExcel = taoNutTron("EXCEL (F2)", EXPORT_COLOR, BUTTON_FONT);
+        btnExportExcel.setPreferredSize(new Dimension(120, 40));
+
+        buttonPanel.add(btnExit);
+        buttonPanel.add(btnExportExcel);
+
+        bottomPanel.add(panelWorkDays);
+        bottomPanel.add(panelWorkHours);
+        bottomPanel.add(panelTotalSalary);
+        bottomPanel.add(buttonPanel);
+
+        return bottomPanel;
+    }
+
+    private void setupEventListeners() {
+        btnSearch.addActionListener(e -> handleSearch());
+        btnExit.addActionListener(e -> dispose());
+        btnExportExcel.addActionListener(e -> handleExportExcel());
+
+        addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_F1) btnSearch.doClick();
+                if (e.getKeyCode() == KeyEvent.VK_F2) btnExportExcel.doClick();
+                if (e.getKeyCode() == KeyEvent.VK_ESCAPE) btnExit.doClick();
+            }
+        });
+        setFocusable(true);
+    }
+
+    private void handleSearch() {
+        String employeeId = txtEmployeeId.getText().trim();
+        String month = String.format("%02d", cmbMonth.getSelectedIndex() + 1);
+        String year = (String) cmbYear.getSelectedItem();
+
+        if (employeeId.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Vui lòng nhập mã nhân viên!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        List<Object[]> duLieu = timDuLieuChamCong(employeeId, month, year);
+        
+        tableModel.setRowCount(0);
+        for (Object[] dong : duLieu) {
+            tableModel.addRow(dong);
+        }
+        
+        updateStats();
+    }
+
+    private void handleExportExcel() {
+        if (tableModel.getRowCount() == 0) {
+            JOptionPane.showMessageDialog(this, "Không có dữ liệu để xuất!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        JOptionPane.showMessageDialog(this, 
+            "Xuất Excel thành công!\n" + tableModel.getRowCount() + " bản ghi đã được xuất.", 
+            "Thông báo", 
+            JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private void updateStats() {
+        if (tableModel.getRowCount() == 0) {
+            lblWorkDays.setText("0 ngày");
+            lblWorkHours.setText("0.00 giờ");
+            lblTotalSalary.setText("0 VNĐ");
+            return;
+        }
+        
+        Set<String> cacNgayLam = new HashSet<>();
+        double tongGioLam = 0;
+        int tongLuong = 0;
+        
+        for (int i = 0; i < tableModel.getRowCount(); i++) {
+            String ngay = tableModel.getValueAt(i, 2).toString();
+            cacNgayLam.add(ngay);
+            
+            try {
+                tongGioLam += Double.parseDouble(tableModel.getValueAt(i, 6).toString().split(" ")[0]);
+                String luongStr = tableModel.getValueAt(i, 10).toString().replaceAll("[^0-9]", "");
+                tongLuong += Integer.parseInt(luongStr);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        
+        lblWorkDays.setText(cacNgayLam.size() + " ngày");
+        lblWorkHours.setText(String.format("%.2f giờ", tongGioLam));
+        lblTotalSalary.setText(String.format("%,d VNĐ", tongLuong));
+    }
+
+    // Các phương thức hỗ trợ
+    private JPanel taoPanelThongKe(String tieuDe, String giaTri) {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createTitledBorder(tieuDe));
         
@@ -234,13 +297,13 @@ public class Luong {
         return panel;
     }
 
-    private static JButton taoNutTron(String text, Color mauNen, Font font) {
+    private JButton taoNutTron(String text, Color mauNen, Font font) {
         JButton nut = new JButton(text) {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(mauNen);
+                g2.setColor(getBackground());
                 g2.fillRoundRect(0, 0, getWidth(), getHeight(), 15, 15);
                 g2.dispose();
                 
@@ -251,7 +314,7 @@ public class Luong {
             protected void paintBorder(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(mauNen.darker());
+                g2.setColor(getBackground().darker());
                 g2.drawRoundRect(0, 0, getWidth()-1, getHeight()-1, 15, 15);
                 g2.dispose();
             }
@@ -259,16 +322,30 @@ public class Luong {
         
         nut.setFont(font);
         nut.setForeground(Color.WHITE);
+        nut.setBackground(mauNen);
         nut.setContentAreaFilled(false);
         nut.setFocusPainted(false);
         nut.setBorder(new EmptyBorder(10, 25, 10, 25));
         nut.setCursor(new Cursor(Cursor.HAND_CURSOR));
         nut.setOpaque(false);
         
+        // Thêm hiệu ứng hover
+        nut.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                nut.setBackground(mauNen.darker());
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                nut.setBackground(mauNen);
+            }
+        });
+        
         return nut;
     }
 
-    private static List<Object[]> timDuLieuChamCong(String maNV, String thang, String nam) {
+    private List<Object[]> timDuLieuChamCong(String maNV, String thang, String nam) {
         List<Object[]> duLieu = new ArrayList<>();
         int soNgayTrongThang = 31; // Luôn hiển thị đủ 31 ngày
         
@@ -324,7 +401,14 @@ public class Luong {
         return duLieu;
     }
 
-    private static Object[] taoDuLieuNgayLam(String maNV, String tenNV, String ngay, String ca, String gioVao, String gioRa) {
+    private Object[] taoDuLieuNgayLam(String maNV, String tenNV, String ngay, String ca, String gioVao, String gioRa) {
+        // Định nghĩa thời gian ca làm việc
+        LocalTime CA1_BAT_DAU = LocalTime.of(8, 0);
+        LocalTime CA1_KET_THUC = LocalTime.of(16, 0);
+        LocalTime CA2_BAT_DAU = LocalTime.of(16, 0);
+        LocalTime CA2_KET_THUC = LocalTime.of(23, 59, 59);
+        Duration GIOI_HAN_TRE = Duration.ofMinutes(30);
+
         DateTimeFormatter dinhDang = DateTimeFormatter.ofPattern("HH:mm:ss");
         LocalTime thoiGianVao = LocalTime.parse(gioVao, dinhDang);
         LocalTime thoiGianRa = LocalTime.parse(gioRa, dinhDang);
@@ -345,16 +429,16 @@ public class Luong {
         if (thoiGianVao.isBefore(gioKetThucCa)) {
             // Giờ làm chuẩn là từ thời gian vào đến hết ca hoặc đến khi check-out (nếu check-out sớm)
             LocalTime ketThucThucTe = thoiGianRa.isBefore(gioKetThucCa) ? thoiGianRa : gioKetThucCa;
-            gioLamChuan = ChronoUnit.MINUTES.between(thoiGianVao, ketThucThucTe) / 60.0;
+            gioLamChuan = Duration.between(thoiGianVao, ketThucThucTe).toMinutes() / 60.0;
             
             // Tính giờ tăng ca nếu check-out sau giờ kết thúc ca
             if (thoiGianRa.isAfter(gioKetThucCa)) {
-                gioTangCa = ChronoUnit.MINUTES.between(gioKetThucCa, thoiGianRa) / 60.0;
+                gioTangCa = Duration.between(gioKetThucCa, thoiGianRa).toMinutes() / 60.0;
             }
         }
         // Nếu check-in sau giờ kết thúc ca thì toàn bộ là tăng ca
         else {
-            gioTangCa = ChronoUnit.MINUTES.between(thoiGianVao, thoiGianRa) / 60.0;
+            gioTangCa = Duration.between(thoiGianVao, thoiGianRa).toMinutes() / 60.0;
         }
         
         // Tổng giờ làm thực tế
@@ -381,40 +465,7 @@ public class Luong {
         };
     }
 
-    private static void capNhatThongKe(DefaultTableModel model, JLabel lblNgay, JLabel lblGio, JLabel lblLuong) {
-        if (model.getRowCount() == 0) {
-            lblNgay.setText("0 ngày");
-            lblGio.setText("0.00 giờ");
-            lblLuong.setText("0 VNĐ");
-            return;
-        }
-        
-        Set<String> cacNgayLam = new HashSet<>();
-        double tongGioLam = 0;
-        int tongLuong = 0;
-        
-        for (int i = 0; i < model.getRowCount(); i++) {
-            String ngay = model.getValueAt(i, 2).toString();
-            cacNgayLam.add(ngay);
-            
-            try {
-                tongGioLam += Double.parseDouble(model.getValueAt(i, 6).toString().split(" ")[0]);
-                String luongStr = model.getValueAt(i, 10).toString().replaceAll("[^0-9]", "");
-                tongLuong += Integer.parseInt(luongStr);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        
-        lblNgay.setText(cacNgayLam.size() + " ngày");
-        lblGio.setText(String.format("%.2f giờ", tongGioLam));
-        lblLuong.setText(String.format("%,d VNĐ", tongLuong));
-    }
-
-    private static void hienThiLoi(Component parent, String thongBao) {
-        JOptionPane.showMessageDialog(parent, thongBao, "Lỗi", JOptionPane.ERROR_MESSAGE);
-    }
-
+    // Class RoundBorder
     static class RoundBorder extends AbstractBorder {
         private int banKinh;
         private Color mau;
@@ -435,5 +486,9 @@ public class Luong {
         public Insets getBorderInsets(Component c) {
             return new Insets(banKinh/2, banKinh, banKinh/2, banKinh);
         }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(Luong::new);
     }
 }

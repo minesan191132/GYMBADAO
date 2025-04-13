@@ -116,6 +116,7 @@ public class DangNhap extends javax.swing.JDialog {
 
     // Class RoundedPanel để tạo panel bo tròn
     class RoundedPanel extends JPanel {
+
         private int cornerRadius;
         private Color backgroundColor;
 
@@ -138,6 +139,7 @@ public class DangNhap extends javax.swing.JDialog {
 
     // Class RoundedBorder để tạo viền bo tròn
     class RoundedBorder implements javax.swing.border.Border {
+
         private Color color;
         private int thickness;
         private int radius;
@@ -166,6 +168,7 @@ public class DangNhap extends javax.swing.JDialog {
 
     // Class RoundedButton để tạo nút bo tròn
     class RoundedButton extends JButton {
+
         private int radius;
 
         public RoundedButton(String text, int radius) {
@@ -181,7 +184,7 @@ public class DangNhap extends javax.swing.JDialog {
         protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g;
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            
+
             if (getModel().isPressed()) {
                 g2.setColor(getBackground().darker());
             } else if (getModel().isRollover()) {
@@ -189,7 +192,7 @@ public class DangNhap extends javax.swing.JDialog {
             } else {
                 g2.setColor(getBackground());
             }
-            
+
             g2.fillRoundRect(0, 0, getWidth(), getHeight(), radius, radius);
             super.paintComponent(g);
         }

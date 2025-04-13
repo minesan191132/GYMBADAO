@@ -112,7 +112,6 @@ public class TrangChu extends JFrame {
             btn.setFont(new Font("Arial", Font.BOLD, 14));
             btn.setHorizontalAlignment(SwingConstants.LEFT);
             btn.setIconTextGap(15);
-
             int index = i;
             btn.addActionListener(e -> {
                 setSelectedButton(index); // Đặt nút được chọn
@@ -127,14 +126,50 @@ public class TrangChu extends JFrame {
                         showBanHangPanel();
                     case 4 ->
                         showBaoCaoPanel();
+
                 }
             });
             sidebar.add(btn);
             menuButtons.add(btn); // Thêm nút vào danh sách
             y += 60;
         }
+// Lương và Chấm Công
+        RoundedButton roleSpecificButton;
+        String buttonText;
+        String iconPath;
 
-        RoundedButton btnLogout = new RoundedButton("Log out"); // Sử dụng RoundedButton cho nút logout
+        if (utils.Auth.isManager()) {
+            buttonText = "Lương";
+            iconPath = "/GYMBADAO/src/icon/";
+        } else {
+            buttonText = "Chấm Công";
+            iconPath = "/GYMBADAO/src/icon/";
+        }
+        roleSpecificButton = new RoundedButton(buttonText);
+// Resize icon giống như các nút menu khác
+        ImageIcon icon = new ImageIcon(iconPath);
+        Image image = icon.getImage();
+        Image scaledImage = image.getScaledInstance(30, 30, Image.SCALE_SMOOTH);
+        icon = new ImageIcon(scaledImage);
+        roleSpecificButton.setIcon(icon);
+
+        roleSpecificButton.setBounds(10, y + 10, 180, 50);
+        roleSpecificButton.setBackground(new Color(44, 44, 80));
+        roleSpecificButton.setForeground(Color.WHITE);
+        roleSpecificButton.setFont(new Font("Arial", Font.BOLD, 14));
+        roleSpecificButton.setHorizontalAlignment(SwingConstants.LEFT);
+        roleSpecificButton.setIconTextGap(15);
+
+// Sự kiện click
+        if (utils.Auth.isManager()) {
+            roleSpecificButton.addActionListener(e -> showLuong());
+        } else {
+            roleSpecificButton.addActionListener(e -> showChamCong());
+        }
+        sidebar.add(roleSpecificButton);
+        
+       // Log out
+        RoundedButton btnLogout = new RoundedButton("Log out");
         btnLogout.setBounds(20, 550, 160, 50);
         btnLogout.setBackground(new Color(255, 153, 51));
         btnLogout.setForeground(Color.BLACK);
@@ -143,6 +178,7 @@ public class TrangChu extends JFrame {
         btnLogout.setHorizontalAlignment(SwingConstants.LEFT);
         btnLogout.setIconTextGap(15);
         sidebar.add(btnLogout);
+
         btnLogout.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -172,12 +208,9 @@ public class TrangChu extends JFrame {
     private void showLoginAndOpenTrangChu() {
         DangNhap dn = new DangNhap(null, true);
         dn.setVisible(true);
-
         if (utils.Auth.isLogin()) {
-            // Sau khi login thành công sẽ mở lại TrangChu
             new TrangChu().setVisible(true);
         } else {
-            // Nếu không đăng nhập thì thoát hẳn chương trình
             System.exit(0);
         }
     }
@@ -227,6 +260,16 @@ public class TrangChu extends JFrame {
         mainPanel.add(new BaoCao(), BorderLayout.CENTER);
         mainPanel.revalidate();
         mainPanel.repaint();
+    }
+
+    private void showChamCong() {
+        this.setVisible(false);
+        new ChamCong().setVisible(true);
+    }
+
+    private void showLuong() {
+        this.setVisible(false);
+        new Luong().setVisible(true);
     }
 
     public static void main(String[] args) {
