@@ -1,5 +1,7 @@
 package ui;
 
+import dao.LuongDao;
+import entity.LuongNhanVien;
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.table.*;
@@ -13,6 +15,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.*;
 
 public class Luong extends JFrame {
 
@@ -42,6 +45,7 @@ public class Luong extends JFrame {
         createMainContent();
         setupEventListeners();
         setVisible(true);
+        loadLuongData();
     }
 
     private void setupMainWindow() {
@@ -512,6 +516,45 @@ public class Luong extends JFrame {
         public Insets getBorderInsets(Component c) {
             return new Insets(banKinh / 2, banKinh, banKinh / 2, banKinh);
         }
+    }
+
+    private void loadLuongData() {
+        // Lấy giá trị từ các trường nhập liệu (tháng và năm)
+        String thang = String.format("%02d", cmbMonth.getSelectedIndex() + 1);  // Tháng từ JComboBox
+        String nam = (String) cmbYear.getSelectedItem();  // Năm từ JComboBox
+
+        // Kiểm tra xem tháng và năm có hợp lệ không
+        if (thang.isEmpty() || nam == null) {
+            JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Lấy dữ liệu từ LuongDao (tất cả nhân viên)
+        LuongDao luongDao = new LuongDao();
+        List<LuongNhanVien> luongList = luongDao.getLuongNhanVien("", thang, nam); // Truy vấn tất cả nhân viên
+
+        // Xóa tất cả dữ liệu cũ trong bảng
+        tableModel.setRowCount(0);
+
+        // Thêm dữ liệu vào bảng
+        for (LuongNhanVien luong : luongList) {
+            Object[] row = new Object[]{
+                luong.getMaNhanVien(),
+                luong.getTenNhanVien(),
+                luong.getNgayLam(),
+                luong.getCaLam(),
+                luong.getGioVao(),
+                luong.getGioRa(),
+                luong.getGioLam(),
+                luong.getGioTangCa(),
+                luong.isDiTre() ? "Có" : "Không",
+                luong.getGhiChu(),
+                luong.getLuong()
+            };
+            tableModel.addRow(row);
+        }
+
+        updateStats(); // Cập nhật thống kê (ngày làm, giờ làm, tổng lương)
     }
 
     public static void main(String[] args) {

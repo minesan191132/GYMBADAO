@@ -13,23 +13,28 @@ public class LuongDao {
     public List<LuongNhanVien> getLuongNhanVien(String maNhanVien, String thang, String nam) {
         List<LuongNhanVien> list = new ArrayList<>();
 
-        String query = "SELECT * FROM luong WHERE ma_nhan_vien = ? AND MONTH(ngay_lam) = ? AND YEAR(ngay_lam) = ?";
+        String query = "SELECT * FROM Luong WHERE MONTH(NgayLam) = ? AND YEAR(NgayLam) = ?";
 
-        try (PreparedStatement ps = Xjdbc.getStmt(query, maNhanVien, Integer.parseInt(thang), Integer.parseInt(nam))) {
+        // Nếu mã nhân viên không rỗng, thêm điều kiện vào query
+        if (!maNhanVien.isEmpty()) {
+            query += " AND MaNV = ?";
+        }
+
+        try (PreparedStatement ps = Xjdbc.getStmt(query, Integer.parseInt(thang), Integer.parseInt(nam), maNhanVien.isEmpty() ? null : maNhanVien)) {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 LuongNhanVien luong = new LuongNhanVien(
-                        rs.getString("ma_nhan_vien"),
-                        rs.getString("ten_nhan_vien"),
-                        rs.getDate("ngay_lam").toLocalDate(),
-                        rs.getString("ca_lam"),
-                        rs.getString("gio_vao"),
-                        rs.getString("gio_ra"),
-                        rs.getDouble("gio_lam"),
-                        rs.getDouble("gio_tang_ca"),
-                        rs.getBoolean("di_tre"),
-                        rs.getString("ghi_chu"),
-                        rs.getInt("luong")
+                        rs.getString("MaNV"), // Chắc chắn cột này trong SQL là MaNV
+                        rs.getString("TenNV"), // Tên cột đúng trong cơ sở dữ liệu
+                        rs.getDate("NgayLam").toLocalDate(),
+                        rs.getString("CaLam"),
+                        rs.getString("GioVao"),
+                        rs.getString("GioRa"),
+                        rs.getDouble("GioLam"),
+                        rs.getDouble("GioTangCa"),
+                        rs.getBoolean("DiTre"),
+                        rs.getString("GhiChu"),
+                        rs.getInt("Luong")
                 );
                 list.add(luong);
             }
