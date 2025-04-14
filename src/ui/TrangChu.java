@@ -139,21 +139,19 @@ public class TrangChu extends JFrame {
         String iconPath;
 
         if (utils.Auth.isManager()) {
-            buttonText = "Lương";
-            iconPath = "/GYMBADAO/src/icon/";
+            buttonText = "Tính Lương";
+            iconPath = "/GYMBADAO/src/icon/salary.png";
         } else {
             buttonText = "Chấm Công";
-            iconPath = "/GYMBADAO/src/icon/";
+            iconPath = "/GYMBADAO/src/icon/check.png";
         }
         roleSpecificButton = new RoundedButton(buttonText);
-// Resize icon giống như các nút menu khác
         ImageIcon icon = new ImageIcon(iconPath);
         Image image = icon.getImage();
         Image scaledImage = image.getScaledInstance(30, 30, Image.SCALE_SMOOTH);
         icon = new ImageIcon(scaledImage);
         roleSpecificButton.setIcon(icon);
-
-        roleSpecificButton.setBounds(10, y + 10, 180, 50);
+        roleSpecificButton.setBounds(10, y, 180, 50);
         roleSpecificButton.setBackground(new Color(44, 44, 80));
         roleSpecificButton.setForeground(Color.WHITE);
         roleSpecificButton.setFont(new Font("Arial", Font.BOLD, 14));
@@ -161,14 +159,18 @@ public class TrangChu extends JFrame {
         roleSpecificButton.setIconTextGap(15);
 
 // Sự kiện click
-        if (utils.Auth.isManager()) {
-            roleSpecificButton.addActionListener(e -> showLuong());
-        } else {
-            roleSpecificButton.addActionListener(e -> showChamCong());
-        }
+        roleSpecificButton.addActionListener(e -> {
+            setSelectedButton(menuButtons.indexOf(roleSpecificButton)); // Đổi màu khi chọn
+            if (utils.Auth.isManager()) {
+                showLuong();
+            } else {
+                showChamCong();
+            }
+        });
         sidebar.add(roleSpecificButton);
-        
-       // Log out
+        menuButtons.add(roleSpecificButton); // Thêm vào danh sách nút
+
+        // Log out
         RoundedButton btnLogout = new RoundedButton("Log out");
         btnLogout.setBounds(20, 550, 160, 50);
         btnLogout.setBackground(new Color(255, 153, 51));
@@ -278,7 +280,7 @@ public class TrangChu extends JFrame {
 
             DangNhap dn = new DangNhap(null, true);
             dn.setVisible(true);
-
+            
             TrangChu tc = new TrangChu();
             tc.setVisible(true);
         });

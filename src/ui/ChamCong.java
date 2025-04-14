@@ -82,7 +82,7 @@ public class ChamCong extends JFrame {
                 g2d.setColor(Color.WHITE);
                 g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 15, 15);
                 g2d.setColor(new Color(200, 200, 200));
-                g2d.drawRoundRect(0, 0, getWidth()-1, getHeight()-1, 15, 15);
+                g2d.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 15, 15);
             }
         };
         checkPanel.setOpaque(false);
@@ -95,51 +95,60 @@ public class ChamCong extends JFrame {
         // Employee ID
         JLabel lblId = new JLabel("MÃ NHÂN VIÊN:");
         lblId.setFont(LABEL_FONT);
-        gbc.gridx = 0; gbc.gridy = 0;
+        gbc.gridx = 0;
+        gbc.gridy = 0;
         checkPanel.add(lblId, gbc);
 
         txtEmployeeId = new RoundTextField(20);
         txtEmployeeId.setFont(TEXT_FONT);
         txtEmployeeId.setBackground(FIELD_BG_COLOR);
-        gbc.gridx = 1; gbc.gridy = 0;
+        gbc.gridx = 1;
+        gbc.gridy = 0;
         checkPanel.add(txtEmployeeId, gbc);
 
         btnUpload = new RoundButton("TẢI ẢNH", new Color(41, 98, 255), BUTTON_FONT);
         btnUpload.setPreferredSize(new Dimension(150, 40));
-        gbc.gridx = 2; gbc.gridy = 0;
+        gbc.gridx = 2;
+        gbc.gridy = 0;
         checkPanel.add(btnUpload, gbc);
 
         // Date
         JLabel lblDate = new JLabel("NGÀY:");
         lblDate.setFont(LABEL_FONT);
-        gbc.gridx = 0; gbc.gridy = 1;
+        gbc.gridx = 0;
+        gbc.gridy = 1;
         checkPanel.add(lblDate, gbc);
 
         lblCurrentDate = new JLabel(getCurrentDate());
         lblCurrentDate.setFont(TEXT_FONT);
-        gbc.gridx = 1; gbc.gridy = 1;
+        gbc.gridx = 1;
+        gbc.gridy = 1;
         checkPanel.add(lblCurrentDate, gbc);
 
         // Time
         JLabel lblTime = new JLabel("GIỜ HIỆN TẠI:");
         lblTime.setFont(LABEL_FONT);
-        gbc.gridx = 0; gbc.gridy = 2;
+        gbc.gridx = 0;
+        gbc.gridy = 2;
         checkPanel.add(lblTime, gbc);
 
         lblCurrentTime = new JLabel(getCurrentTime());
         lblCurrentTime.setFont(TEXT_FONT);
-        gbc.gridx = 1; gbc.gridy = 2;
+        gbc.gridx = 1;
+        gbc.gridy = 2;
         checkPanel.add(lblCurrentTime, gbc);
 
         // Check-in/out buttons
         btnCheckIn = new RoundButton("CHECK-IN (F1)", CHECK_IN_COLOR, BUTTON_FONT);
         btnCheckIn.setPreferredSize(new Dimension(180, 50));
-        gbc.gridx = 0; gbc.gridy = 3;
+        gbc.gridx = 0;
+        gbc.gridy = 3;
         checkPanel.add(btnCheckIn, gbc);
 
         btnCheckOut = new RoundButton("CHECK-OUT (F2)", CHECK_OUT_COLOR, BUTTON_FONT);
         btnCheckOut.setPreferredSize(new Dimension(180, 50));
-        gbc.gridx = 1; gbc.gridy = 3;
+        gbc.gridx = 1;
+        gbc.gridy = 3;
         checkPanel.add(btnCheckOut, gbc);
 
         return checkPanel;
@@ -208,7 +217,7 @@ public class ChamCong extends JFrame {
                 g2d.setColor(Color.WHITE);
                 g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 15, 15);
                 g2d.setColor(new Color(200, 200, 200));
-                g2d.drawRoundRect(0, 0, getWidth()-1, getHeight()-1, 15, 15);
+                g2d.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 15, 15);
             }
         };
         rightPanel.setOpaque(false);
@@ -233,14 +242,22 @@ public class ChamCong extends JFrame {
         btnUpload.addActionListener(e -> handleUploadImage());
         btnCheckIn.addActionListener(e -> handleCheckIn());
         btnCheckOut.addActionListener(e -> handleCheckOut());
-        btnExit.addActionListener(e -> dispose());
+        btnExit.addActionListener(e -> {dispose(); 
+            new TrangChu().setVisible(true); 
+        });
 
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_F1) btnCheckIn.doClick();
-                if (e.getKeyCode() == KeyEvent.VK_F2) btnCheckOut.doClick();
-                if (e.getKeyCode() == KeyEvent.VK_ESCAPE) btnExit.doClick();
+                if (e.getKeyCode() == KeyEvent.VK_F1) {
+                    btnCheckIn.doClick();
+                }
+                if (e.getKeyCode() == KeyEvent.VK_F2) {
+                    btnCheckOut.doClick();
+                }
+                if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                    btnExit.doClick();
+                }
             }
         });
         setFocusable(true);
@@ -373,6 +390,7 @@ public class ChamCong extends JFrame {
 
     // Custom Component Classes
     static class RoundButton extends JButton {
+
         private Color hoverColor;
         private Color originalColor;
 
@@ -408,7 +426,7 @@ public class ChamCong extends JFrame {
             g2d.setColor(getBackground());
             g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 25, 25);
             g2d.setColor(getBackground().darker());
-            g2d.drawRoundRect(0, 0, getWidth()-1, getHeight()-1, 25, 25);
+            g2d.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 25, 25);
             super.paintComponent(g2d);
             g2d.dispose();
         }
@@ -420,11 +438,12 @@ public class ChamCong extends JFrame {
 
         @Override
         public boolean contains(int x, int y) {
-            return new RoundRectangle2D.Float(0, 0, getWidth()-1, getHeight()-1, 25, 25).contains(x, y);
+            return new RoundRectangle2D.Float(0, 0, getWidth() - 1, getHeight() - 1, 25, 25).contains(x, y);
         }
     }
 
     static class RoundTextField extends JTextField {
+
         public RoundTextField(int columns) {
             super(columns);
             setOpaque(false);
@@ -446,12 +465,13 @@ public class ChamCong extends JFrame {
             Graphics2D g2d = (Graphics2D) g.create();
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             g2d.setColor(new Color(200, 200, 200));
-            g2d.drawRoundRect(0, 0, getWidth()-1, getHeight()-1, 15, 15);
+            g2d.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 15, 15);
             g2d.dispose();
         }
     }
 
     static class RoundPanel extends JPanel {
+
         public RoundPanel() {
             setOpaque(false);
         }
@@ -462,9 +482,9 @@ public class ChamCong extends JFrame {
             Graphics2D g2d = (Graphics2D) g.create();
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             g2d.setColor(Color.WHITE);
-            g2d.fillRoundRect(0, 0, getWidth()-1, getHeight()-1, 15, 15);
+            g2d.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 15, 15);
             g2d.setColor(new Color(200, 200, 200));
-            g2d.drawRoundRect(0, 0, getWidth()-1, getHeight()-1, 15, 15);
+            g2d.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 15, 15);
             g2d.dispose();
         }
     }
