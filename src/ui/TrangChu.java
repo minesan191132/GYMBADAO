@@ -280,7 +280,7 @@ public class TrangChu extends JFrame {
 
             DangNhap dn = new DangNhap(null, true);
             dn.setVisible(true);
-            
+
             TrangChu tc = new TrangChu();
             tc.setVisible(true);
         });
