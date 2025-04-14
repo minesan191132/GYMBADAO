@@ -1,5 +1,8 @@
 package ui;
 
+import java.util.*;
+import dao.ChamCongDao;
+import entity.chamCong;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -15,6 +18,8 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import javax.imageio.ImageIO;
+import java.util.List;
+import javax.swing.Timer;
 
 public class ChamCong extends JFrame {
 
@@ -29,9 +34,15 @@ public class ChamCong extends JFrame {
     private static final Color CHECK_OUT_COLOR = new Color(198, 40, 40);
     private static final Color EXIT_COLOR = new Color(96, 125, 139);
     private static final Color FIELD_BG_COLOR = new Color(240, 240, 240);
+    ChamCongDao chamCongDao = new ChamCongDao();
 
     public ChamCong() {
         initUI();
+    }
+
+    private void startTimeUpdate() {
+        Timer timer = new Timer(1000, e -> lblCurrentTime.setText(getCurrentTime()));
+        timer.start();
     }
 
     private void initUI() {
@@ -242,8 +253,9 @@ public class ChamCong extends JFrame {
         btnUpload.addActionListener(e -> handleUploadImage());
         btnCheckIn.addActionListener(e -> handleCheckIn());
         btnCheckOut.addActionListener(e -> handleCheckOut());
-        btnExit.addActionListener(e -> {dispose(); 
-            new TrangChu().setVisible(true); 
+        btnExit.addActionListener(e -> {
+            dispose();
+            new TrangChu().setVisible(true);
         });
 
         addKeyListener(new KeyAdapter() {
@@ -290,47 +302,59 @@ public class ChamCong extends JFrame {
             return;
         }
 
-        String today = getCurrentDate();
-        for (int i = 0; i < tableModel.getRowCount(); i++) {
-            if (tableModel.getValueAt(i, 0).equals(today)) {
-                JOptionPane.showMessageDialog(this, "Bạn đã check-in hôm nay!", "Lỗi", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
+        LocalDate ngay = LocalDate.now();
+        LocalTime checkInTime = LocalTime.now();
+        String ca = (checkInTime.isBefore(LocalTime.NOON)) ? "CA1" : "CA2";
+
+        ChamCongDao dao = new ChamCongDao();
+        if (dao.isCheckedIn(employeeId, ngay)) {
+            JOptionPane.showMessageDialog(this, "Bạn đã check-in hôm nay!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
         }
 
-        tableModel.addRow(new Object[]{today, getCurrentTime(), "", ""});
-        updateStats();
-        JOptionPane.showMessageDialog(this, "CHECK-IN THÀNH CÔNG!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+        boolean success = dao.insertCheckIn(employeeId, ngay, ca, checkInTime);
+        if (success) {
+            tableModel.addRow(new Object[]{
+                ngay.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+                checkInTime.format(DateTimeFormatter.ofPattern("HH:mm:ss")),
+                "", ""
+            });
+            updateStats();
+            JOptionPane.showMessageDialog(this, "CHECK-IN THÀNH CÔNG!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(this, "Lỗi khi ghi nhận check-in!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private void handleCheckOut() {
-        JTable table = (JTable) ((JViewport) ((JScrollPane) ((JPanel) getContentPane().getComponent(0)).getComponent(1)).getViewport()).getView();
-        int row = table.getSelectedRow();
-        if (row == -1) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn bản ghi check-in!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+        int row = tableModel.getRowCount() - 1;
+        if (row == -1 || !tableModel.getValueAt(row, 2).toString().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Bạn chưa check-in hoặc đã check-out!", "Lỗi", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        if (!tableModel.getValueAt(row, 2).toString().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Bản ghi này đã check-out!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+        String employeeId = txtEmployeeId.getText().trim();
+        if (employeeId.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Vui lòng nhập mã nhân viên!", "Lỗi", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        String checkInTime = (String) tableModel.getValueAt(row, 1);
-        String checkOutTime = getCurrentTime();
-        double totalHours = calculateHours(checkInTime, checkOutTime);
+        LocalDate ngay = LocalDate.now();
+        LocalTime checkOutTime = LocalTime.now();
+        String checkInStr = tableModel.getValueAt(row, 1).toString();
+        LocalTime checkInTime = LocalTime.parse(checkInStr, DateTimeFormatter.ofPattern("HH:mm:ss"));
+        double totalHours = ChronoUnit.MINUTES.between(checkInTime, checkOutTime) / 60.0;
 
-        tableModel.setValueAt(checkOutTime, row, 2);
-        tableModel.setValueAt(String.format("%.2f giờ", totalHours), row, 3);
-        updateStats();
-
-        JOptionPane.showMessageDialog(this, "CHECK-OUT THÀNH CÔNG!\nTổng giờ: " + totalHours + " giờ",
-                "Thông báo", JOptionPane.INFORMATION_MESSAGE);
-    }
-
-    private void startTimeUpdate() {
-        Timer timer = new Timer(1000, e -> lblCurrentTime.setText(getCurrentTime()));
-        timer.start();
+        ChamCongDao dao = new ChamCongDao();
+        boolean success = dao.updateCheckOut(employeeId, ngay, checkOutTime);
+        if (success) {
+            tableModel.setValueAt(checkOutTime.format(DateTimeFormatter.ofPattern("HH:mm:ss")), row, 2);
+            tableModel.setValueAt(String.format("%.2f giờ", totalHours), row, 3);
+            updateStats();
+            JOptionPane.showMessageDialog(this, "CHECK-OUT THÀNH CÔNG!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(this, "Lỗi khi cập nhật check-out!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private void loadDefaultImage() {
@@ -393,6 +417,8 @@ public class ChamCong extends JFrame {
 
         private Color hoverColor;
         private Color originalColor;
+        private int arcWidth = 25;
+        private int arcHeight = 25;
 
         public RoundButton(String text, Color bgColor, Font font) {
             super(text);
@@ -402,7 +428,7 @@ public class ChamCong extends JFrame {
             setForeground(Color.WHITE);
             setBackground(originalColor);
             setFocusPainted(false);
-            setBorder(new EmptyBorder(10, 25, 10, 25));
+            setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200))); 
             setContentAreaFilled(false);
             setOpaque(false);
 
@@ -424,21 +450,21 @@ public class ChamCong extends JFrame {
             Graphics2D g2d = (Graphics2D) g.create();
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             g2d.setColor(getBackground());
-            g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 25, 25);
+            g2d.fillRoundRect(0, 0, getWidth(), getHeight(), arcWidth, arcHeight);
             g2d.setColor(getBackground().darker());
-            g2d.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 25, 25);
+            g2d.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, arcWidth, arcHeight);
             super.paintComponent(g2d);
             g2d.dispose();
         }
 
         @Override
         protected void paintBorder(Graphics g) {
-            // No default border
+            // Không vẽ border mặc định
         }
 
         @Override
         public boolean contains(int x, int y) {
-            return new RoundRectangle2D.Float(0, 0, getWidth() - 1, getHeight() - 1, 25, 25).contains(x, y);
+            return new RoundRectangle2D.Float(0, 0, getWidth() - 1, getHeight() - 1, arcWidth, arcHeight).contains(x, y);
         }
     }
 
@@ -487,6 +513,32 @@ public class ChamCong extends JFrame {
             g2d.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 15, 15);
             g2d.dispose();
         }
+    }
+
+    private void loadChamCongToTable(String maNV) {
+        tableModel.setRowCount(0); // Clear old rows
+
+        // Lấy lịch sử chấm công của nhân viên từ cơ sở dữ liệu
+        List<chamCong> list = chamCongDao.findAllByNhanVien(maNV);
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+
+        // Duyệt qua danh sách lịch sử chấm công và thêm vào bảng
+        for (chamCong cc : list) {
+            String date = cc.getNgay().format(dateFormatter);
+            String checkIn = cc.getCheckIn() != null ? cc.getCheckIn().format(timeFormatter) : "";
+            String checkOut = cc.getCheckOut() != null ? cc.getCheckOut().format(timeFormatter) : "";
+            String total = "";
+
+            if (cc.getCheckIn() != null && cc.getCheckOut() != null) {
+                double hours = ChronoUnit.MINUTES.between(cc.getCheckIn(), cc.getCheckOut()) / 60.0;
+                total = String.format("%.2f giờ", hours);
+            }
+
+            tableModel.addRow(new Object[]{date, checkIn, checkOut, total});
+        }
+
+        updateStats();  // Cập nhật thông tin thống kê như tổng số ngày làm và tổng số giờ
     }
 
     public static void main(String[] args) {

@@ -14,96 +14,78 @@ import java.sql.SQLException;
  *
  * @author Admin
  */
-    
-public class Xjdbc 
-{
-   private static String driver="com.microsoft.sqlserver.jdbc.SQLServerDriver";
-   private static String dburl="jdbc:sqlserver://localhost:1433;database=GymManagement;encrypt=true;trustServerCertificate=true;";
-    private static String username="sa";
-    private static String password="123456789";
-    
-      static{
-        try {            
+public class Xjdbc {
+
+    private static String driver = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
+    private static String dburl = "jdbc:sqlserver://localhost:1433;database=GymManagement;encrypt=true;trustServerCertificate=true;";
+    private static String username = "sa";
+    private static String password = "123456789";
+
+    static {
+        try {
             Class.forName(driver);
-        } 
-        catch (ClassNotFoundException ex) {
+        } catch (ClassNotFoundException ex) {
             throw new RuntimeException(ex);
         }
     }
-      
-        
-      public static PreparedStatement getStmt(String sql, Object...args) throws SQLException{
-                    Connection connection = DriverManager.getConnection(dburl, username, password);
-                    PreparedStatement pstmt = null;
-                    if(sql.trim().startsWith("{")){
-                        pstmt = connection.prepareCall(sql);
-                    }
-                    else{
-                        pstmt = connection.prepareStatement(sql);
-                    }
-                    for(int i=0;i<args.length;i++){
-                        pstmt.setObject(i + 1, args[i]);
-                    }
+
+    public static PreparedStatement getStmt(String sql, Object... args) throws SQLException {
+        Connection connection = DriverManager.getConnection(dburl, username, password);
+        PreparedStatement pstmt = null;
+        if (sql.trim().startsWith("{")) {
+            pstmt = connection.prepareCall(sql);
+        } else {
+            pstmt = connection.prepareStatement(sql);
+        }
+        for (int i = 0; i < args.length; i++) {
+            pstmt.setObject(i + 1, args[i]);
+        }
         return pstmt;
     }
-      
-     public static void update(String sql, Object...args) {
+
+    public static int update(String sql, Object... args) {
         try {
             PreparedStatement stmt = Xjdbc.getStmt(sql, args);
             try {
-                stmt.executeUpdate();
-            } 
-            finally{
+                return stmt.executeUpdate(); // trả về số dòng bị ảnh hưởng
+            } finally {
                 stmt.getConnection().close();
             }
-        } 
-        catch (SQLException e) {
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
-     
-      public static ResultSet query(String sql, Object...args) 
-      {
-        try 
-        {
+
+    public static ResultSet query(String sql, Object... args) {
+        try {
             PreparedStatement stmt = Xjdbc.getStmt(sql, args);
             return stmt.executeQuery();
-        } 
-        catch (SQLException e) 
-        {
+        } catch (SQLException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
         }
-        
-      } 
-       
-      public static Object value(String sql, Object...args) 
 
-      {
-            try {
-                ResultSet rs = Xjdbc.query(sql, args);
-                if(rs.next()){
-                    return rs.getObject(1);
-                }
-                rs.getStatement().getConnection().close();
-                return null;
-            } 
-            catch (Exception e)
-            {
-                throw new RuntimeException(e);
+    }
+
+    public static Object value(String sql, Object... args) {
+        try {
+            ResultSet rs = Xjdbc.query(sql, args);
+            if (rs.next()) {
+                return rs.getObject(1);
             }
-            
-          }
-      
-      public static int valueInt(String sql, Object... args) {
-    try (ResultSet rs = query(sql, args)) {
-        return rs.next() ? rs.getInt(1) : -1;
-    } catch (SQLException e) {
-        throw new RuntimeException(e);
+            rs.getStatement().getConnection().close();
+            return null;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    public static int valueInt(String sql, Object... args) {
+        try (ResultSet rs = query(sql, args)) {
+            return rs.next() ? rs.getInt(1) : -1;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
-        
-        
-        
-        
-     }
