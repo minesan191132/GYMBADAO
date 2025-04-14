@@ -10,15 +10,15 @@ package entity;
  */
 public class OrderItem {
     private Product product;
-    private int quantity;
+    private double quantity;
     
-    public OrderItem(Product product, int quantity) {
+    public OrderItem(Product product, double quantity) {
         this.product = product;
         this.quantity = quantity;
     }
     
     // Getter và setter
     public Product getProduct() { return product; }
-    public int getQuantity() { return quantity; }
-    public void setQuantity(int quantity) { this.quantity = quantity; }
+    public double getQuantity() { return quantity; }
+    public void setQuantity(double quantity) { this.quantity = quantity; }
 }

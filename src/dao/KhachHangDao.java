@@ -138,4 +138,35 @@ public class KhachHangDao {
         }
         return null;
     }
+
+    public List<ThanhVien> searchCustomers(String keyword) {
+    List<ThanhVien> list = new ArrayList<>();
+    String sql = "SELECT * FROM KhachHang WHERE HoTen LIKE ? OR SoDienThoai LIKE ?";
+    
+    try {
+        // Thêm % vào từ khóa để tìm kiếm phần trùng khớp
+        String searchPattern = "%" + keyword + "%";
+        ResultSet rs = Xjdbc.query(sql, searchPattern, searchPattern);
+        
+        while (rs.next()) {
+            ThanhVien kh = new ThanhVien();
+            kh.setMaTV(rs.getInt("MaKH"));
+            kh.setHoTen(rs.getString("HoTen"));
+            kh.setSoDT(rs.getString("SoDienThoai"));
+            kh.setGioiTinh(rs.getString("GioiTinh"));
+            list.add(kh);
+        }
+        
+        rs.getStatement().getConnection().close();
+    } catch (SQLException ex) {
+        ex.printStackTrace();
+    }
+    
+    return list;
+}
+
+    public void capNhatTrangThaiHetHan() {
+        String sql = "{call sp_CapNhatTrangThai}";
+        Xjdbc.update(sql); // dùng class Xjdbc giống như các hàm khác
+    }
 }

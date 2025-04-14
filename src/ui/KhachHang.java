@@ -20,7 +20,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
+import dao.*;
 import java.util.Date;
 import javax.swing.border.EmptyBorder;
 
@@ -452,7 +452,7 @@ public class KhachHang extends JPanel {
             }
         });
 // Nút bộ lọc
-        JButton btnHoaDon = new JButton("Xuất hóa đơn") {
+        JButton btntrangthai = new JButton("Cập nhật trạng thái") {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
@@ -467,21 +467,24 @@ public class KhachHang extends JPanel {
                 super.paintComponent(g); // Quan trọng: Gọi super để vẽ chữ và icon
             }
         };
-        btnHoaDon.setFont(new Font("Arial", Font.BOLD, 14));
-        btnHoaDon.setForeground(Color.WHITE);
-        btnHoaDon.setFocusPainted(false);
-        btnHoaDon.setContentAreaFilled(false); // Tắt nền mặc định
-        btnHoaDon.setOpaque(false); // Đảm bảo nút trong suốt
-        btnHoaDon.setBorderPainted(false); // Tắt viền mặc định
-        btnHoaDon.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20)); // Đặt padding
-        btnHoaDon.setBounds(510, 70, 120, 40); // Điều chỉnh kích thước (ngắn hơn)
-        btnHoaDon.addActionListener(new ActionListener() {
+        btntrangthai.setFont(new Font("Arial", Font.BOLD, 14));
+        btntrangthai.setForeground(Color.WHITE);
+        btntrangthai.setFocusPainted(false);
+        btntrangthai.setContentAreaFilled(false); // Tắt nền mặc định
+        btntrangthai.setOpaque(false); // Đảm bảo nút trong suốt
+        btntrangthai.setBorderPainted(false); // Tắt viền mặc định
+        btntrangthai.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20)); // Đặt padding
+        btntrangthai.setBounds(510, 70, 120, 40); // Điều chỉnh kích thước (ngắn hơn)
+        btntrangthai.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(null, "Chức năng Xuất hóa đơn đang được phát triển!");
+                KhachHangDao dao = new KhachHangDao();
+                dao.capNhatTrangThaiHetHan();
+                JOptionPane.showMessageDialog(null, "Đã cập nhật trạng thái hết hạn thành công!");
             }
         });
-        searchPanel.add(btnHoaDon);
+
+        searchPanel.add(btntrangthai);
         // Nút xem theo ngày
         JButton btnXemNgay = new JButton("Xem theo ngày") {
             @Override
@@ -656,24 +659,6 @@ public class KhachHang extends JPanel {
         });
     }
 
-    // Kiểm tra trạng thái gói tập
-    private String kiemTraTrangThai(String ngayKetThuc) {
-        try {
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-            Date ngayKT = sdf.parse(ngayKetThuc);
-            Date ngayHienTai = new Date();
-
-            if (ngayKT.after(ngayHienTai)) {
-                return "Còn hạn";
-            } else {
-                return "Hết hạn";
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "";
-        }
-    }
-
     // Tạo nút gradient
     private JButton createGradientButton(String text, Color startColor, Color endColor) {
         return new JButton(text) {
@@ -784,6 +769,12 @@ public class KhachHang extends JPanel {
         if (cboGoiTap.getSelectedIndex() == 0) {
             JOptionPane.showMessageDialog(this, "Vui lòng chọn gói tập", "Lỗi", JOptionPane.ERROR_MESSAGE);
             cboGoiTap.requestFocus();
+            return false;
+        }
+
+        if (!txtSoDT.getText().matches("\\d{10}") || txtSoDT.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Số điện thoại phải là 10 chữ số và không để trống", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            txtSoDT.requestFocus();
             return false;
         }
 

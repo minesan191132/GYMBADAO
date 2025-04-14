@@ -94,6 +94,14 @@ public class Xjdbc
             }
             
           }
+      
+      public static int valueInt(String sql, Object... args) {
+    try (ResultSet rs = query(sql, args)) {
+        return rs.next() ? rs.getInt(1) : -1;
+    } catch (SQLException e) {
+        throw new RuntimeException(e);
+    }
+}
         
         
         

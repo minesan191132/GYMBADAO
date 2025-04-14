@@ -8,22 +8,64 @@ package entity;
  *
  * @author trong
  */
+/**
+ */
 public class Product {
-    private String id;
-    private String name;
-    private int price;
-    private String imagePath;
-    
-    public Product(String id, String name, int price, String imagePath) {
-        this.id = id;
-        this.name = name;
-        this.price = price;
-        this.imagePath = imagePath;
+    private int maSanPham;
+    private String tenSanPham;
+    private double gia;
+    private int Soluong;
+    private String hinhanh;
+
+    public Product() {
     }
-    
-    // Getter methods
-    public String getId() { return id; }
-    public String getName() { return name; }
-    public int getPrice() { return price; }
-    public String getImagePath() { return imagePath; }
+
+    public Product(int maSanPham, String tenSanPham, int gia, int Soluong, String hinhanh) {
+        this.maSanPham = maSanPham;
+        this.tenSanPham = tenSanPham;
+        this.gia = gia;
+        this.Soluong = Soluong;
+        this.hinhanh = hinhanh;
+    }
+
+    public int getMaSanPham() {
+        return maSanPham;
+    }
+
+    public void setMaSanPham(int maSanPham) {
+        this.maSanPham = maSanPham;
+    }
+
+    public String getTenSanPham() {
+        return tenSanPham;
+    }
+
+    public void setTenSanPham(String tenSanPham) {
+        this.tenSanPham = tenSanPham;
+    }
+
+    public double getGia() {
+        return gia;
+    }
+
+    public void setGia(double gia) {
+        this.gia = gia;
+    }
+
+    public int getSoluong() {
+        return Soluong;
+    }
+
+    public void setSoluong(int Soluong) {
+        this.Soluong = Soluong;
+    }
+
+    public String getHinhanh() {
+        return hinhanh;
+    }
+
+    public void setHinhanh(String hinhanh) {
+        this.hinhanh = hinhanh;
+    }
 }
+

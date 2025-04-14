@@ -13,8 +13,8 @@ import java.util.Date;
 public class ThanhVien {
     int maTV;
     String hoTen, gioiTinh;
-    Date ngayDK;
     String soDT;
+    Date ngayDK;
     Date ngayKT;
     int maGoi;
     String TenGoi;
@@ -22,12 +22,12 @@ public class ThanhVien {
     public ThanhVien() {
     }
 
-    public ThanhVien(int maTV, String hoTen, String gioiTinh, Date ngayDK, String soDT, Date ngayKT, int maGoi, String TenGoi) {
+    public ThanhVien(int maTV, String hoTen, String gioiTinh, String soDT, Date ngayDK, Date ngayKT, int maGoi, String TenGoi) {
         this.maTV = maTV;
         this.hoTen = hoTen;
         this.gioiTinh = gioiTinh;
-        this.ngayDK = ngayDK;
         this.soDT = soDT;
+        this.ngayDK = ngayDK;
         this.ngayKT = ngayKT;
         this.maGoi = maGoi;
         this.TenGoi = TenGoi;
@@ -57,20 +57,20 @@ public class ThanhVien {
         this.gioiTinh = gioiTinh;
     }
 
-    public Date getNgayDK() {
-        return ngayDK;
-    }
-
-    public void setNgayDK(Date ngayDK) {
-        this.ngayDK = ngayDK;
-    }
-
     public String getSoDT() {
         return soDT;
     }
 
     public void setSoDT(String soDT) {
         this.soDT = soDT;
+    }
+
+    public Date getNgayDK() {
+        return ngayDK;
+    }
+
+    public void setNgayDK(Date ngayDK) {
+        this.ngayDK = ngayDK;
     }
 
     public Date getNgayKT() {
