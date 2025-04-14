@@ -1,6 +1,7 @@
 package ui;
 
 import dao.DonHangDAO;
+import entity.donHang;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -18,8 +19,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.geom.RoundRectangle2D;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.swing.BorderFactory;
@@ -27,19 +33,25 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SpinnerDateModel;
+import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
 public class DonHang extends JPanel {
 
-    private DonHangDAO donHangDAO = new DonHangDAO();
+    DonHangDAO donHangDAO = new DonHangDAO();
+    private DefaultTableModel tableModel;
+    private JTextField txtTimKiem;
 
     public DonHang() {
         setBounds(0, 0, 800, 650);
@@ -83,11 +95,21 @@ public class DonHang extends JPanel {
         searchPanel.setLayout(new GridLayout(1, 3, 10, 10));
 
         // Thanh tìm kiếm bo tròn và có thể nhập liệu
-        RoundTextField txtTimKiem = new RoundTextField("Tìm kiếm", 20);
+        txtTimKiem = new RoundTextField("Tìm kiếm");
+        txtTimKiem.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         txtTimKiem.setBackground(Color.WHITE);
         txtTimKiem.setBounds(50, 70, 500, 40);
         searchPanel.add(txtTimKiem);
 
+        JPopupMenu suggestionPopup = new JPopupMenu();
+        JList<String> suggestionList = new JList<>();
+        suggestionList.setFont(new Font("Arial", Font.PLAIN, 14));
+        suggestionPopup.add(new JScrollPane(suggestionList));
+
+        suggestionPopup.setFocusable(false);
+        suggestionList.setRequestFocusEnabled(false);
+
+// Xử lý focus
         txtTimKiem.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
@@ -101,9 +123,76 @@ public class DonHang extends JPanel {
                 if (txtTimKiem.getText().isEmpty()) {
                     txtTimKiem.setText("Tìm kiếm");
                 }
+                suggestionPopup.setVisible(false);
             }
         });
 
+// Xử lý sự kiện bàn phím
+        txtTimKiem.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                // Bỏ qua các phím điều hướng trong popup
+                if (e.getKeyCode() == KeyEvent.VK_UP || e.getKeyCode() == KeyEvent.VK_DOWN) {
+                    if (suggestionPopup.isVisible()) {
+                        suggestionList.requestFocusInWindow();
+                        return;
+                    }
+                }
+
+                String input = txtTimKiem.getText().trim();
+                if (input.isEmpty() || input.equals("Tìm kiếm")) {
+                    suggestionPopup.setVisible(false);
+                    loadDataToTable(tableModel);
+                    return;
+                }
+
+                List<String> suggestions = getSuggestions(input);
+                if (suggestions.isEmpty()) {
+                    suggestionPopup.setVisible(false);
+                } else {
+                    suggestionList.setListData(suggestions.toArray(new String[0]));
+                    suggestionPopup.setPopupSize(txtTimKiem.getWidth(), Math.min(suggestions.size() * 30, 150));
+                    suggestionPopup.show(txtTimKiem, 0, txtTimKiem.getHeight());
+                }
+
+                searchByName(input, false);
+            }
+        });
+
+// Xử lý khi chọn item từ danh sách gợi ý
+        suggestionList.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 1) {
+                    String selected = suggestionList.getSelectedValue();
+                    if (selected != null) {
+                        txtTimKiem.setText(selected);
+                        suggestionPopup.setVisible(false);
+                        txtTimKiem.requestFocus();
+                        searchByName(selected, true);
+                    }
+                }
+            }
+        });
+
+// Cho phép điều hướng bằng bàn phím trong popup
+        suggestionList.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    String selected = suggestionList.getSelectedValue();
+                    if (selected != null) {
+                        txtTimKiem.setText(selected);
+                        suggestionPopup.setVisible(false);
+                        txtTimKiem.requestFocus();
+                        searchByName(selected, true);
+                    }
+                } else if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                    suggestionPopup.setVisible(false);
+                    txtTimKiem.requestFocus();
+                }
+            }
+        });
         // Nút bộ lọc
         JButton btnLoc = new JButton("Bộ lọc") {
             @Override
@@ -276,8 +365,21 @@ public class DonHang extends JPanel {
 
         // Thêm bảng đơn hàng
         String[] columnNames = {"Mã đơn", "Tên khách hàng", "Ngày tạo", "Khách trả"};
-        DefaultTableModel model = new DefaultTableModel(columnNames, 0);
-        JTable table = new JTable(model);
+        
+        tableModel = new DefaultTableModel(columnNames, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false; // Không cho phép chỉnh sửa bất kỳ ô nào
+            }
+        };
+        JTable table = new JTable(tableModel);
+
+        // Căn giữa tất cả các ô trong bảng
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+        for (int i = 0; i < table.getColumnCount(); i++) {
+            table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+        }
         JScrollPane scrollPane = new JScrollPane(table) {
             @Override
             protected void paintComponent(Graphics g) {
@@ -295,35 +397,89 @@ public class DonHang extends JPanel {
         scrollPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         scrollPane.setBackground(Color.white); // hoặc đổi màu nếu bạn muốn
         formPanel.add(scrollPane);
-
+        table.getTableHeader().setReorderingAllowed(false);
+        table.setRowHeight(30);
+        table.setShowGrid(false);
+        table.setIntercellSpacing(new java.awt.Dimension(0, 0));
         // Tải dữ liệu từ cơ sở dữ liệu
-        loadDataToTable(model);
+        loadDataToTable(tableModel);
     }
 
     // Phương thức tải dữ liệu từ DonHangDAO vào bảng
     private void loadDataToTable(DefaultTableModel model) {
         model.setRowCount(0); // Xóa dữ liệu cũ
-        List<Object[]> list = donHangDAO.selectAllWithDetails();
-        for (Object[] row : list) {
+        List<donHang> list = donHangDAO.selectAllWithDetails(); // Nhận List<donHang>
+        for (donHang dh : list) {
             model.addRow(new Object[]{
-                row[0], // MaDH
-                row[1], // HoTen
-                new SimpleDateFormat("dd/MM/yyyy").format(row[2]), // NgayLap
-                row[3] // SoTien
+                dh.getMaDH(), // Lấy MaDH
+                dh.getHoTen(), // Lấy tên khách hàng
+                (dh.getNgayLap() != null)
+                ? new SimpleDateFormat("dd/MM/yyyy").format(dh.getNgayLap())
+                : "", // Xử lý null cho NgayLap
+                dh.getThanhTien()// Lấy số tiền
             });
         }
     }
 
-    // Lớp RoundTextField
-    static class RoundTextField extends JTextField {
+    private List<String> getSuggestions(String input) {
+        List<String> suggestions = new ArrayList<>();
+        DonHangDAO donHangDAO = new DonHangDAO(); // Tạo đối tượng DAO
+        List<donHang> members = donHangDAO.selectAllWithDetails(); // Gọi phương thức từ đối tượng
 
-        public RoundTextField(String placeholder, int columns) {
-            super(placeholder, columns);
+        for (donHang tv : members) {
+            if (tv.getHoTen() != null
+                    && tv.getHoTen().toLowerCase().startsWith(input.toLowerCase())) {
+                suggestions.add(tv.getHoTen());
+            }
+        }
+        return suggestions;
+    }
+
+    private void searchByName(String name, boolean showMessage) {
+        // Xóa dữ liệu cũ trong bảng
+        tableModel.setRowCount(0);
+
+        DonHangDAO donHangDAO = new DonHangDAO();
+        List<donHang> list = donHangDAO.selectAllWithDetails();
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+
+        int count = 0;
+        for (donHang dh : list) {
+            String hoTenKhachHang = dh.getHoTen().toLowerCase().trim();
+            String searchName = name.toLowerCase().trim();
+
+            // Tìm kiếm theo tên khách hàng
+            if (hoTenKhachHang.contains(searchName)) {
+                tableModel.addRow(new Object[]{
+                    dh.getMaDH(),
+                    dh.getHoTen(),
+                    (dh.getNgayLap() != null) ? sdf.format(dh.getNgayLap()) : "",
+                    String.format("%,.0f VND", dh.getThanhTien()),});
+                count++;
+            }
+        }
+
+        // Hiển thị thông báo nếu không tìm thấy
+        if (count == 0 && showMessage) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Không tìm thấy đơn hàng nào với tên khách hàng: " + name,
+                    "Thông báo",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+        }
+    }
+
+    // Lớp RoundTextField
+    class RoundTextField extends JTextField {
+
+        public RoundTextField(String placeholder) {
+            super(placeholder);
             setOpaque(false); // Quan trọng để không vẽ nền mặc định
             setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
             setFont(new Font("Arial", Font.PLAIN, 14));
             setBackground(new Color(240, 240, 240));
-            setForeground(Color.BLACK); // màu chữ
+            setForeground(Color.GRAY); // màu chữ
         }
 
         @Override

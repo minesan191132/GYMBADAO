@@ -383,6 +383,9 @@ public class KhachHang extends JPanel {
         suggestionList.setFont(new Font("Arial", Font.PLAIN, 14));
         suggestionPopup.add(new JScrollPane(suggestionList));
 
+        suggestionPopup.setFocusable(false);
+        suggestionList.setRequestFocusEnabled(false);
+        
 // Thêm FocusListener
         txtTimKiem.addFocusListener(new FocusAdapter() {
             @Override
@@ -405,49 +408,65 @@ public class KhachHang extends JPanel {
         txtTimKiem.addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
+                // Bỏ qua các phím điều hướng trong popup
+                if (e.getKeyCode() == KeyEvent.VK_UP || e.getKeyCode() == KeyEvent.VK_DOWN) {
+                    if (suggestionPopup.isVisible()) {
+                        suggestionList.requestFocusInWindow();
+                        return;
+                    }
+                }
+
                 String input = txtTimKiem.getText().trim();
-                if (input.isEmpty() || input.equals("Tên Thành Viên")) {
+                if (input.isEmpty() || input.equals("Tìm kiếm")) {
                     suggestionPopup.setVisible(false);
-                    loadDataToTable(); // Hiển thị lại toàn bộ dữ liệu nếu không có input
+                    loadDataToTable();
                     return;
                 }
 
-                // Lấy danh sách gợi ý từ DAO
                 List<String> suggestions = getSuggestions(input);
                 if (suggestions.isEmpty()) {
                     suggestionPopup.setVisible(false);
                 } else {
-                    // Cập nhật danh sách gợi ý
                     suggestionList.setListData(suggestions.toArray(new String[0]));
                     suggestionPopup.setPopupSize(txtTimKiem.getWidth(), Math.min(suggestions.size() * 30, 150));
                     suggestionPopup.show(txtTimKiem, 0, txtTimKiem.getHeight());
                 }
 
-                // Tìm kiếm trực tiếp khi người dùng nhập, nhưng không hiển thị thông báo
-                searchByName(input, false); // Thêm tham số để kiểm soát việc hiển thị thông báo
-            }
-
-            @Override
-            public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_ENTER) { // Khi nhấn Enter
-                    String input = txtTimKiem.getText().trim();
-                    if (!input.isEmpty() && !input.equals("Tên Thành Viên")) {
-                        searchByName(input, true); // Gọi tìm kiếm và hiển thị thông báo nếu không tìm thấy
-                    }
-                }
+                searchByName(input, false);
             }
         });
+
+// Xử lý khi chọn item từ danh sách gợi ý
         suggestionList.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 1) {
-                    String selectedName = suggestionList.getSelectedValue();
-                    if (selectedName != null) {
-                        txtTimKiem.setText(selectedName);
+                    String selected = suggestionList.getSelectedValue();
+                    if (selected != null) {
+                        txtTimKiem.setText(selected);
                         suggestionPopup.setVisible(false);
-                        // Tự động tìm kiếm và hiển thị kết quả trong bảng, có hiển thị thông báo
-                        searchByName(selectedName, true);
+                        txtTimKiem.requestFocus();
+                        searchByName(selected, true);
                     }
+                }
+            }
+        });
+
+// Cho phép điều hướng bằng bàn phím trong popup
+        suggestionList.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    String selected = suggestionList.getSelectedValue();
+                    if (selected != null) {
+                        txtTimKiem.setText(selected);
+                        suggestionPopup.setVisible(false);
+                        txtTimKiem.requestFocus();
+                        searchByName(selected, true);
+                    }
+                } else if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                    suggestionPopup.setVisible(false);
+                    txtTimKiem.requestFocus();
                 }
             }
         });

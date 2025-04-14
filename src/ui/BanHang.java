@@ -1355,7 +1355,7 @@ public class BanHang extends JFrame {
             }
 
             // Tạo đơn hàng mới
-            entity.DonHang dh = new entity.DonHang();
+            entity.donHang dh = new entity.donHang();
             dh.setMaKH(selectedCustomer.getMaTV());
             dh.setNgayLap(new Date());
             dh.setThanhTien(amountToPay);
