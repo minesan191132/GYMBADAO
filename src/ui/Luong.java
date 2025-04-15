@@ -35,6 +35,7 @@ public class Luong extends JFrame {
     private static final Color SEARCH_COLOR = new Color(41, 98, 255);
     private static final Color EXIT_COLOR = new Color(239, 83, 80);
     private static final Color EXPORT_COLOR = new Color(0, 150, 136);
+    LuongDao luongDao = new LuongDao();
 
     public Luong() {
         initUI();
@@ -377,106 +378,53 @@ public class Luong extends JFrame {
 
     private List<Object[]> timDuLieuChamCong(String maNV, String thang, String nam) {
         List<Object[]> duLieu = new ArrayList<>();
-        int soNgayTrongThang = 31; // Luôn hiển thị đủ 31 ngày
 
-        if (maNV.isEmpty()) {
-            // Dữ liệu mẫu cho tất cả nhân viên
-            for (int ngay = 1; ngay <= soNgayTrongThang; ngay++) {
-                String ngayThang = String.format("%02d/%02d/%s", ngay, Integer.parseInt(thang), nam);
+        List<LuongNhanVien> danhSachLuong = luongDao.getLuongNhanVien(maNV, thang, nam);
+        System.out.println("📦 Bắt đầu xử lý " + danhSachLuong.size() + " bản ghi...");
 
-                // NV1 - Ca 1 có tăng ca
-                duLieu.add(taoDuLieuNgayLam("NV001", "Nguyễn Văn A", ngayThang, "Ca 1", "08:00:00", "17:30:00"));
+        for (LuongNhanVien lnv : danhSachLuong) {
+            System.out.println("➡️ " + lnv.getMaNhanVien() + " - " + lnv.getNgayLam() + " - " + lnv.getCaLam());
 
-                // NV2 - Ca 1 đi trễ
-                if (ngay % 3 == 0) { // Giả lập đi trễ 3 ngày
-                    duLieu.add(taoDuLieuNgayLam("NV002", "Trần Thị B", ngayThang, "Ca 1", "08:45:00", "16:00:00"));
-                } else {
-                    duLieu.add(taoDuLieuNgayLam("NV002", "Trần Thị B", ngayThang, "Ca 1", "08:00:00", "16:00:00"));
-                }
-
-                // NV3 - Ca 2 bình thường
-                duLieu.add(taoDuLieuNgayLam("NV003", "Lê Văn C", ngayThang, "Ca 2", "16:00:00", "23:30:00"));
-            }
-        } else {
-            // Dữ liệu cho nhân viên cụ thể
-            String tenNV = maNV.equals("NV001") ? "Nguyễn Văn A"
-                    : maNV.equals("NV002") ? "Trần Thị B"
-                    : "Lê Văn C";
-
-            for (int ngay = 1; ngay <= soNgayTrongThang; ngay++) {
-                String ngayThang = String.format("%02d/%02d/%s", ngay, Integer.parseInt(thang), nam);
-                String ca = ngay % 2 == 0 ? "Ca 1" : "Ca 2";
-                String gioVao, gioRa;
-
-                if (ca.equals("Ca 1")) {
-                    if (ngay % 4 == 0) { // Giả lập đi trễ
-                        gioVao = "08:45:00";
-                    } else {
-                        gioVao = "08:00:00";
-                    }
-                    gioRa = "16:00:00";
-                } else {
-                    if (ngay % 5 == 0) { // Giả lập đi trễ
-                        gioVao = "16:45:00";
-                    } else {
-                        gioVao = "16:00:00";
-                    }
-                    gioRa = "23:30:00";
-                }
-
-                duLieu.add(taoDuLieuNgayLam(maNV, tenNV, ngayThang, ca, gioVao, gioRa));
-            }
+            Object[] dong = taoDuLieuNgayLam(
+                    lnv.getMaNhanVien(),
+                    lnv.getTenNhanVien(),
+                    lnv.getNgayLam().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+                    lnv.getCaLam(),
+                    lnv.getGioVao(),
+                    lnv.getGioRa()
+            );
+            duLieu.add(dong);
         }
 
         return duLieu;
     }
 
     private Object[] taoDuLieuNgayLam(String maNV, String tenNV, String ngay, String ca, String gioVao, String gioRa) {
-        // Định nghĩa thời gian ca làm việc
-        LocalTime CA1_BAT_DAU = LocalTime.of(8, 0);
-        LocalTime CA1_KET_THUC = LocalTime.of(16, 0);
-        LocalTime CA2_BAT_DAU = LocalTime.of(16, 0);
-        LocalTime CA2_KET_THUC = LocalTime.of(23, 59, 59);
-        Duration GIOI_HAN_TRE = Duration.ofMinutes(30);
+        LocalTime vao = LocalTime.parse(gioVao);
+        LocalTime ra = LocalTime.parse(gioRa);
 
-        DateTimeFormatter dinhDang = DateTimeFormatter.ofPattern("HH:mm:ss");
-        LocalTime vao = LocalTime.parse(gioVao, dinhDang);
-        LocalTime ra = LocalTime.parse(gioRa, dinhDang);
-
-        Duration thoiGianLam = Duration.between(vao, ra);
-        double soGioLam = thoiGianLam.toMinutes() / 60.0;
+        double soGioLam = Duration.between(vao, ra).toMinutes() / 60.0;
 
         boolean diTre = false;
         double gioTangCa = 0;
-        int luong = 0;
+        int luong;
         String ghiChu = "";
 
-        if (ca.equals("Ca 1")) {
-            if (vao.isAfter(CA1_BAT_DAU.plus(GIOI_HAN_TRE))) {
-                diTre = true;
-                ghiChu = "Đi trễ";
-            }
-            if (ra.isAfter(CA1_KET_THUC)) {
-                gioTangCa = Duration.between(CA1_KET_THUC, ra).toMinutes() / 60.0;
-            }
-        } else if (ca.equals("Ca 2")) {
-            if (vao.isAfter(CA2_BAT_DAU.plus(GIOI_HAN_TRE))) {
-                diTre = true;
-                ghiChu = "Đi trễ";
-            }
-            if (ra.isAfter(CA2_KET_THUC)) {
-                gioTangCa = Duration.between(CA2_KET_THUC, ra).toMinutes() / 60.0;
-            }
+        LocalTime start = ca.equals("Ca 1") ? LocalTime.of(8, 0) : LocalTime.of(16, 0);
+        LocalTime end = ca.equals("Ca 1") ? LocalTime.of(16, 0) : LocalTime.of(23, 59, 59);
+
+        if (vao.isAfter(start.plusMinutes(30))) {
+            diTre = true;
+            ghiChu = "Đi trễ, Phạt " + String.format("%,d", PHAT_TRE) + " VNĐ";
         }
 
-        // Tính lương: (giờ thường * 35k) + (giờ tăng ca * 50k) - (phạt nếu trễ)
+        if (ra.isAfter(end)) {
+            gioTangCa = Duration.between(end, ra).toMinutes() / 60.0;
+        }
+
         luong = (int) (soGioLam * LUONG_CO_BAN + gioTangCa * LUONG_TANG_CA);
         if (diTre) {
             luong -= PHAT_TRE;
-            if (!ghiChu.isEmpty()) {
-                ghiChu += ", ";
-            }
-            ghiChu += "Phạt " + String.format("%,d", PHAT_TRE) + " VNĐ";
         }
 
         return new Object[]{
@@ -519,42 +467,25 @@ public class Luong extends JFrame {
     }
 
     private void loadLuongData() {
-        // Lấy giá trị từ các trường nhập liệu (tháng và năm)
-        String thang = String.format("%02d", cmbMonth.getSelectedIndex() + 1);  // Tháng từ JComboBox
-        String nam = (String) cmbYear.getSelectedItem();  // Năm từ JComboBox
+        String thang = String.format("%02d", cmbMonth.getSelectedIndex() + 1);
+        String nam = (String) cmbYear.getSelectedItem();
 
-        // Kiểm tra xem tháng và năm có hợp lệ không
-        if (thang.isEmpty() || nam == null) {
-            JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin!", "Lỗi", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        // Lấy dữ liệu từ LuongDao (tất cả nhân viên)
-        LuongDao luongDao = new LuongDao();
-        List<LuongNhanVien> luongList = luongDao.getLuongNhanVien("", thang, nam); // Truy vấn tất cả nhân viên
-
-        // Xóa tất cả dữ liệu cũ trong bảng
+        List<LuongNhanVien> luongList = luongDao.getLuongNhanVien("", thang, nam);
         tableModel.setRowCount(0);
 
-        // Thêm dữ liệu vào bảng
-        for (LuongNhanVien luong : luongList) {
-            Object[] row = new Object[]{
-                luong.getMaNhanVien(),
-                luong.getTenNhanVien(),
-                luong.getNgayLam(),
-                luong.getCaLam(),
-                luong.getGioVao(),
-                luong.getGioRa(),
-                luong.getGioLam(),
-                luong.getGioTangCa(),
-                luong.isDiTre() ? "Có" : "Không",
-                luong.getGhiChu(),
-                luong.getLuong()
-            };
+        for (LuongNhanVien lnv : luongList) {
+            Object[] row = taoDuLieuNgayLam(
+                    lnv.getMaNhanVien(),
+                    lnv.getTenNhanVien(),
+                    lnv.getNgayLam().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+                    lnv.getCaLam(),
+                    lnv.getGioVao(),
+                    lnv.getGioRa()
+            );
             tableModel.addRow(row);
         }
 
-        updateStats(); // Cập nhật thống kê (ngày làm, giờ làm, tổng lương)
+        updateStats();
     }
 
     public static void main(String[] args) {

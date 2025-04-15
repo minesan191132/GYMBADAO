@@ -9,23 +9,29 @@ import java.time.LocalDate;
 
 public class LuongDao {
 
-    // Lấy danh sách nhân viên lương theo mã nhân viên, tháng và năm
     public List<LuongNhanVien> getLuongNhanVien(String maNhanVien, String thang, String nam) {
         List<LuongNhanVien> list = new ArrayList<>();
+        String query;
+        PreparedStatement ps = null;
 
-        String query = "SELECT * FROM Luong WHERE MONTH(NgayLam) = ? AND YEAR(NgayLam) = ?";
+        try {
+            if (maNhanVien == null || maNhanVien.trim().isEmpty()) {
+                query = "SELECT * FROM Luong WHERE MONTH(NgayLam) = ? AND YEAR(NgayLam) = ?";
+                ps = Xjdbc.getStmt(query, Integer.parseInt(thang), Integer.parseInt(nam));
+            } else {
+                query = "SELECT * FROM Luong WHERE MONTH(NgayLam) = ? AND YEAR(NgayLam) = ? AND LOWER(MaNV) = LOWER(?)";
+                ps = Xjdbc.getStmt(query, Integer.parseInt(thang), Integer.parseInt(nam), maNhanVien);
+            }
 
-        // Nếu mã nhân viên không rỗng, thêm điều kiện vào query
-        if (!maNhanVien.isEmpty()) {
-            query += " AND MaNV = ?";
-        }
+            // Log query và params
+            System.out.println("QUERY: " + query);
+            System.out.println("THAM SỐ: Tháng = " + thang + ", Năm = " + nam + ", Mã NV = " + maNhanVien);
 
-        try (PreparedStatement ps = Xjdbc.getStmt(query, Integer.parseInt(thang), Integer.parseInt(nam), maNhanVien.isEmpty() ? null : maNhanVien)) {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 LuongNhanVien luong = new LuongNhanVien(
-                        rs.getString("MaNV"), // Chắc chắn cột này trong SQL là MaNV
-                        rs.getString("TenNV"), // Tên cột đúng trong cơ sở dữ liệu
+                        rs.getString("MaNV"),
+                        rs.getString("TenNV"),
                         rs.getDate("NgayLam").toLocalDate(),
                         rs.getString("CaLam"),
                         rs.getString("GioVao"),
@@ -38,9 +44,13 @@ public class LuongDao {
                 );
                 list.add(luong);
             }
+
+            System.out.println("✅ Tổng số dòng lấy về: " + list.size());
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
         return list;
     }
 
