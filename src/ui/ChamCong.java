@@ -1,6 +1,5 @@
 package ui;
 
-import java.util.*;
 import dao.ChamCongDao;
 import entity.chamCong;
 import javax.swing.*;
@@ -24,9 +23,9 @@ import javax.swing.Timer;
 public class ChamCong extends JFrame {
 
     private DefaultTableModel tableModel;
-    private JLabel lblCurrentDate, lblCurrentTime, lblTotalDays, lblTotalHours, lblEmployeeImage;
+    private JLabel lblCurrentDate, lblCurrentTime, lblTotalDays, lblTotalHours, lblEmployeeImage, lblShift;
     private JTextField txtEmployeeId;
-    private JButton btnUpload, btnCheckIn, btnCheckOut, btnExit; // Declare buttons as fields
+    private JButton btnUpload, btnCheckIn, btnCheckOut, btnExit;
     private static final Font LABEL_FONT = new Font("Segoe UI", Font.BOLD, 16);
     private static final Font TEXT_FONT = new Font("Segoe UI", Font.PLAIN, 16);
     private static final Font BUTTON_FONT = new Font("Segoe UI", Font.BOLD, 18);
@@ -40,8 +39,85 @@ public class ChamCong extends JFrame {
         initUI();
     }
 
+    class RoundButton extends JButton {
+
+        private Color hoverColor;
+        private Color originalColor;
+        private int arcWidth = 25;
+        private int arcHeight = 25;
+
+        public RoundButton(String text, Color bgColor, Font font) {
+            super(text);
+            this.originalColor = bgColor;
+            this.hoverColor = bgColor.brighter();
+            setFont(font);
+            setForeground(Color.WHITE);
+            setBackground(originalColor);
+            setFocusPainted(false);
+            setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)));
+            setContentAreaFilled(false);
+            setOpaque(false);
+
+            addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseEntered(MouseEvent e) {
+                    setBackground(hoverColor);
+                }
+
+                @Override
+                public void mouseExited(MouseEvent e) {
+                    setBackground(originalColor);
+                }
+            });
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            Graphics2D g2d = (Graphics2D) g.create();
+            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2d.setColor(getBackground());
+            g2d.fillRoundRect(0, 0, getWidth(), getHeight(), arcWidth, arcHeight);
+            g2d.setColor(getBackground().darker());
+            g2d.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, arcWidth, arcHeight);
+            super.paintComponent(g2d);
+            g2d.dispose();
+        }
+    }
+
+    class RoundTextField extends JTextField {
+
+        public RoundTextField(int columns) {
+            super(columns);
+            setOpaque(false);
+            setBorder(new EmptyBorder(10, 15, 10, 15));
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            Graphics2D g2d = (Graphics2D) g.create();
+            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2d.setColor(getBackground());
+            g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 15, 15);
+            super.paintComponent(g2d);
+            g2d.dispose();
+        }
+
+        @Override
+        protected void paintBorder(Graphics g) {
+            Graphics2D g2d = (Graphics2D) g.create();
+            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2d.setColor(new Color(200, 200, 200));
+            g2d.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 15, 15);
+            g2d.dispose();
+        }
+    }
+
     private void startTimeUpdate() {
-        Timer timer = new Timer(1000, e -> lblCurrentTime.setText(getCurrentTime()));
+        Timer timer = new Timer(1000, e -> {
+            lblCurrentTime.setText(getCurrentTime());
+            lblShift.setText(getCurrentShift());
+            lblShift.setForeground(getCurrentHour() < 16 ? new Color(0, 150, 136) : new Color(156, 39, 176));
+        });
         timer.start();
     }
 
@@ -84,18 +160,7 @@ public class ChamCong extends JFrame {
     }
 
     private JPanel createCheckPanel() {
-        JPanel checkPanel = new JPanel(new GridBagLayout()) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                Graphics2D g2d = (Graphics2D) g;
-                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2d.setColor(Color.WHITE);
-                g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 15, 15);
-                g2d.setColor(new Color(200, 200, 200));
-                g2d.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 15, 15);
-            }
-        };
+        JPanel checkPanel = new JPanel(new GridBagLayout());
         checkPanel.setOpaque(false);
         checkPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
 
@@ -103,70 +168,79 @@ public class ChamCong extends JFrame {
         gbc.insets = new Insets(12, 12, 12, 12);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        // Employee ID
         JLabel lblId = new JLabel("MÃ NHÂN VIÊN:");
-        lblId.setFont(LABEL_FONT);
+        lblId.setFont(new Font("Segoe UI", Font.BOLD, 16));
         gbc.gridx = 0;
         gbc.gridy = 0;
         checkPanel.add(lblId, gbc);
 
         txtEmployeeId = new RoundTextField(20);
-        txtEmployeeId.setFont(TEXT_FONT);
-        txtEmployeeId.setBackground(FIELD_BG_COLOR);
+        txtEmployeeId.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        txtEmployeeId.setBackground(new Color(240, 240, 240));
         gbc.gridx = 1;
         gbc.gridy = 0;
         checkPanel.add(txtEmployeeId, gbc);
 
-        btnUpload = new RoundButton("TẢI ẢNH", new Color(41, 98, 255), BUTTON_FONT);
+        btnUpload = new RoundButton("TẢI ẢNH", new Color(41, 98, 255), new Font("Segoe UI", Font.BOLD, 18));
         btnUpload.setPreferredSize(new Dimension(150, 40));
         gbc.gridx = 2;
         gbc.gridy = 0;
         checkPanel.add(btnUpload, gbc);
 
-        // Date
         JLabel lblDate = new JLabel("NGÀY:");
-        lblDate.setFont(LABEL_FONT);
+        lblDate.setFont(new Font("Segoe UI", Font.BOLD, 16));
         gbc.gridx = 0;
         gbc.gridy = 1;
         checkPanel.add(lblDate, gbc);
 
         lblCurrentDate = new JLabel(getCurrentDate());
-        lblCurrentDate.setFont(TEXT_FONT);
+        lblCurrentDate.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         gbc.gridx = 1;
         gbc.gridy = 1;
         checkPanel.add(lblCurrentDate, gbc);
 
-        // Time
         JLabel lblTime = new JLabel("GIỜ HIỆN TẠI:");
-        lblTime.setFont(LABEL_FONT);
+        lblTime.setFont(new Font("Segoe UI", Font.BOLD, 16));
         gbc.gridx = 0;
         gbc.gridy = 2;
         checkPanel.add(lblTime, gbc);
 
         lblCurrentTime = new JLabel(getCurrentTime());
-        lblCurrentTime.setFont(TEXT_FONT);
+        lblCurrentTime.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         gbc.gridx = 1;
         gbc.gridy = 2;
         checkPanel.add(lblCurrentTime, gbc);
 
-        // Check-in/out buttons
-        btnCheckIn = new RoundButton("CHECK-IN (F1)", CHECK_IN_COLOR, BUTTON_FONT);
-        btnCheckIn.setPreferredSize(new Dimension(180, 50));
+        JLabel lblShiftText = new JLabel("CA HIỆN TẠI:");
+        lblShiftText.setFont(new Font("Segoe UI", Font.BOLD, 16));
         gbc.gridx = 0;
         gbc.gridy = 3;
-        checkPanel.add(btnCheckIn, gbc);
+        checkPanel.add(lblShiftText, gbc);
 
-        btnCheckOut = new RoundButton("CHECK-OUT (F2)", CHECK_OUT_COLOR, BUTTON_FONT);
-        btnCheckOut.setPreferredSize(new Dimension(180, 50));
+        lblShift = new JLabel(getCurrentShift());
+        lblShift.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        lblShift.setForeground(getCurrentHour() < 16 ? new Color(0, 150, 136) : new Color(156, 39, 176));
         gbc.gridx = 1;
         gbc.gridy = 3;
+        checkPanel.add(lblShift, gbc);
+
+        btnCheckIn = new RoundButton("CHECK-IN (F1)", new Color(46, 125, 50), new Font("Segoe UI", Font.BOLD, 18));
+        btnCheckIn.setPreferredSize(new Dimension(180, 50));
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        checkPanel.add(btnCheckIn, gbc);
+
+        btnCheckOut = new RoundButton("CHECK-OUT (F2)", new Color(198, 40, 40), new Font("Segoe UI", Font.BOLD, 18));
+        btnCheckOut.setPreferredSize(new Dimension(180, 50));
+        gbc.gridx = 1;
+        gbc.gridy = 4;
         checkPanel.add(btnCheckOut, gbc);
 
         return checkPanel;
     }
 
     private JScrollPane createTablePanel() {
-        String[] columns = {"NGÀY", "CHECK-IN", "CHECK-OUT", "TỔNG GIỜ"};
+        String[] columns = {"NGÀY", "CHECK-IN", "CHECK-OUT", "TỔNG GIỜ", "CA"};
         tableModel = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -196,19 +270,19 @@ public class ChamCong extends JFrame {
         JPanel statsPanel = new JPanel(new GridLayout(1, 3, 15, 15));
         statsPanel.setBorder(new EmptyBorder(15, 25, 25, 25));
 
-        JPanel daysPanel = new RoundPanel();
+        JPanel daysPanel = new JPanel();
         daysPanel.setBorder(BorderFactory.createTitledBorder("TỔNG NGÀY LÀM"));
         lblTotalDays = new JLabel("0 ngày", JLabel.CENTER);
         lblTotalDays.setFont(new Font("Segoe UI", Font.BOLD, 18));
         daysPanel.add(lblTotalDays);
 
-        JPanel hoursPanel = new RoundPanel();
+        JPanel hoursPanel = new JPanel();
         hoursPanel.setBorder(BorderFactory.createTitledBorder("TỔNG GIỜ LÀM"));
         lblTotalHours = new JLabel("0.00 giờ", JLabel.CENTER);
         lblTotalHours.setFont(new Font("Segoe UI", Font.BOLD, 18));
         hoursPanel.add(lblTotalHours);
 
-        btnExit = new RoundButton("THOÁT (ESC)", EXIT_COLOR, BUTTON_FONT);
+        btnExit = new RoundButton("THOÁT (ESC)", new Color(96, 125, 139), new Font("Segoe UI", Font.BOLD, 18));
         btnExit.setPreferredSize(new Dimension(180, 50));
 
         statsPanel.add(daysPanel);
@@ -235,7 +309,7 @@ public class ChamCong extends JFrame {
         rightPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
         rightPanel.setPreferredSize(new Dimension(300, 0));
 
-        JPanel imagePanel = new RoundPanel();
+        JPanel imagePanel = new JPanel();
         imagePanel.setLayout(new BorderLayout());
         imagePanel.setBorder(BorderFactory.createTitledBorder("ẢNH NHÂN VIÊN"));
 
@@ -253,10 +327,7 @@ public class ChamCong extends JFrame {
         btnUpload.addActionListener(e -> handleUploadImage());
         btnCheckIn.addActionListener(e -> handleCheckIn());
         btnCheckOut.addActionListener(e -> handleCheckOut());
-        btnExit.addActionListener(e -> {
-            dispose();
-            new TrangChu().setVisible(true);
-        });
+        btnExit.addActionListener(e -> dispose());
 
         addKeyListener(new KeyAdapter() {
             @Override
@@ -317,7 +388,7 @@ public class ChamCong extends JFrame {
             tableModel.addRow(new Object[]{
                 ngay.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
                 checkInTime.format(DateTimeFormatter.ofPattern("HH:mm:ss")),
-                "", ""
+                "", "", ca
             });
             updateStats();
             JOptionPane.showMessageDialog(this, "CHECK-IN THÀNH CÔNG!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
@@ -405,140 +476,19 @@ public class ChamCong extends JFrame {
         return LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
     }
 
+    private String getCurrentShift() {
+        return getCurrentHour() < 16 ? "CA 1" : "CA 2";
+    }
+
+    private int getCurrentHour() {
+        return LocalTime.now().getHour();
+    }
+
     private double calculateHours(String start, String end) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
         LocalTime startTime = LocalTime.parse(start, formatter);
         LocalTime endTime = LocalTime.parse(end, formatter);
         return ChronoUnit.MINUTES.between(startTime, endTime) / 60.0;
-    }
-
-    // Custom Component Classes
-    static class RoundButton extends JButton {
-
-        private Color hoverColor;
-        private Color originalColor;
-        private int arcWidth = 25;
-        private int arcHeight = 25;
-
-        public RoundButton(String text, Color bgColor, Font font) {
-            super(text);
-            this.originalColor = bgColor;
-            this.hoverColor = bgColor.brighter();
-            setFont(font);
-            setForeground(Color.WHITE);
-            setBackground(originalColor);
-            setFocusPainted(false);
-            setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200))); 
-            setContentAreaFilled(false);
-            setOpaque(false);
-
-            addMouseListener(new MouseAdapter() {
-                @Override
-                public void mouseEntered(MouseEvent e) {
-                    setBackground(hoverColor);
-                }
-
-                @Override
-                public void mouseExited(MouseEvent e) {
-                    setBackground(originalColor);
-                }
-            });
-        }
-
-        @Override
-        protected void paintComponent(Graphics g) {
-            Graphics2D g2d = (Graphics2D) g.create();
-            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2d.setColor(getBackground());
-            g2d.fillRoundRect(0, 0, getWidth(), getHeight(), arcWidth, arcHeight);
-            g2d.setColor(getBackground().darker());
-            g2d.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, arcWidth, arcHeight);
-            super.paintComponent(g2d);
-            g2d.dispose();
-        }
-
-        @Override
-        protected void paintBorder(Graphics g) {
-            // Không vẽ border mặc định
-        }
-
-        @Override
-        public boolean contains(int x, int y) {
-            return new RoundRectangle2D.Float(0, 0, getWidth() - 1, getHeight() - 1, arcWidth, arcHeight).contains(x, y);
-        }
-    }
-
-    static class RoundTextField extends JTextField {
-
-        public RoundTextField(int columns) {
-            super(columns);
-            setOpaque(false);
-            setBorder(new EmptyBorder(10, 15, 10, 15));
-        }
-
-        @Override
-        protected void paintComponent(Graphics g) {
-            Graphics2D g2d = (Graphics2D) g.create();
-            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2d.setColor(getBackground());
-            g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 15, 15);
-            super.paintComponent(g2d);
-            g2d.dispose();
-        }
-
-        @Override
-        protected void paintBorder(Graphics g) {
-            Graphics2D g2d = (Graphics2D) g.create();
-            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2d.setColor(new Color(200, 200, 200));
-            g2d.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 15, 15);
-            g2d.dispose();
-        }
-    }
-
-    static class RoundPanel extends JPanel {
-
-        public RoundPanel() {
-            setOpaque(false);
-        }
-
-        @Override
-        protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
-            Graphics2D g2d = (Graphics2D) g.create();
-            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2d.setColor(Color.WHITE);
-            g2d.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 15, 15);
-            g2d.setColor(new Color(200, 200, 200));
-            g2d.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 15, 15);
-            g2d.dispose();
-        }
-    }
-
-    private void loadChamCongToTable(String maNV) {
-        tableModel.setRowCount(0); // Clear old rows
-
-        // Lấy lịch sử chấm công của nhân viên từ cơ sở dữ liệu
-        List<chamCong> list = chamCongDao.findAllByNhanVien(maNV);
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
-
-        // Duyệt qua danh sách lịch sử chấm công và thêm vào bảng
-        for (chamCong cc : list) {
-            String date = cc.getNgay().format(dateFormatter);
-            String checkIn = cc.getCheckIn() != null ? cc.getCheckIn().format(timeFormatter) : "";
-            String checkOut = cc.getCheckOut() != null ? cc.getCheckOut().format(timeFormatter) : "";
-            String total = "";
-
-            if (cc.getCheckIn() != null && cc.getCheckOut() != null) {
-                double hours = ChronoUnit.MINUTES.between(cc.getCheckIn(), cc.getCheckOut()) / 60.0;
-                total = String.format("%.2f giờ", hours);
-            }
-
-            tableModel.addRow(new Object[]{date, checkIn, checkOut, total});
-        }
-
-        updateStats();  // Cập nhật thông tin thống kê như tổng số ngày làm và tổng số giờ
     }
 
     public static void main(String[] args) {

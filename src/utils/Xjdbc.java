@@ -45,12 +45,11 @@ public class Xjdbc {
 
     public static int update(String sql, Object... args) {
         try {
-            PreparedStatement stmt = Xjdbc.getStmt(sql, args);
-            try {
-                return stmt.executeUpdate(); // trả về số dòng bị ảnh hưởng
-            } finally {
-                stmt.getConnection().close();
-            }
+            PreparedStatement stmt = getStmt(sql, args);
+            Connection conn = stmt.getConnection(); // lấy connection riêng
+            int result = stmt.executeUpdate(); // thực thi
+            stmt.close(); // đóng statement chứ không đóng connection!
+            return result;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
