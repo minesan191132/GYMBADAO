@@ -23,13 +23,14 @@ public class LuongNhanVien {
     private double gioTangCa;
     private boolean diTre;
     private String ghiChu;
-    private int luong;
+    private double luong;
 
     // Constructor, Getters and Setters
 
-    public LuongNhanVien(String maNhanVien, String tenNhanVien, LocalDate ngayLam, String caLam, 
-                          String gioVao, String gioRa, double gioLam, double gioTangCa, 
-                          boolean diTre, String ghiChu, int luong) {
+    public LuongNhanVien() {
+    }
+
+    public LuongNhanVien(String maNhanVien, String tenNhanVien, LocalDate ngayLam, String caLam, String gioVao, String gioRa, double gioLam, double gioTangCa, boolean diTre, String ghiChu, double luong) {
         this.maNhanVien = maNhanVien;
         this.tenNhanVien = tenNhanVien;
         this.ngayLam = ngayLam;
@@ -123,14 +124,13 @@ public class LuongNhanVien {
         this.ghiChu = ghiChu;
     }
 
-    public int getLuong() {
+    public double getLuong() {
         return luong;
     }
 
-    public void setLuong(int luong) {
+    public void setLuong(double luong) {
         this.luong = luong;
     }
-
 }
 
 

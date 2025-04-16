@@ -43,7 +43,6 @@ public class DonHangDAO {
     }
     return list;
 }
-
     // Sửa kiểu tham số từ java.util.Date thành java.sql.Date
     public List<Object[]> selectByDateRange(java.sql.Date startDate, java.sql.Date endDate) {
         String sql = "SELECT dh.MaDH, kh.HoTen, dh.NgayLap, COALESCE(tt.SoTien, 0) AS SoTien " +

@@ -15,7 +15,9 @@ public class LuongDao {
         PreparedStatement ps = null;
 
         try {
+            // Kiểm tra nếu mã nhân viên là null hoặc rỗng
             if (maNhanVien == null || maNhanVien.trim().isEmpty()) {
+                // Lọc theo tháng và năm
                 query = "SELECT lu.MaNV, nv.HoTen, lu.NgayLam, lu.GioLam, lu.GioTangCa, lu.DiTre, lu.GhiChu, lu.Luong, cc.CaLamViec, cc.CheckIn, cc.CheckOut "
                         + "FROM Luong lu "
                         + "JOIN NhanVien nv ON lu.MaNV = nv.MaNV "
@@ -23,16 +25,14 @@ public class LuongDao {
                         + "WHERE MONTH(lu.NgayLam) = ? AND YEAR(lu.NgayLam) = ?";
                 ps = Xjdbc.getStmt(query, Integer.parseInt(thang), Integer.parseInt(nam));
             } else {
+                // Lọc theo tháng, năm và mã nhân viên
                 query = "SELECT lu.MaNV, nv.HoTen, lu.NgayLam, lu.GioLam, lu.GioTangCa, lu.DiTre, lu.GhiChu, lu.Luong, cc.CaLamViec, cc.CheckIn, cc.CheckOut "
                         + "FROM Luong lu "
                         + "JOIN NhanVien nv ON lu.MaNV = nv.MaNV "
                         + "JOIN ChamCong cc ON lu.MaNV = cc.MaNV AND lu.NgayLam = cc.Ngay "
                         + "WHERE MONTH(lu.NgayLam) = ? AND YEAR(lu.NgayLam) = ? AND LOWER(lu.MaNV) = LOWER(?)";
-                ps = Xjdbc.getStmt(query, Integer.parseInt(thang), Integer.parseInt(nam), maNhanVien);
+                ps = Xjdbc.getStmt(query, Integer.parseInt(thang), Integer.parseInt(nam), maNhanVien.toLowerCase());
             }
-
-            System.out.println("QUERY: " + query);
-            System.out.println("THAM SỐ: Tháng = " + thang + ", Năm = " + nam + ", Mã NV = " + maNhanVien);
 
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -51,8 +51,6 @@ public class LuongDao {
                 );
                 list.add(luong);
             }
-
-            System.out.println("✅ Tổng số dòng lấy về: " + list.size());
 
         } catch (SQLException e) {
             e.printStackTrace();

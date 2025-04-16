@@ -244,7 +244,7 @@ public class Luong extends JFrame {
 
     private void handleSearch() {
         String employeeId = txtEmployeeId.getText().trim();
-        String month = String.format("%02d", cmbMonth.getSelectedIndex() + 1);
+        String month = String.format("%02d", cmbMonth.getSelectedIndex() + 1); // Đảm bảo tháng có 2 chữ số
         String year = (String) cmbYear.getSelectedItem();
 
         if (employeeId.isEmpty()) {
@@ -252,14 +252,15 @@ public class Luong extends JFrame {
             return;
         }
 
+        // Lấy dữ liệu tìm kiếm và thêm vào bảng
         List<Object[]> duLieu = timDuLieuChamCong(employeeId, month, year);
 
-        tableModel.setRowCount(0);
+        tableModel.setRowCount(0); // Xóa dữ liệu cũ
         for (Object[] dong : duLieu) {
             tableModel.addRow(dong);
         }
 
-        updateStats();
+        updateStats(); // Cập nhật thống kê
     }
 
     private void handleExit() {
@@ -376,28 +377,25 @@ public class Luong extends JFrame {
         return nut;
     }
 
-    private List<Object[]> timDuLieuChamCong(String maNV, String thang, String nam) {
-        List<Object[]> duLieu = new ArrayList<>();
+private List<Object[]> timDuLieuChamCong(String maNV, String thang, String nam) {
+    List<Object[]> duLieu = new ArrayList<>();
 
-        List<LuongNhanVien> danhSachLuong = luongDao.getLuongNhanVien(maNV, thang, nam);
-        System.out.println("📦 Bắt đầu xử lý " + danhSachLuong.size() + " bản ghi...");
+    List<LuongNhanVien> danhSachLuong = luongDao.getLuongNhanVien(maNV, thang, nam); 
 
-        for (LuongNhanVien lnv : danhSachLuong) {
-            System.out.println("➡️ " + lnv.getMaNhanVien() + " - " + lnv.getNgayLam() + " - " + lnv.getCaLam());
-
-            Object[] dong = taoDuLieuNgayLam(
-                    lnv.getMaNhanVien(),
-                    lnv.getTenNhanVien(),
-                    lnv.getNgayLam().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
-                    lnv.getCaLam(),
-                    lnv.getGioVao(),
-                    lnv.getGioRa()
-            );
-            duLieu.add(dong);
-        }
-
-        return duLieu;
+    for (LuongNhanVien lnv : danhSachLuong) {
+        Object[] dong = taoDuLieuNgayLam(
+                lnv.getMaNhanVien(),
+                lnv.getTenNhanVien(),
+                lnv.getNgayLam().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+                lnv.getCaLam(),
+                lnv.getGioVao(),
+                lnv.getGioRa()
+        );
+        duLieu.add(dong);
     }
+    return duLieu;
+}
+
 
     private Object[] taoDuLieuNgayLam(String maNV, String tenNV, String ngay, String ca, String gioVao, String gioRa) {
         LocalTime vao = LocalTime.parse(gioVao);
