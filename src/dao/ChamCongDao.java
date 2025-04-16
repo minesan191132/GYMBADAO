@@ -185,6 +185,29 @@ public class ChamCongDao {
         return list;
     }
 
+    public List<chamCong> getAllCheckIns(String maNV) {
+        List<chamCong> list = new ArrayList<>();
+        String sql = "SELECT cc.MaNV, nv.TenNV, cc.Ngay, cc.CaLamViec, cc.CheckIn, cc.CheckOut "
+                + "FROM ChamCong cc JOIN NhanVien nv ON cc.MaNV = nv.MaNV WHERE cc.MaNV = ? ORDER BY cc.Ngay DESC";
+        try (ResultSet rs = Xjdbc.query(sql, maNV)) {
+            while (rs.next()) {
+                chamCong cc = new chamCong();
+                cc.setMaNV(rs.getString("MaNV"));
+                cc.setTenNV(rs.getString("TenNV"));
+                cc.setNgay(rs.getDate("Ngay").toLocalDate());
+                cc.setCa(rs.getString("CaLamViec"));
+                Time in = rs.getTime("CheckIn");
+                Time out = rs.getTime("CheckOut");
+                cc.setCheckIn(in != null ? in.toLocalTime() : null);
+                cc.setCheckOut(out != null ? out.toLocalTime() : null);
+                list.add(cc);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
     // Cập nhật SQL thủ công nếu cần
     public static int update(String sql, Object... args) {
         try {

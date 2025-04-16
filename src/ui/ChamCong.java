@@ -235,7 +235,10 @@ public class ChamCong extends JFrame {
         gbc.gridx = 1;
         gbc.gridy = 4;
         checkPanel.add(btnCheckOut, gbc);
-
+        JButton btnLoadCheckIns = new RoundButton("Hiển thị check-in", new Color(41, 98, 255), new Font("Segoe UI", Font.BOLD, 18));
+        btnLoadCheckIns.setPreferredSize(new Dimension(200, 40));
+        gbc.gridx = 1;
+        gbc.gridy = 5;
         return checkPanel;
     }
 
@@ -323,11 +326,22 @@ public class ChamCong extends JFrame {
         return rightPanel;
     }
 
+    private void handleExit() {
+        int option = JOptionPane.showConfirmDialog(this, "Bạn có chắc chắn muốn quay lại trang chủ?", "Xác nhận thoát", JOptionPane.YES_NO_OPTION);
+        if (option == JOptionPane.YES_OPTION) {
+            this.dispose(); // Đóng cửa sổ hiện tại
+
+            // Hiển thị lại TrangChu
+            TrangChu trangChu = new TrangChu();
+            trangChu.setVisible(true);
+        }
+    }
+
     private void setupEventListeners() {
         btnUpload.addActionListener(e -> handleUploadImage());
         btnCheckIn.addActionListener(e -> handleCheckIn());
         btnCheckOut.addActionListener(e -> handleCheckOut());
-        btnExit.addActionListener(e -> dispose());
+        btnExit.addActionListener(e -> handleExit());
 
         addKeyListener(new KeyAdapter() {
             @Override

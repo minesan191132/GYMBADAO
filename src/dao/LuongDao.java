@@ -16,14 +16,21 @@ public class LuongDao {
 
         try {
             if (maNhanVien == null || maNhanVien.trim().isEmpty()) {
-                query = "SELECT * FROM Luong WHERE MONTH(NgayLam) = ? AND YEAR(NgayLam) = ?";
+                query = "SELECT lu.MaNV, nv.HoTen, lu.NgayLam, lu.GioLam, lu.GioTangCa, lu.DiTre, lu.GhiChu, lu.Luong, cc.CaLamViec, cc.CheckIn, cc.CheckOut "
+                        + "FROM Luong lu "
+                        + "JOIN NhanVien nv ON lu.MaNV = nv.MaNV "
+                        + "JOIN ChamCong cc ON lu.MaNV = cc.MaNV AND lu.NgayLam = cc.Ngay "
+                        + "WHERE MONTH(lu.NgayLam) = ? AND YEAR(lu.NgayLam) = ?";
                 ps = Xjdbc.getStmt(query, Integer.parseInt(thang), Integer.parseInt(nam));
             } else {
-                query = "SELECT * FROM Luong WHERE MONTH(NgayLam) = ? AND YEAR(NgayLam) = ? AND LOWER(MaNV) = LOWER(?)";
+                query = "SELECT lu.MaNV, nv.HoTen, lu.NgayLam, lu.GioLam, lu.GioTangCa, lu.DiTre, lu.GhiChu, lu.Luong, cc.CaLamViec, cc.CheckIn, cc.CheckOut "
+                        + "FROM Luong lu "
+                        + "JOIN NhanVien nv ON lu.MaNV = nv.MaNV "
+                        + "JOIN ChamCong cc ON lu.MaNV = cc.MaNV AND lu.NgayLam = cc.Ngay "
+                        + "WHERE MONTH(lu.NgayLam) = ? AND YEAR(lu.NgayLam) = ? AND LOWER(lu.MaNV) = LOWER(?)";
                 ps = Xjdbc.getStmt(query, Integer.parseInt(thang), Integer.parseInt(nam), maNhanVien);
             }
 
-            // Log query và params
             System.out.println("QUERY: " + query);
             System.out.println("THAM SỐ: Tháng = " + thang + ", Năm = " + nam + ", Mã NV = " + maNhanVien);
 
@@ -31,11 +38,11 @@ public class LuongDao {
             while (rs.next()) {
                 LuongNhanVien luong = new LuongNhanVien(
                         rs.getString("MaNV"),
-                        rs.getString("TenNV"),
+                        rs.getString("HoTen"),
                         rs.getDate("NgayLam").toLocalDate(),
-                        rs.getString("CaLam"),
-                        rs.getString("GioVao"),
-                        rs.getString("GioRa"),
+                        rs.getString("CaLamViec"),
+                        rs.getString("CheckIn"),
+                        rs.getString("CheckOut"),
                         rs.getDouble("GioLam"),
                         rs.getDouble("GioTangCa"),
                         rs.getBoolean("DiTre"),
