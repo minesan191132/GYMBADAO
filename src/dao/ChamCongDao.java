@@ -33,15 +33,13 @@ public class ChamCongDao {
 
     // Phương thức updateCheckOut - Cập nhật giờ ra
     public boolean updateCheckOut(String maNV, LocalDate ngay, LocalTime checkOut) {
-        // Cập nhật giờ ra vào ChamCong trước
-        String updateSql = "UPDATE ChamCong SET CheckOut = ? WHERE MaNV = ? AND Ngay = ?";
+        String updateSql = "UPDATE ChamCong SET CheckOut = ? WHERE MaNV = ? AND Ngay = ? AND CheckOut IS NULL";
         int updated = Xjdbc.update(updateSql, Time.valueOf(checkOut), maNV, Date.valueOf(ngay));
 
         if (updated > 0) {
-            // Sau khi update thành công, tính toán và insert vào Luong
             chamCong cc = findByMaNVAndNgay(maNV, ngay);
             if (cc != null && cc.getCheckIn() != null) {
-                insertLuongFromChamCong(cc);  // Cập nhật lương khi check-out
+                insertLuongFromChamCong(cc);  // Chỉ gọi nếu cập nhật CheckOut thành công
                 return true;
             }
         }
@@ -103,23 +101,23 @@ public class ChamCongDao {
 
         int tongLuong = (int) (gioLam * LUONG_CO_BAN + gioTangCa * LUONG_TANG_CA - (diTre ? PHAT_DI_TRE : 0));
 
-        String sql = "INSERT INTO Luong (MaNV, NgayLam, GioLam, GioTangCa, DiTre, GhiChu, Luong) "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?)";
-
-        try {
-            Xjdbc.update(sql,
-                    cc.getMaNV(), // "PhucNT"
-                    cc.getNgay(), // "2025-04-16"
-                    gioLam, // Số giờ làm (tính từ check-in và check-out)
-                    gioTangCa, // Số giờ tăng ca (nếu có)
-                    diTre, // Trễ hay không (0 hoặc 1)
-                    ghiChu, // Ghi chú (nếu có)
-                    tongLuong // Tổng lương tính được
-            );
-            System.out.println("✅ Đã thêm bản ghi lương cho " + cc.getMaNV());
-        } catch (Exception e) {
-            System.err.println("❌ Lỗi khi thêm bản ghi lương: " + e.getMessage());
-            e.printStackTrace();
+        // Kiểm tra xem bản ghi đã tồn tại chưa
+        String checkSql = "SELECT COUNT(*) FROM Luong WHERE MaNV = ? AND NgayLam = ?";
+        try (ResultSet rs = Xjdbc.query(checkSql, cc.getMaNV(), cc.getNgay())) {
+            if (rs.next() && rs.getInt(1) > 0) {
+                // Nếu đã tồn tại, cập nhật bản ghi
+                String updateSql = "UPDATE Luong SET GioLam = ?, GioTangCa = ?, DiTre = ?, GhiChu = ?, Luong = ? WHERE MaNV = ? AND NgayLam = ?";
+                Xjdbc.update(updateSql, gioLam, gioTangCa, diTre, ghiChu, tongLuong, cc.getMaNV(), cc.getNgay());
+                System.out.println("✅ Đã cập nhật bản ghi lương cho " + cc.getMaNV());
+            } else {
+                // Nếu chưa tồn tại, thêm bản ghi mới
+                String insertSql = "INSERT INTO Luong (MaNV, NgayLam, GioLam, GioTangCa, DiTre, GhiChu, Luong) VALUES (?, ?, ?, ?, ?, ?, ?)";
+                Xjdbc.update(insertSql, cc.getMaNV(), cc.getNgay(), gioLam, gioTangCa, diTre, ghiChu, tongLuong);
+                System.out.println("✅ Đã thêm bản ghi lương cho " + cc.getMaNV());
+            }
+        } catch (SQLException e) {
+            System.err.println("❌ Lỗi khi kiểm tra hoặc cập nhật bản ghi lương: " + e.getMessage());
+            throw new RuntimeException(e);
         }
     }
 
