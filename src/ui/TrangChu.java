@@ -266,7 +266,7 @@ public class TrangChu extends JFrame {
 
     private void showChamCong() {
         this.setVisible(false);
-        new ChamCong().setVisible(true);
+        new ChamCong(utils.Auth.user.getMaNV()).setVisible(true);
     }
 
     private void showLuong() {

@@ -34,9 +34,15 @@ public class ChamCong extends JFrame {
     private static final Color EXIT_COLOR = new Color(96, 125, 139);
     private static final Color FIELD_BG_COLOR = new Color(240, 240, 240);
     ChamCongDao chamCongDao = new ChamCongDao();
+    private Timer inputTimer;
+    //
+    private String currentMaNV;
 
-    public ChamCong() {
+    public ChamCong(String maNV) {
+        this.currentMaNV = maNV;
         initUI();
+        txtEmployeeId.setText(maNV);
+        loadTodayCheckInIfExists(); // 👈 tự động tải dữ liệu
     }
 
     class RoundButton extends JButton {
@@ -155,7 +161,6 @@ public class ChamCong extends JFrame {
         leftPanel.add(checkPanel, BorderLayout.NORTH);
         leftPanel.add(tableScrollPane, BorderLayout.CENTER);
         leftPanel.add(statsPanel, BorderLayout.SOUTH);
-
         return leftPanel;
     }
 
@@ -240,6 +245,38 @@ public class ChamCong extends JFrame {
         gbc.gridx = 1;
         gbc.gridy = 5;
         return checkPanel;
+    }
+
+    private void loadTodayCheckInIfExists() {
+        String employeeId = txtEmployeeId.getText().trim();
+        if (employeeId.isEmpty()) {
+            return;
+        }
+
+        ChamCongDao dao = new ChamCongDao();
+        chamCong cc = dao.findByMaNVAndNgay(employeeId, LocalDate.now());
+
+        if (cc != null) {
+            String checkInStr = cc.getCheckIn() != null ? cc.getCheckIn().format(DateTimeFormatter.ofPattern("HH:mm:ss")) : "";
+            String checkOutStr = cc.getCheckOut() != null ? cc.getCheckOut().format(DateTimeFormatter.ofPattern("HH:mm:ss")) : "";
+            double hours = 0;
+            if (cc.getCheckIn() != null && cc.getCheckOut() != null) {
+                hours = ChronoUnit.MINUTES.between(cc.getCheckIn(), cc.getCheckOut()) / 60.0;
+            }
+
+            // Xóa dữ liệu cũ nếu có
+            tableModel.setRowCount(0);
+
+            tableModel.addRow(new Object[]{
+                cc.getNgay().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+                checkInStr,
+                checkOutStr,
+                hours > 0 ? String.format("%.2f giờ", hours) : "",
+                cc.getCa()
+            });
+
+            updateStats();
+        }
     }
 
     private JScrollPane createTablePanel() {
@@ -506,6 +543,5 @@ public class ChamCong extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(ChamCong::new);
     }
 }
