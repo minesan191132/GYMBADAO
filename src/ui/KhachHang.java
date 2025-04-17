@@ -385,7 +385,7 @@ public class KhachHang extends JPanel {
 
         suggestionPopup.setFocusable(false);
         suggestionList.setRequestFocusEnabled(false);
-        
+
 // Thêm FocusListener
         txtTimKiem.addFocusListener(new FocusAdapter() {
             @Override
@@ -560,6 +560,7 @@ public class KhachHang extends JPanel {
 
                 JSpinner spnNgayKetThuc = new JSpinner(new SpinnerDateModel());
                 JSpinner.DateEditor editorNgayKetThuc = new JSpinner.DateEditor(spnNgayKetThuc, "dd/MM/yyyy");
+
                 spnNgayKetThuc.setEditor(editorNgayKetThuc);
                 editorNgayKetThuc.getTextField().setColumns(10);
                 editorNgayKetThuc.getTextField().setFont(new Font("Arial", Font.PLAIN, 14));
@@ -599,16 +600,46 @@ public class KhachHang extends JPanel {
                         Date ngayBatDau = (Date) spnNgayBatDau.getValue();
                         Date ngayKetThuc = (Date) spnNgayKetThuc.getValue();
 
-                        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-                        String ngayBD = sdf.format(ngayBatDau);
-                        String ngayKT = sdf.format(ngayKetThuc);
+                        java.sql.Date sqlNgayBatDau = new java.sql.Date(ngayBatDau.getTime());
+                        java.sql.Date sqlNgayKetThuc = new java.sql.Date(ngayKetThuc.getTime());
 
-                        JOptionPane.showMessageDialog(
-                                dateDialog,
-                                "Đã chọn khoảng thời gian:\nTừ: " + ngayBD + "\nĐến: " + ngayKT,
-                                "Thông báo",
-                                JOptionPane.INFORMATION_MESSAGE
-                        );
+                        // Đảm bảo ngày bắt đầu <= ngày kết thúc
+                        if (ngayBatDau.after(ngayKetThuc)) {
+                            JOptionPane.showMessageDialog(
+                                    dateDialog,
+                                    "Ngày bắt đầu phải nhỏ hơn hoặc bằng ngày kết thúc",
+                                    "Lỗi",
+                                    JOptionPane.ERROR_MESSAGE
+                            );
+                            return;
+                        }
+
+                        // Lấy dữ liệu từ database
+                        List<KhachHangViewModel> list = khachHangDAO.getCustomersByDateRange(sqlNgayBatDau, sqlNgayKetThuc);
+// Hiển thị dữ liệu lên bảng
+                        tableModel.setRowCount(0); // Xóa dữ liệu cũ
+
+                        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+                        for (KhachHangViewModel kh : list) {
+                            String ngayDK = kh.getNgayDangKy() != null ? sdf.format(kh.getNgayDangKy()) : "";
+                            String ngayKT = kh.getNgayKetThuc() != null ? sdf.format(kh.getNgayKetThuc()) : "";
+                            String trangThai = kh.getNgayKetThuc() != null
+                                    ? (kh.getNgayKetThuc().after(new Date()) ? "Còn hạn" : "Hết hạn") : "";
+
+                            // Thêm dòng vào tableModel
+                            tableModel.addRow(new Object[]{
+                                kh.getMaKH(),
+                                kh.getHoTen(),
+                                ngayDK,
+                                kh.getSoDienThoai(),
+                                kh.getTenGoi(),
+                                ngayKT,
+                                trangThai
+                            });
+                        }
+                        JOptionPane.showMessageDialog(dateDialog,
+                                "Đã tìm thấy " + list.size() + " Khách hàng",
+                                "Thông báo", JOptionPane.INFORMATION_MESSAGE);
                         dateDialog.dispose();
                     }
                 });

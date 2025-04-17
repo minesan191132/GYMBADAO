@@ -18,6 +18,31 @@ import java.sql.*;
  */
 public class KhachHangDao {
 
+    public List<KhachHangViewModel> getCustomersByDateRange(Date fromDate, Date toDate) {
+        String sql = "SELECT kh.*, gt.TenGoi FROM KhachHang kh JOIN GoiTap gt ON kh.MaGoi = gt.MaGoi "
+                + "WHERE kh.NgayDangKy BETWEEN ? AND ?";
+        List<KhachHangViewModel> list = new ArrayList<>();
+
+        try (ResultSet rs = Xjdbc.query(sql, fromDate, toDate)) {
+            while (rs.next()) {
+                KhachHangViewModel vm = new KhachHangViewModel();
+                vm.setMaKH(rs.getInt("MaKH"));
+                vm.setHoTen(rs.getString("HoTen"));
+                vm.setGioiTinh(rs.getString("GioiTinh"));
+                vm.setSoDienThoai(rs.getString("SoDienThoai"));
+                vm.setNgayDangKy(rs.getDate("NgayDangKy"));
+                vm.setNgayKetThuc(rs.getDate("NgayKetThuc"));
+                vm.setMaGoi(rs.getInt("MaGoi"));
+                vm.setTenGoi(rs.getString("TenGoi"));
+                list.add(vm);
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            throw new RuntimeException(ex);
+        }
+        return list;
+    }
+
     public void insert(ThanhVien kh) {
         String sql = "INSERT INTO KhachHang (HoTen, GioiTinh, SoDienThoai, NgayDangKy, MaGoi) VALUES (?, ?, ?, ?, ?)";
         Xjdbc.update(sql,
@@ -140,30 +165,30 @@ public class KhachHangDao {
     }
 
     public List<ThanhVien> searchCustomers(String keyword) {
-    List<ThanhVien> list = new ArrayList<>();
-    String sql = "SELECT * FROM KhachHang WHERE HoTen LIKE ? OR SoDienThoai LIKE ?";
-    
-    try {
-        // Thêm % vào từ khóa để tìm kiếm phần trùng khớp
-        String searchPattern = "%" + keyword + "%";
-        ResultSet rs = Xjdbc.query(sql, searchPattern, searchPattern);
-        
-        while (rs.next()) {
-            ThanhVien kh = new ThanhVien();
-            kh.setMaTV(rs.getInt("MaKH"));
-            kh.setHoTen(rs.getString("HoTen"));
-            kh.setSoDT(rs.getString("SoDienThoai"));
-            kh.setGioiTinh(rs.getString("GioiTinh"));
-            list.add(kh);
+        List<ThanhVien> list = new ArrayList<>();
+        String sql = "SELECT * FROM KhachHang WHERE HoTen LIKE ? OR SoDienThoai LIKE ?";
+
+        try {
+            // Thêm % vào từ khóa để tìm kiếm phần trùng khớp
+            String searchPattern = "%" + keyword + "%";
+            ResultSet rs = Xjdbc.query(sql, searchPattern, searchPattern);
+
+            while (rs.next()) {
+                ThanhVien kh = new ThanhVien();
+                kh.setMaTV(rs.getInt("MaKH"));
+                kh.setHoTen(rs.getString("HoTen"));
+                kh.setSoDT(rs.getString("SoDienThoai"));
+                kh.setGioiTinh(rs.getString("GioiTinh"));
+                list.add(kh);
+            }
+
+            rs.getStatement().getConnection().close();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
         }
-        
-        rs.getStatement().getConnection().close();
-    } catch (SQLException ex) {
-        ex.printStackTrace();
+
+        return list;
     }
-    
-    return list;
-}
 
     public void capNhatTrangThaiHetHan() {
         String sql = "{call sp_CapNhatTrangThai}";

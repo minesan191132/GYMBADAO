@@ -223,13 +223,13 @@ public class DonHang extends JPanel {
         searchPanel.add(btnLoc);
 
         // Nút xem theo ngày
-        JButton btnXemNgay = new JButton("Xem theo ngày") {
+JButton btnXemNgay = new JButton("Xem theo ngày") {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-                GradientPaint gradient = new GradientPaint(0, 0, new Color(44, 44, 80), getWidth(), getHeight(), new Color(33, 33, 61));
+                GradientPaint gradient = new GradientPaint(0, 0, new Color(44, 44, 80),
+                        getWidth(), getHeight(), new Color(33, 33, 61));
                 g2.setPaint(gradient);
                 g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
                 g2.dispose();
@@ -242,7 +242,8 @@ public class DonHang extends JPanel {
         btnXemNgay.setContentAreaFilled(false);
         btnXemNgay.setBorderPainted(false);
         btnXemNgay.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
-        btnXemNgay.setPreferredSize(new java.awt.Dimension(120, 40));
+        btnXemNgay.setPreferredSize(new Dimension(120, 40));
+
         btnXemNgay.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -258,6 +259,7 @@ public class DonHang extends JPanel {
                 gbc.insets = new Insets(15, 15, 15, 15);
                 gbc.anchor = GridBagConstraints.WEST;
 
+                // Ngày bắt đầu
                 gbc.gridx = 0;
                 gbc.gridy = 0;
                 JLabel lblNgayBatDau = new JLabel("Ngày bắt đầu:");
@@ -273,6 +275,7 @@ public class DonHang extends JPanel {
                 editorNgayBatDau.getTextField().setPreferredSize(new Dimension(180, 28));
                 mainPanel.add(spnNgayBatDau, gbc);
 
+                // Ngày kết thúc
                 gbc.gridx = 0;
                 gbc.gridy = 1;
                 JLabel lblNgayKetThuc = new JLabel("Ngày kết thúc:");
@@ -280,6 +283,7 @@ public class DonHang extends JPanel {
                 mainPanel.add(lblNgayKetThuc, gbc);
 
                 gbc.gridx = 1;
+//
                 JSpinner spnNgayKetThuc = new JSpinner(new SpinnerDateModel());
                 JSpinner.DateEditor editorNgayKetThuc = new JSpinner.DateEditor(spnNgayKetThuc, "dd/MM/yyyy");
                 spnNgayKetThuc.setEditor(editorNgayKetThuc);
@@ -288,9 +292,11 @@ public class DonHang extends JPanel {
                 editorNgayKetThuc.getTextField().setPreferredSize(new Dimension(180, 28));
                 mainPanel.add(spnNgayKetThuc, gbc);
 
+                // Panel nút
                 JPanel buttonPanel = new JPanel();
                 buttonPanel.setBorder(new EmptyBorder(15, 0, 15, 0));
 
+                // Nút Xác nhận
                 JButton btnXacNhan = new JButton("Xác nhận") {
                     @Override
                     protected void paintComponent(Graphics g) {
@@ -313,6 +319,24 @@ public class DonHang extends JPanel {
                     public void actionPerformed(ActionEvent e) {
                         Date ngayBatDau = (Date) spnNgayBatDau.getValue();
                         Date ngayKetThuc = (Date) spnNgayKetThuc.getValue();
+
+                        java.sql.Date sqlNgayBatDau = new java.sql.Date(ngayBatDau.getTime());
+                        java.sql.Date sqlNgayKetThuc = new java.sql.Date(ngayKetThuc.getTime());
+
+                        // Kiểm tra ngày hợp lệ
+                        if (ngayBatDau.after(ngayKetThuc)) {
+                            JOptionPane.showMessageDialog(dateDialog,
+                                    "Ngày bắt đầu phải nhỏ hơn hoặc bằng ngày kết thúc",
+                                    "Lỗi", JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
+
+                        // Lấy dữ liệu từ DAO
+                        List<donHang> donHangList = donHangDAO.getDonHangByDateRange(sqlNgayBatDau, sqlNgayKetThuc);
+
+                        // Cập nhật bảng
+                        tableModel.setRowCount(0);
+
                         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
                         String ngayBD = sdf.format(ngayBatDau);
                         String ngayKT = sdf.format(ngayKetThuc);
@@ -365,7 +389,7 @@ public class DonHang extends JPanel {
 
         // Thêm bảng đơn hàng
         String[] columnNames = {"Mã đơn", "Tên khách hàng", "Ngày tạo", "Khách trả"};
-        
+
         tableModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {

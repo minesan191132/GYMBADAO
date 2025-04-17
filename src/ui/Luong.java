@@ -273,17 +273,76 @@ public class Luong extends JFrame {
             trangChu.setVisible(true);
         }
     }
-
+// Xuất Excel
     private void handleExportExcel() {
         if (tableModel.getRowCount() == 0) {
             JOptionPane.showMessageDialog(this, "Không có dữ liệu để xuất!", "Lỗi", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        JOptionPane.showMessageDialog(this,
-                "Xuất Excel thành công!\n" + tableModel.getRowCount() + " bản ghi đã được xuất.",
-                "Thông báo",
-                JOptionPane.INFORMATION_MESSAGE);
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Chọn Nơi Xuất File Excel!");
+        fileChooser.setSelectedFile(new java.io.File("LuongNhanVien.xlsx"));
+
+        int userSelection = fileChooser.showSaveDialog(this);
+        if (userSelection != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
+
+        java.io.File fileToSave = fileChooser.getSelectedFile();
+        if (!fileToSave.getName().toLowerCase().endsWith(".xlsx")) {
+            fileToSave = new java.io.File(fileToSave.getAbsolutePath() + ".xlsx");
+        }
+
+        try (org.apache.poi.ss.usermodel.Workbook workbook = new org.apache.poi.xssf.usermodel.XSSFWorkbook()) {
+            org.apache.poi.ss.usermodel.Sheet sheet = workbook.createSheet("Lương Nhân Viên");
+
+            // Tạo style cho header
+            org.apache.poi.ss.usermodel.CellStyle headerStyle = workbook.createCellStyle();
+            org.apache.poi.ss.usermodel.Font font = workbook.createFont();
+            font.setBold(true);
+            headerStyle.setFont(font);
+
+            // Ghi tiêu đề cột
+            org.apache.poi.ss.usermodel.Row headerRow = sheet.createRow(0);
+            for (int i = 0; i < tableModel.getColumnCount(); i++) {
+                org.apache.poi.ss.usermodel.Cell cell = headerRow.createCell(i);
+                cell.setCellValue(tableModel.getColumnName(i));
+                cell.setCellStyle(headerStyle);
+            }
+
+            // Ghi dữ liệu
+            for (int row = 0; row < tableModel.getRowCount(); row++) {
+                org.apache.poi.ss.usermodel.Row excelRow = sheet.createRow(row + 1);
+                for (int col = 0; col < tableModel.getColumnCount(); col++) {
+                    Object value = tableModel.getValueAt(row, col);
+                    org.apache.poi.ss.usermodel.Cell cell = excelRow.createCell(col);
+                    cell.setCellValue(value != null ? value.toString() : "");
+                }
+            }
+
+            // Auto resize cột
+            for (int i = 0; i < tableModel.getColumnCount(); i++) {
+                sheet.autoSizeColumn(i);
+            }
+
+            // Ghi file
+            try (java.io.FileOutputStream fileOut = new java.io.FileOutputStream(fileToSave)) {
+                workbook.write(fileOut);
+            }
+
+            JOptionPane.showMessageDialog(this,
+                    "Xuất Excel thành công! \n Đã lưu File tại: " + fileToSave.getAbsolutePath(),
+                    "Thông báo",
+                    JOptionPane.INFORMATION_MESSAGE);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this,
+                    "Lỗi khi xuất Excel: " + e.getMessage(),
+                    "Lỗi",
+                    JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private void updateStats() {
@@ -377,25 +436,24 @@ public class Luong extends JFrame {
         return nut;
     }
 
-private List<Object[]> timDuLieuChamCong(String maNV, String thang, String nam) {
-    List<Object[]> duLieu = new ArrayList<>();
+    private List<Object[]> timDuLieuChamCong(String maNV, String thang, String nam) {
+        List<Object[]> duLieu = new ArrayList<>();
 
-    List<LuongNhanVien> danhSachLuong = luongDao.getLuongNhanVien(maNV, thang, nam); 
+        List<LuongNhanVien> danhSachLuong = luongDao.getLuongNhanVien(maNV, thang, nam);
 
-    for (LuongNhanVien lnv : danhSachLuong) {
-        Object[] dong = taoDuLieuNgayLam(
-                lnv.getMaNhanVien(),
-                lnv.getTenNhanVien(),
-                lnv.getNgayLam().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
-                lnv.getCaLam(),
-                lnv.getGioVao(),
-                lnv.getGioRa()
-        );
-        duLieu.add(dong);
+        for (LuongNhanVien lnv : danhSachLuong) {
+            Object[] dong = taoDuLieuNgayLam(
+                    lnv.getMaNhanVien(),
+                    lnv.getTenNhanVien(),
+                    lnv.getNgayLam().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+                    lnv.getCaLam(),
+                    lnv.getGioVao(),
+                    lnv.getGioRa()
+            );
+            duLieu.add(dong);
+        }
+        return duLieu;
     }
-    return duLieu;
-}
-
 
     private Object[] taoDuLieuNgayLam(String maNV, String tenNV, String ngay, String ca, String gioVao, String gioRa) {
         LocalTime vao = LocalTime.parse(gioVao);
