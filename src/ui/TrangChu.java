@@ -246,7 +246,7 @@ public class TrangChu extends JFrame {
 
     private void showDonHangPanel() {
         mainPanel.removeAll();
-        mainPanel.add(new DonHang());
+        mainPanel.add(new DonHangUI());
         mainPanel.revalidate();
         mainPanel.repaint();
     }

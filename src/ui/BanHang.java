@@ -899,10 +899,10 @@ public class BanHang extends JFrame {
         boolean found = false;
         for (OrderItem item : orderItems) {
             if (item.getProduct().getMaSanPham() == product.getMaSanPham()) {
-    item.setQuantity(item.getQuantity() + quantity);
-    found = true;
-    break;
-}
+                item.setQuantity(item.getQuantity() + quantity);
+                found = true;
+                break;
+            }
 
         }
 
@@ -1355,7 +1355,7 @@ public class BanHang extends JFrame {
             }
 
             // Tạo đơn hàng mới
-            entity.donHang dh = new entity.donHang();
+            entity.DonHang dh = new entity.DonHang();
             dh.setMaKH(selectedCustomer.getMaTV());
             dh.setNgayLap(new Date());
             dh.setThanhTien(amountToPay);
@@ -1368,6 +1368,17 @@ public class BanHang extends JFrame {
             // Nếu dùng SQL Server có thể dùng: SELECT SCOPE_IDENTITY()
             // Hoặc tạo phương thức getLastInsertId() trong DonHangDAO
             int maDH = donHangDAO.getLastInsertIdShort(); // Hoặc dh.getMaDH() nếu đã được set sau khi insert
+
+            String hinhThucThanhToan = paymentMethodComboBox.getSelectedItem().toString(); // hoặc truyền vào từ tham số
+            ThanhToan tt = new ThanhToan();
+            tt.setMaDH(maDH);
+            tt.setPhuongThuc(hinhThucThanhToan);
+            tt.setSoTien(amountToPay);
+            tt.setNgaythanhtoan(new Date());
+
+// Lưu vào DB
+            ThanhToanDAO thanhToanDAO = new ThanhToanDAO();
+            thanhToanDAO.insert(tt);
 
             // Lưu chi tiết đơn hàng
             ChiTietDonHangDAO chiTietDAO = new ChiTietDonHangDAO();
@@ -1383,7 +1394,7 @@ public class BanHang extends JFrame {
 
             // Xuất hóa đơn nếu được yêu cầu
             if (printInvoice) {
-                exportInvoiceToExcel(maDH, selectedCustomer, orderItems);
+                exportInvoiceToExcel(maDH, selectedCustomer, orderItems, hinhThucThanhToan);
             }
 
             JOptionPane.showMessageDialog(this, "Thanh toán thành công! Mã đơn hàng: " + maDH,
@@ -1399,7 +1410,6 @@ public class BanHang extends JFrame {
     }
 
 // Thêm phương thức này vào DonHangDAO để lấy mã đơn hàng vừa insert
-
     private double calculateTotalAmount() {
         return orderItems.stream()
                 .mapToDouble(item -> item.getProduct().getGia() * item.getQuantity())
@@ -1420,7 +1430,7 @@ public class BanHang extends JFrame {
         cardLayout.show(containerPanel, "EMPTY");
     }
 
-    private void exportInvoiceToExcel(int maDH, ThanhVien thanhvien, List<OrderItem> items) {
+    private void exportInvoiceToExcel(int maDH, ThanhVien thanhvien, List<OrderItem> items, String hinhThucThanhToan) {
         try (Workbook workbook = new XSSFWorkbook()) {
             Sheet sheet = workbook.createSheet("Hóa đơn " + maDH);
 
@@ -1489,8 +1499,9 @@ public class BanHang extends JFrame {
             // Tổng kết thanh toán
             rowNum += 2;
             addInvoiceSummaryRow(sheet, rowNum++, "Tổng tiền:", total, moneyStyle);
-            addInvoiceSummaryRow(sheet, rowNum++, String.format("Chiết khấu (%s%%):", discountPercent),
-                    discountAmount, moneyStyle);
+            String discountText = discountPercent != null ? discountPercent.toString() : "0";
+            addInvoiceSummaryRow(sheet, rowNum++, String.format("Chiết khấu (%s%%):", discountText),discountAmount, moneyStyle);
+            addInvoiceSummaryRow(sheet, rowNum++, "Hình thức thanh toán:", hinhThucThanhToan, null, 3);
             addInvoiceSummaryRow(sheet, rowNum++, "Thành tiền:", amountToPay, moneyStyle);
             addInvoiceSummaryRow(sheet, rowNum++, "Tiền khách đưa:", givenAmount, moneyStyle);
 
@@ -1527,8 +1538,27 @@ public class BanHang extends JFrame {
         updateOrderDisplay();
     }
 
-    ;
-    
+    private void addInvoiceSummaryRow(Sheet sheet, int rowIndex, String label, Object value, CellStyle style, int columnStart) {
+        Row row = sheet.createRow(rowIndex);
+
+        // Label
+        Cell labelCell = row.createCell(columnStart);
+        labelCell.setCellValue(label);
+        if (style != null) {
+            labelCell.setCellStyle(style);
+        }
+
+        // Value
+        Cell valueCell = row.createCell(columnStart + 1);
+        if (value instanceof Number) {
+            valueCell.setCellValue(((Number) value).doubleValue());
+        } else {
+            valueCell.setCellValue(String.valueOf(value));
+        }
+        if (style != null) {
+            valueCell.setCellStyle(style);
+        }
+    }
 
     public void showMainPanel() {
         this.setVisible(false);

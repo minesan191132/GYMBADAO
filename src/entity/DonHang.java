@@ -3,18 +3,30 @@ package entity;
 import java.util.Date;
 
 public class DonHang {
+
     private int maDH;
     private int maKH;
+    private String hoTen;
     private Date ngayLap;
     private double thanhTien;
 
-    public DonHang() {}
+    public DonHang() {
+    }
 
-    public DonHang(int maDH, int maKH, Date ngayLap, double thanhTien) {
+    public DonHang(int maDH, int maKH, String hoTen, Date ngayLap, double thanhTien) {
         this.maDH = maDH;
         this.maKH = maKH;
+        this.hoTen = hoTen;
         this.ngayLap = ngayLap;
         this.thanhTien = thanhTien;
+    }
+
+    public String getHoTen() {
+        return hoTen;
+    }
+
+    public void setHoTen(String hoTen) {
+        this.hoTen = hoTen;
     }
 
     public int getMaDH() {

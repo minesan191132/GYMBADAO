@@ -1,7 +1,7 @@
 package ui;
 
 import dao.DonHangDAO;
-import entity.donHang;
+import entity.DonHang;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -47,13 +47,13 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
-public class DonHang extends JPanel {
+public class DonHangUI extends JPanel {
 
     DonHangDAO donHangDAO = new DonHangDAO();
     private DefaultTableModel tableModel;
     private JTextField txtTimKiem;
 
-    public DonHang() {
+    public DonHangUI() {
         setBounds(0, 0, 800, 650);
         setLayout(null);
 
@@ -332,7 +332,7 @@ JButton btnXemNgay = new JButton("Xem theo ngày") {
                         }
 
                         // Lấy dữ liệu từ DAO
-                        List<donHang> donHangList = donHangDAO.getDonHangByDateRange(sqlNgayBatDau, sqlNgayKetThuc);
+                        List<DonHang> donHangList = donHangDAO.getDonHangByDateRange(sqlNgayBatDau, sqlNgayKetThuc);
 
                         // Cập nhật bảng
                         tableModel.setRowCount(0);
@@ -432,8 +432,8 @@ JButton btnXemNgay = new JButton("Xem theo ngày") {
     // Phương thức tải dữ liệu từ DonHangDAO vào bảng
     private void loadDataToTable(DefaultTableModel model) {
         model.setRowCount(0); // Xóa dữ liệu cũ
-        List<donHang> list = donHangDAO.selectAllWithDetails(); // Nhận List<donHang>
-        for (donHang dh : list) {
+        List<DonHang> list = donHangDAO.selectAllWithDetails(); // Nhận List<donHang>
+        for (DonHang dh : list) {
             model.addRow(new Object[]{
                 dh.getMaDH(), // Lấy MaDH
                 dh.getHoTen(), // Lấy tên khách hàng
@@ -448,9 +448,9 @@ JButton btnXemNgay = new JButton("Xem theo ngày") {
     private List<String> getSuggestions(String input) {
         List<String> suggestions = new ArrayList<>();
         DonHangDAO donHangDAO = new DonHangDAO(); // Tạo đối tượng DAO
-        List<donHang> members = donHangDAO.selectAllWithDetails(); // Gọi phương thức từ đối tượng
+        List<DonHang> members = donHangDAO.selectAllWithDetails(); // Gọi phương thức từ đối tượng
 
-        for (donHang tv : members) {
+        for (DonHang tv : members) {
             if (tv.getHoTen() != null
                     && tv.getHoTen().toLowerCase().startsWith(input.toLowerCase())) {
                 suggestions.add(tv.getHoTen());
@@ -464,11 +464,11 @@ JButton btnXemNgay = new JButton("Xem theo ngày") {
         tableModel.setRowCount(0);
 
         DonHangDAO donHangDAO = new DonHangDAO();
-        List<donHang> list = donHangDAO.selectAllWithDetails();
+        List<DonHang> list = donHangDAO.selectAllWithDetails();
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
         int count = 0;
-        for (donHang dh : list) {
+        for (DonHang dh : list) {
             String hoTenKhachHang = dh.getHoTen().toLowerCase().trim();
             String searchName = name.toLowerCase().trim();
 
