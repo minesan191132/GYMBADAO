@@ -7,6 +7,7 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import utils.*;
+import utils.Window;
 
 public class DangNhap extends javax.swing.JDialog {
 
@@ -24,6 +25,8 @@ public class DangNhap extends javax.swing.JDialog {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
         setLayout(null);
+        Window.setAppIcon(this);
+
 
         JLabel background = new JLabel(new ImageIcon("/GYMBADAO/src/icon/backgroundDangNhap.jpg"));
         background.setBounds(0, 0, 1116, 627);

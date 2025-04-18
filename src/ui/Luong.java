@@ -46,7 +46,7 @@ public class Luong extends JFrame {
         createMainContent();
         setupEventListeners();
         setVisible(true);
-        loadLuongData();
+        loadLuongData();      
     }
 
     private void setupMainWindow() {
@@ -55,6 +55,7 @@ public class Luong extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout(15, 15));
+        utils.Window.setAppIcon(this);
     }
 
     private void createMainContent() {

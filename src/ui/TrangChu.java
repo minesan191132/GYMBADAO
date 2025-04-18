@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class TrangChu extends JFrame {
 
     private JPanel mainPanel;
@@ -75,7 +76,7 @@ public class TrangChu extends JFrame {
         setLocationRelativeTo(null);
         setLayout(null);
         setResizable(false);
-
+        utils.Window.setAppIcon(this);
         // Sidebar
         JPanel sidebar = new JPanel();
         sidebar.setLayout(null);

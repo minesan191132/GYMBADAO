@@ -57,6 +57,7 @@ public class BanHang extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
+        utils.Window.setAppIcon(this);
     }
 
     private void createHeaderPanel() {

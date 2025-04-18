@@ -136,11 +136,12 @@ public class ChamCong extends JFrame {
     }
 
     private void setupMainWindow() {
-        setTitle("Công Nhân Viên");
+        setTitle("Check-in và Check-out Cho Nhân Viên");
         setSize(1100, 750);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout(10, 10));
+        utils.Window.setAppIcon(this);
     }
 
     private void createMainContent() {

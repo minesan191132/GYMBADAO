@@ -20,6 +20,7 @@ import javax.swing.*;
 import javax.swing.JLabel;
 import javax.swing.JProgressBar;
 import javax.swing.Timer;
+import utils.Window;
 
 /**
  *
@@ -38,6 +39,7 @@ public class ManHinhChao extends javax.swing.JDialog {
         setLayout(new BorderLayout());
         setResizable(false);
         setUndecorated(true);
+        Window.setAppIcon(this);
 
         ImageIcon icon = new ImageIcon("/GYMBADAO/src/icon/Banner.jpg");
         Image scaledImage = icon.getImage().getScaledInstance(1116, 627, Image.SCALE_SMOOTH);
