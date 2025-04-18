@@ -46,13 +46,27 @@ public class Luong extends JFrame {
         createMainContent();
         setupEventListeners();
         setVisible(true);
-        loadLuongData();      
+        loadLuongData();
     }
 
     private void setupMainWindow() {
         setTitle("Theo Dõi Giờ Làm Và Tính Lương");
         setSize(1100, 750);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE); // Chặn thoát ngay
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                int option = JOptionPane.showConfirmDialog(
+                        Luong.this,
+                        "Bạn có chắc chắn muốn thoát?",
+                        "Xác nhận thoát",
+                        JOptionPane.YES_NO_OPTION
+                );
+                if (option == JOptionPane.YES_OPTION) {
+                    dispose();
+                }
+            }
+        });
         setLocationRelativeTo(null);
         setLayout(new BorderLayout(15, 15));
         utils.Window.setAppIcon(this);
@@ -275,6 +289,7 @@ public class Luong extends JFrame {
         }
     }
 // Xuất Excel
+
     private void handleExportExcel() {
         if (tableModel.getRowCount() == 0) {
             JOptionPane.showMessageDialog(this, "Không có dữ liệu để xuất!", "Lỗi", JOptionPane.ERROR_MESSAGE);

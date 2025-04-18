@@ -138,10 +138,25 @@ public class ChamCong extends JFrame {
     private void setupMainWindow() {
         setTitle("Check-in và Check-out Cho Nhân Viên");
         setSize(1100, 750);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout(10, 10));
         utils.Window.setAppIcon(this);
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE); // Chặn thoát ngay
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                int option = JOptionPane.showConfirmDialog(
+                        ChamCong.this,
+                        "Bạn có chắc chắn muốn thoát?",
+                        "Xác nhận thoát",
+                        JOptionPane.YES_NO_OPTION
+                );
+                if (option == JOptionPane.YES_OPTION) {
+                    dispose();
+                }
+            }
+        });
+
     }
 
     private void createMainContent() {

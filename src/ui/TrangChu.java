@@ -4,9 +4,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.List;
-
 
 public class TrangChu extends JFrame {
 
@@ -71,7 +72,22 @@ public class TrangChu extends JFrame {
 
     public TrangChu() {
         setTitle("Gym Management Dashboard");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE); // Chặn thoát ngay
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                int option = JOptionPane.showConfirmDialog(
+                        TrangChu.this,
+                        "Bạn có chắc chắn muốn thoát?",
+                        "Xác nhận thoát",
+                        JOptionPane.YES_NO_OPTION
+                );
+                if (option == JOptionPane.YES_OPTION) {
+                    dispose();
+                }
+            }
+        });
+
         setSize(1000, 650);
         setLocationRelativeTo(null);
         setLayout(null);

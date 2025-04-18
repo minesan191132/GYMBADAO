@@ -54,7 +54,22 @@ public class BanHang extends JFrame {
     private void setupMainWindow() {
         setTitle("Giao diện bán hàng");
         setSize(1720, 900);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE); // Chặn thoát ngay
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                int option = JOptionPane.showConfirmDialog(
+                        BanHang.this,
+                        "Bạn có chắc chắn muốn thoát?",
+                        "Xác nhận thoát",
+                        JOptionPane.YES_NO_OPTION
+                );
+                if (option == JOptionPane.YES_OPTION) {
+                    dispose();
+                }
+            }
+        });
+
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
         utils.Window.setAppIcon(this);
@@ -1501,7 +1516,7 @@ public class BanHang extends JFrame {
             rowNum += 2;
             addInvoiceSummaryRow(sheet, rowNum++, "Tổng tiền:", total, moneyStyle);
             String discountText = discountPercent != null ? discountPercent.toString() : "0";
-            addInvoiceSummaryRow(sheet, rowNum++, String.format("Chiết khấu (%s%%):", discountText),discountAmount, moneyStyle);
+            addInvoiceSummaryRow(sheet, rowNum++, String.format("Chiết khấu (%s%%):", discountText), discountAmount, moneyStyle);
             addInvoiceSummaryRow(sheet, rowNum++, "Hình thức thanh toán:", hinhThucThanhToan, null, 3);
             addInvoiceSummaryRow(sheet, rowNum++, "Thành tiền:", amountToPay, moneyStyle);
             addInvoiceSummaryRow(sheet, rowNum++, "Tiền khách đưa:", givenAmount, moneyStyle);
