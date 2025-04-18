@@ -450,12 +450,6 @@ public class ChamCong extends JFrame {
     }
 
     private void handleCheckOut() {
-        int row = tableModel.getRowCount() - 1;
-        if (row == -1 || !tableModel.getValueAt(row, 2).toString().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Bạn chưa check-in hoặc đã check-out!", "Lỗi", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
         String employeeId = txtEmployeeId.getText().trim();
         if (employeeId.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Vui lòng nhập mã nhân viên!", "Lỗi", JOptionPane.ERROR_MESSAGE);
@@ -463,16 +457,39 @@ public class ChamCong extends JFrame {
         }
 
         LocalDate ngay = LocalDate.now();
-        LocalTime checkOutTime = LocalTime.now();
-        String checkInStr = tableModel.getValueAt(row, 1).toString();
-        LocalTime checkInTime = LocalTime.parse(checkInStr, DateTimeFormatter.ofPattern("HH:mm:ss"));
-        double totalHours = ChronoUnit.MINUTES.between(checkInTime, checkOutTime) / 60.0;
-
         ChamCongDao dao = new ChamCongDao();
+        chamCong cc = dao.findByMaNVAndNgay(employeeId, ngay);
+
+        if (cc == null) {
+            JOptionPane.showMessageDialog(this, "Bạn chưa check-in hôm nay!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        if (cc.getCheckOut() != null) {
+            JOptionPane.showMessageDialog(this, "Bạn đã check-in và check-out rồi!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        if (cc.getCheckIn() == null) {
+            JOptionPane.showMessageDialog(this, "Dữ liệu check-in bị thiếu!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        LocalTime checkOutTime = LocalTime.now();
+        double totalHours = ChronoUnit.MINUTES.between(cc.getCheckIn(), checkOutTime) / 60.0;
+
         boolean success = dao.updateCheckOut(employeeId, ngay, checkOutTime);
         if (success) {
-            tableModel.setValueAt(checkOutTime.format(DateTimeFormatter.ofPattern("HH:mm:ss")), row, 2);
-            tableModel.setValueAt(String.format("%.2f giờ", totalHours), row, 3);
+            // Cập nhật bảng giao diện
+            tableModel.setRowCount(0);
+            tableModel.addRow(new Object[]{
+                ngay.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+                cc.getCheckIn().format(DateTimeFormatter.ofPattern("HH:mm:ss")),
+                checkOutTime.format(DateTimeFormatter.ofPattern("HH:mm:ss")),
+                String.format("%.2f giờ", totalHours),
+                cc.getCa()
+            });
+
             updateStats();
             JOptionPane.showMessageDialog(this, "CHECK-OUT THÀNH CÔNG!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
         } else {
