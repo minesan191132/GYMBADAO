@@ -105,7 +105,7 @@ public class BaoCao extends JPanel {
 
         // Trợ giúp
         int helpX = 250;
-        JLabel lblHelpIcon = new JLabel(new ImageIcon("D:/GYMBADAO/src/icon/question-sign.png"));
+        JLabel lblHelpIcon = new JLabel(new ImageIcon("/GYMBADAO/src/icon/question-sign.png"));
         lblHelpIcon.setBounds(helpX, yPosition, iconWidth, 30);
         headerPanel.add(lblHelpIcon);
 
@@ -116,7 +116,7 @@ public class BaoCao extends JPanel {
 
         // Góp ý
         int feedbackX = helpX + iconWidth + textWidth + spacing;
-        JLabel lblFeedbackIcon = new JLabel(new ImageIcon("D:/GYMBADAO/src/icon/heart.png"));
+        JLabel lblFeedbackIcon = new JLabel(new ImageIcon("/GYMBADAO/src/icon/heart.png"));
         lblFeedbackIcon.setBounds(feedbackX, yPosition, iconWidth, 30);
         headerPanel.add(lblFeedbackIcon);
 

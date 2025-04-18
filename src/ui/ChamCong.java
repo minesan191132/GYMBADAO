@@ -512,6 +512,17 @@ public class ChamCong extends JFrame {
         }
     }
 
+    private void resetTableIfNewDay() {
+        LocalDate now = LocalDate.now();
+        if (tableModel.getRowCount() > 0) {
+            String dateStr = tableModel.getValueAt(0, 0).toString(); // cột ngày
+            LocalDate dateInTable = LocalDate.parse(dateStr, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+            if (!dateInTable.equals(now)) {
+                tableModel.setRowCount(0); // reset bảng
+            }
+        }
+    }
+
     private void loadDefaultImage() {
         try {
             BufferedImage defaultImage = new BufferedImage(250, 250, BufferedImage.TYPE_INT_RGB);
