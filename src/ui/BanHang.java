@@ -1334,8 +1334,8 @@ public class BanHang extends JFrame {
             model.addRow(new Object[]{
                 kh.getMaTV(),
                 kh.getHoTen(),
-                kh.getSoDT(),
-                kh.getGioiTinh()
+                kh.getGioiTinh(),
+                kh.getSoDT()
             });
         }
     }
