@@ -7,10 +7,11 @@ import entity.*;
 import dao.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -31,7 +32,15 @@ import org.jfree.chart.renderer.category.BarRenderer;
 import org.jfree.chart.renderer.category.StandardBarPainter;
 import org.jfree.data.category.DefaultCategoryDataset;
 import java.text.DecimalFormat;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class BaoCao extends JPanel {
 
@@ -57,74 +66,206 @@ public class BaoCao extends JPanel {
     }
 
     private JPanel createHeaderPanel() {
-        JPanel headerPanel = new JPanel();
-        headerPanel.setLayout(null); // Giữ nguyên layout null như code gốc
-        headerPanel.setBackground(new Color(241, 239, 236));
-        headerPanel.setPreferredSize(new Dimension(800, 80));
-        headerPanel.setBorder(BorderFactory.createEmptyBorder(0, 25, 0, 25));
+    JPanel headerPanel = new JPanel();
+    headerPanel.setLayout(null);
+    headerPanel.setBackground(new Color(241, 239, 236));
+    headerPanel.setPreferredSize(new Dimension(800, 80));
+    headerPanel.setBorder(BorderFactory.createEmptyBorder(0, 25, 0, 25));
 
-        // Nút xem theo ngày
-        JButton btnXemNgay = new JButton("Xem theo ngày") {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+    // Nút xem theo ngày
+    JButton btnXemNgay = new JButton("Xem theo ngày") {
+        @Override
+        protected void paintComponent(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-                GradientPaint gradient = new GradientPaint(
-                        0, 0, new Color(44, 44, 80),
-                        getWidth(), getHeight(), new Color(33, 33, 61)
-                );
-                g2.setPaint(gradient);
-                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
-                g2.dispose();
-                super.paintComponent(g);
+            GradientPaint gradient = new GradientPaint(
+                    0, 0, new Color(44, 44, 80),
+                    getWidth(), getHeight(), new Color(33, 33, 61)
+            );
+            g2.setPaint(gradient);
+            g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
+            g2.dispose();
+            super.paintComponent(g);
+        }
+    };
+    btnXemNgay.setFont(new Font("Arial", Font.BOLD, 14));
+    btnXemNgay.setForeground(Color.WHITE);
+    btnXemNgay.setFocusPainted(false);
+    btnXemNgay.setContentAreaFilled(false);
+    btnXemNgay.setOpaque(false);
+    btnXemNgay.setBorderPainted(false);
+    btnXemNgay.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+    btnXemNgay.setBounds(25, 20, 180, 40);
+    btnXemNgay.addActionListener(e -> showDateRangeDialog());
+    headerPanel.add(btnXemNgay);
+
+    // Nút xuất Excel
+    JButton btnExportExcel = new JButton("Xuất Excel") {
+        @Override
+        protected void paintComponent(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+            GradientPaint gradient = new GradientPaint(
+                    0, 0, new Color(34, 139, 34), // Màu xanh lá cây
+                    getWidth(), getHeight(), new Color(0, 100, 0)
+            );
+            g2.setPaint(gradient);
+            g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
+            g2.dispose();
+            super.paintComponent(g);
+        }
+    };
+    btnExportExcel.setFont(new Font("Arial", Font.BOLD, 14));
+    btnExportExcel.setForeground(Color.WHITE);
+    btnExportExcel.setFocusPainted(false);
+    btnExportExcel.setContentAreaFilled(false);
+    btnExportExcel.setOpaque(false);
+    btnExportExcel.setBorderPainted(false);
+    btnExportExcel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+    btnExportExcel.setBounds(220, 20, 180, 40);
+    btnExportExcel.addActionListener(e -> exportToExcel());
+    headerPanel.add(btnExportExcel);
+
+    // Thêm các biểu tượng trợ giúp và góp ý
+    addHelpAndFeedbackIcons(headerPanel);
+
+    return headerPanel;
+}
+
+private void exportToExcel() {
+    JFileChooser fileChooser = new JFileChooser();
+    fileChooser.setDialogTitle("Lưu file Excel");
+    fileChooser.setFileFilter(new FileNameExtensionFilter("Excel Files", "xlsx"));
+    fileChooser.setSelectedFile(new File("BaoCaoDoanhThu.xlsx"));
+    
+    int userSelection = fileChooser.showSaveDialog(this);
+    
+    if (userSelection == JFileChooser.APPROVE_OPTION) {
+        File fileToSave = fileChooser.getSelectedFile();
+        if (!fileToSave.getAbsolutePath().endsWith(".xlsx")) {
+            fileToSave = new File(fileToSave.getAbsolutePath() + ".xlsx");
+        }
+        
+        try (Workbook workbook = new XSSFWorkbook()) {
+            Sheet sheet = workbook.createSheet("Báo cáo doanh thu");
+            
+            // Tạo hàng tiêu đề
+            Row headerRow = sheet.createRow(0);
+            DefaultTableModel model = (DefaultTableModel) table.getModel();
+            
+            // Tạo kiểu cho tiêu đề
+            CellStyle headerStyle = workbook.createCellStyle();
+            org.apache.poi.ss.usermodel.Font headerFont = workbook.createFont();
+            headerFont.setBold(true); // Vẫn giữ chữ đậm
+            headerStyle.setFont(headerFont);
+            headerStyle.setAlignment(HorizontalAlignment.CENTER);
+            
+            // Ghi tiêu đề cột
+            for (int col = 0; col < model.getColumnCount(); col++) {
+                Cell cell = headerRow.createCell(col);
+                cell.setCellValue(model.getColumnName(col));
+                cell.setCellStyle(headerStyle);
             }
-        };
-        btnXemNgay.setFont(new Font("Arial", Font.BOLD, 14));
-        btnXemNgay.setForeground(Color.WHITE);
-        btnXemNgay.setFocusPainted(false);
-        btnXemNgay.setContentAreaFilled(false);
-        btnXemNgay.setOpaque(false);
-        btnXemNgay.setBorderPainted(false);
-        btnXemNgay.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
-        btnXemNgay.setBounds(25, 20, 180, 40);
-        btnXemNgay.addActionListener(e -> showDateRangeDialog());
-        headerPanel.add(btnXemNgay);
+            
+            // Tạo kiểu cho dữ liệu
+            CellStyle dataStyle = workbook.createCellStyle();
+            dataStyle.setAlignment(HorizontalAlignment.CENTER);
+            
+            // Tạo kiểu cho số với dấu phẩy
+            CellStyle numberStyle = workbook.createCellStyle();
+            numberStyle.setAlignment(HorizontalAlignment.RIGHT);
+            numberStyle.setDataFormat(workbook.createDataFormat().getFormat("#,##0")); // Định dạng số với dấu phẩy
+            
+            // Tính tổng doanh thu
+            double totalRevenue = 0.0;
 
-        // Thêm các biểu tượng trợ giúp và góp ý
-        addHelpAndFeedbackIcons(headerPanel);
-
-        return headerPanel;
+            // Ghi dữ liệu
+            for (int row = 0; row < model.getRowCount(); row++) {
+                Row dataRow = sheet.createRow(row + 1);
+                for (int col = 0; col < model.getColumnCount(); col++) {
+                    Object value = model.getValueAt(row, col);
+                    Cell cell = dataRow.createCell(col);
+                    
+                    if (value != null) {
+                        if (col == 3) { // Giả sử cột doanh thu là cột thứ 3
+                            double revenueValue = Double.parseDouble(value.toString().replace(",", ""));
+                            cell.setCellValue(revenueValue);
+                            totalRevenue += revenueValue; // Cộng dồn tổng doanh thu
+                            cell.setCellStyle(numberStyle); // Áp dụng kiểu số
+                        } else {
+                            cell.setCellValue(value.toString());
+                        }
+                    }
+                    cell.setCellStyle(dataStyle);
+                }
+            }
+            
+            // Tạo hàng tổng doanh thu
+            Row totalRow = sheet.createRow(model.getRowCount() + 1);
+            Cell totalLabelCell = totalRow.createCell(2); // Giả sử cột thứ 3 là cột doanh thu
+            totalLabelCell.setCellValue("Tổng doanh thu:");
+            totalLabelCell.setCellStyle(headerStyle);
+            
+            Cell totalValueCell = totalRow.createCell(3); // Cột doanh thu
+            totalValueCell.setCellValue(totalRevenue);
+            totalValueCell.setCellStyle(numberStyle); // Áp dụng kiểu số
+            
+            // Tự động điều chỉnh độ rộng cột
+            for (int i = 0; i < model.getColumnCount(); i++) {
+                sheet.autoSizeColumn(i);
+            }
+            
+            // Ghi file
+            try (FileOutputStream fileOut = new FileOutputStream(fileToSave)) {
+                workbook.write(fileOut);
+                JOptionPane.showMessageDialog(this, 
+                    "Xuất Excel thành công!", 
+                    "Thông báo", 
+                    JOptionPane.INFORMATION_MESSAGE);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, 
+                "Lỗi khi xuất Excel: " + ex.getMessage(), 
+                "Lỗi", 
+ JOptionPane.ERROR_MESSAGE);
+        }
     }
-
+}
+    
     private void addHelpAndFeedbackIcons(JPanel headerPanel) {
-        int yPosition = 25;
-        int iconWidth = 30;
-        int textWidth = 80;
-        int spacing = 15;
+    int yPosition = 25;
+    int iconWidth = 30;
+    int textWidth = 80;
+    int spacing = 15;
 
-        // Trợ giúp
-        int helpX = 250;
-        JLabel lblHelpIcon = new JLabel(new ImageIcon("/GYMBADAO/src/icon/question-sign.png"));
-        lblHelpIcon.setBounds(helpX, yPosition, iconWidth, 30);
-        headerPanel.add(lblHelpIcon);
+    // Khoảng cách dịch sang phải
+    int offsetX = 60; // Thay đổi giá trị này để dịch sang phải
 
-        JLabel lblHelpText = new JLabel("Trợ giúp");
-        lblHelpText.setBounds(helpX + iconWidth + 5, yPosition, textWidth, 30);
-        lblHelpText.setFont(new Font("Arial", Font.PLAIN, 14));
-        headerPanel.add(lblHelpText);
+    // Trợ giúp
+    int helpX = 400 + offsetX; // Dịch sang phải
+    JLabel lblHelpIcon = new JLabel(new ImageIcon("/GYMBADAO/src/icon/question-sign.png"));
+    lblHelpIcon.setBounds(helpX, yPosition, iconWidth, 30);
+    headerPanel.add(lblHelpIcon);
 
-        // Góp ý
-        int feedbackX = helpX + iconWidth + textWidth + spacing;
-        JLabel lblFeedbackIcon = new JLabel(new ImageIcon("/GYMBADAO/src/icon/heart.png"));
-        lblFeedbackIcon.setBounds(feedbackX, yPosition, iconWidth, 30);
-        headerPanel.add(lblFeedbackIcon);
+    JLabel lblHelpText = new JLabel("Trợ giúp");
+    lblHelpText.setBounds(helpX + iconWidth + 5, yPosition, textWidth, 30);
+    lblHelpText.setFont(new Font("Arial", Font.PLAIN, 14));
+    headerPanel.add(lblHelpText);
 
-        JLabel lblFeedbackText = new JLabel("Góp ý");
-        lblFeedbackText.setBounds(feedbackX + iconWidth + 5, yPosition, textWidth, 30);
-        lblFeedbackText.setFont(new Font("Arial", Font.PLAIN, 14));
-        headerPanel.add(lblFeedbackText);
-    }
+    // Góp ý
+    int feedbackX = helpX + iconWidth + textWidth + spacing; // Dịch sang phải
+    JLabel lblFeedbackIcon = new JLabel(new ImageIcon("/GYMBADAO/src/icon/heart.png"));
+    lblFeedbackIcon.setBounds(feedbackX, yPosition, iconWidth, 30);
+    headerPanel.add(lblFeedbackIcon);
+
+    JLabel lblFeedbackText = new JLabel("Góp ý");
+    lblFeedbackText.setBounds(feedbackX + iconWidth + 5, yPosition, textWidth, 30);
+    lblFeedbackText.setFont(new Font("Arial", Font.PLAIN, 14));
+    headerPanel.add(lblFeedbackText);
+}
 
     private JPanel createMainPanel() {
         JPanel mainPanel = new JPanel(new BorderLayout());
